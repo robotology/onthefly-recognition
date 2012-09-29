@@ -1,0 +1,95 @@
+
+<application>
+<name>On The Fly Recognition</name>
+
+        <dependencies>
+                <port>/icub/camcalib/left/out</port>
+        </dependencies>
+
+        <module>
+                <name>motionCUT</name>
+                <parameters>--recogThres 0.6</parameters>
+                <node>icub-b11</node>
+                <tag>motionDetector</tag>
+        </module>
+		
+        <module>
+                <name>linearClassifier</name>
+                <node>sean</node>
+                <tag>learningModule</tag>
+        </module>
+		
+        <module>
+                <name>sparseCoder</name>
+                <node>icub-cuda</node>
+                <tag>featureExtractionModule</tag>
+        </module>
+		
+        <module>
+                <name>actionsRenderingEngine</name>
+                <node>pwrNode4</node>
+                <tag>icub-b11</tag>
+        </module>
+
+        <module>
+                <name>yarpview</name>
+                <parameters>--name /classViewer</parameters>
+                <node>console</node>
+                <tag>classificationViewer</tag>
+        </module>
+		
+        <module>
+                <name>onTheFlyRecognition</name>               
+                <node>console</node>
+                <tag>visualizationModule</tag>
+        </module>
+
+
+        <connection>
+                <from>/motionCUT/crop:o</from>
+                <to>/sparseCoder/img:i</to>
+                <protocol>tcp</protocol>
+        </connection> 
+        <connection>
+                <from>/icub/camcalib/left/out</from>
+                <to>/showOnTheFly/img:i</to>
+                <protocol>tcp</protocol>
+        </connection>   
+        <connection>
+                <from>/icub/camcalib/left/out</from>
+                <to>/motionCUT/img:i</to>
+                <protocol>tcp</protocol>
+        </connection>   		
+		
+        <connection>
+                <from>/showOnTheFly/img:o</from>
+                <to>/classViewer</to>
+                <protocol>tcp</protocol>
+        </connection> 
+		<connection>
+                <from>/sparseCoder/code:o</from>
+                <to>/linearClassifier/features:i</to>
+                <protocol>tcp</protocol>
+        </connection> 
+		
+        <connection>
+                <from>/icub/camcalib/left/out</from>
+                <to>/motionCUT/img:i</to>
+                <protocol>tcp</protocol>
+        </connection>
+		
+        <connection>
+                <from>/motionCUT/blobs:o</from>
+                <to>/showOnTheFly/blobs:i</to>
+                <protocol>tcp</protocol>
+        </connection>
+		
+        <connection>
+                <from>/linearClassifier/classification:o</from>
+                <to>/showOnTheFly/label:i</to>
+                <protocol>tcp</protocol>
+        </connection>
+        
+</application>
+
+
