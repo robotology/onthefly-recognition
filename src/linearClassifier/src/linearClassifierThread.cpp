@@ -53,7 +53,7 @@ void linearClassifierThread::checkKnownObjects()
         string svmPath=objPath+"/svmmodel";
         if(!yarp::os::stat(svmPath.c_str()))
         {
-            SVMClassifier model(files[i]);
+            SVMLinear model(files[i]);
             //model.loadModel(svmPath.c_str());
             //linearClassifiers.push_back(model);
         }
@@ -289,7 +289,7 @@ bool linearClassifierThread::loadFeatures()
     Features.clear();
     Features.resize(knownObjects.size());
     datasetSizes.clear();
-    SVMClassifier svmmodel(knownObjects[0].first);
+    SVMLinear svmmodel(knownObjects[0].first);
 
     for (int i=0; i<knownObjects.size(); i++)
     {
@@ -329,10 +329,7 @@ bool linearClassifierThread::trainClassifiers()
     for (int i=0; i<knownObjects.size(); i++)
     {
         string name=knownObjects[i].first;
-        SVMClassifier svmmodel(name);
-        parameter param;
-        param=svmmodel.initialiseParam();
-
+        SVMLinear svmmodel(name);
         vector<vector<double>> orderedF;
         vector<double> orderedLabels;
         for (int k=0; k<knownObjects.size(); k++)
@@ -355,7 +352,7 @@ bool linearClassifierThread::trainClassifiers()
                 }
         }
 
-        svmmodel.trainModel(orderedF,orderedLabels,param);
+        svmmodel.trainModel(orderedF,orderedLabels,svmmodel.initialiseParam());
 
         linearClassifiers.push_back(svmmodel);
         /*for (int k=0; k<Features[0][0].size(); k++)
