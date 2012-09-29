@@ -8,7 +8,8 @@
 #include <yarp/os/Thread.h>
 #include <iCub/ctrl/math.h>
 #include <yarp/os/Os.h>
-#include "SVMClassifier.h"
+#include "SVMLinear.h"
+#include "SVMNonLin.h"
 #include <yarp/os/Semaphore.h>
 #include "dirent.h"
 
@@ -38,7 +39,7 @@ private:
         fstream objFeatures;
 
         vector<pair<string,vector<string>>> knownObjects;
-        vector<SVMClassifier> linearClassifiers;
+        vector<SVMLinear> linearClassifiers;
         vector<int> datasetSizes;
         vector<vector<vector<double>>> Features;
         vector<vector<double>> bufferScores;

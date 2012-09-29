@@ -7,7 +7,7 @@
 
 using namespace std;
 
-class  SVMClassifier
+class  SVMLinear
 {
     private:
         
@@ -16,7 +16,7 @@ class  SVMClassifier
 
     public:
         struct model* modelLinearSVM;
-        SVMClassifier(string className);
+        SVMLinear(string className);
 
         void trainModel(std::vector<std::vector<double>> &features, vector<double> &labels, parameter &param, int bias=1);
         double predictModel(vector<double> features);
