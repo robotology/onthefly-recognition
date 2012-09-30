@@ -248,7 +248,7 @@ void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig
 {
     double eps=1e-7;
     //double eps=1e-2;
-    Vector b=(-1)*dictionary.transposed()*feature;
+    Vector b=(-1)*feature*dictionary;
     descriptor.resize(dictionarySize,0.0);
     Vector &grad=b;
 
