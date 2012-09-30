@@ -21,7 +21,7 @@ linearClassifierThread::linearClassifierThread(yarp::os::ResourceFinder &rf, Por
         this->outputPortName += moduleName;
         this->outputPortName += rf.check("OutputPortClassification",Value("/classification:o"),"Input image port (string)").asString().c_str();
         
-        this->bufferSize = rf.check("BufferSize",Value(10),"Buffer Size").asInt();
+        this->bufferSize = rf.check("BufferSize",Value(5),"Buffer Size").asInt();
 
 
 }
@@ -207,6 +207,7 @@ void linearClassifierThread::prepareObjPath(string objName)
     if(currentState!=STATE_DONOTHING)
     {   
         cout << "Stop the current activity first!" << endl;
+        mutex->post();
         return;
     }
     pathObj=currPath+"/"+objName;
