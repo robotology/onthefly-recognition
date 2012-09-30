@@ -21,10 +21,9 @@ linearClassifierThread::linearClassifierThread(yarp::os::ResourceFinder &rf, Por
         this->outputPortName += moduleName;
         this->outputPortName += rf.check("OutputPortClassification",Value("/classification:o"),"Input image port (string)").asString().c_str();
         
-        this->bufferSize = rf.check("BufferSize",Value(5),"Buffer Size").asInt();
+        this->bufferSize = rf.check("BufferSize",Value(10),"Buffer Size").asInt();
 
 
-        trainClassifiers();
 }
 
 
@@ -90,6 +89,8 @@ bool linearClassifierThread::threadInit()
         cout  << ": unable to open port " << outputPortName << endl;
         return false; 
     }
+
+    trainClassifiers();
 
 
     return true;
@@ -181,6 +182,9 @@ void linearClassifierThread::run(){
 
 void linearClassifierThread::threadRelease() 
 {
+    if(linearClassifiers.size()>0)
+        for (int i=0; i<linearClassifiers.size(); i++)
+            linearClassifiers[i].freeModel();
 
     this->commandPort->close();
     this->featuresPort.close();
@@ -314,6 +318,10 @@ bool linearClassifierThread::loadFeatures()
 bool linearClassifierThread::trainClassifiers()
 {
     stopAll();
+
+    if(linearClassifiers.size()>0)
+        for (int i=0; i<linearClassifiers.size(); i++)
+            linearClassifiers[i].freeModel();
 
     cout << "load features" << endl;
     loadFeatures();

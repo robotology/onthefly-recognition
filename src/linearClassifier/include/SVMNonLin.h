@@ -26,5 +26,6 @@ class SVMNonLin
         void saveModel(string pathFile);
         void loadModel(string pathFile);
         vector<vector<double>> readFeatures(string filePath);
+        void freeModel();
 
 };

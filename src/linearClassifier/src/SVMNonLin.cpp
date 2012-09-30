@@ -54,13 +54,17 @@ void SVMNonLin::trainModel(std::vector<std::vector<double>> &features, vector<do
     modelSVM=svm_train(&SVMProblem, &param);
 
     
-    free(SVMProblem.y);
+    /*free(SVMProblem.y);
     for (int i=0; i<SVMProblem.l; i++)
         free(SVMProblem.x[i]);
-    free(SVMProblem.x);
+    free(SVMProblem.x);*/
 
 }
 
+void SVMNonLin::freeModel()
+{
+    svm_free_and_destroy_model(&modelSVM);
+}
 
 void SVMNonLin::saveModel(string pathFile)
 {

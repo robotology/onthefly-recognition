@@ -216,7 +216,6 @@ void DictionaryLearning::maxPooling(std::vector<yarp::sig::Vector> & features, y
      {
          Vector &current=features[i];
          Vector currentCode;
-         
          computeCode(current,currentCode);
          allCodes[i]=currentCode;
      }
@@ -235,11 +234,15 @@ void DictionaryLearning::maxPooling(std::vector<yarp::sig::Vector> & features, y
              if(val>maxVal)
                  maxVal=val;
          }
-         code[i]=maxVal;     
+         code[i]=maxVal;
      }
      
         
      code=code/yarp::math::norm(code); 
+     /*for (int i=0; i<code.size(); i++)
+         cout << code[i] << " " ;
+        cout << endl;*/
+
      time=Time::now()-time;
      fprintf(stdout, "%f \n",time);
 }
@@ -247,15 +250,13 @@ void DictionaryLearning::maxPooling(std::vector<yarp::sig::Vector> & features, y
 void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig::Vector& descriptor)
 {
     double eps=1e-7;
-    //double eps=1e-2;
     Vector b=(-1)*feature*dictionary;
-    descriptor.resize(dictionarySize,0.0);
-    Vector &grad=b;
 
+    Vector grad=b;
+    descriptor.resize(dictionarySize,0.0);
     double maxValue; int index=-1;
     max(grad,maxValue,index);
 
-    double desSize=descriptor.size();
     while(true)
     {
         if (grad[index]>lamda+eps)
@@ -265,7 +266,7 @@ void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig
         else
         {
             double sum=0.0;
-            for (int j=0; j<desSize; j++)
+            for (int j=0; j<descriptor.size(); j++)
                 sum+=descriptor[j];
             if (sum==0.0)
                 break;
@@ -279,7 +280,7 @@ void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig
             Vector a;
             Vector signes;
 
-            for (int i=0; i<desSize; i++)
+            for (int i=0; i<descriptor.size(); i++)
             {
                 if (descriptor[i]!=0.0)
                 {
@@ -303,8 +304,7 @@ void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig
             Vector xnewidx;
 
             double sum=0.0;
-            int xNewSize=xnew.size();
-            for (int i=0; i<xNewSize; i++)
+            for (int i=0; i<xnew.size(); i++)
             {
                 if (xnew[i]!=0.0)
                 {
@@ -319,9 +319,7 @@ void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig
 
             Vector s;
             bool changeSign=false;
-            int sizeXa=xa.size();
-            
-            for (int i=0; i<sizeXa; i++)
+            for (int i=0; i<xa.size(); i++)
             {
                 if (xa[i]*xnew[i]<=0)
                 {
@@ -332,8 +330,7 @@ void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig
 
             if (!changeSign)
             {
-                int sizeA=a.size();
-                for (int i=0; i<sizeA; i++)
+                for (int i=0; i<a.size(); i++)
                     descriptor[a[i]]=xnew[i];
                 break;
             }
@@ -343,10 +340,8 @@ void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig
 
             Vector d=xnew-xa;
             Vector t=d/xa;
-            
-            int sizeS=s.size();
 
-            for (int i=0; i<sizeS; i++)
+            for (int i=0; i<s.size(); i++)
             {
                 Vector x_s=xa-d/t[s[i]];
                 x_s[s[i]]=0.0;
@@ -355,9 +350,7 @@ void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig
                 Vector baidx;
                 Vector idx;
                 sum=0.0;
-                
-                int sizexS=x_s.size();
-                for (int j=0; j<sizexS; j++)
+                for (int j=0; j<x_s.size(); j++)
                 {
                     if (x_s[j]!=0)
                     {
@@ -379,16 +372,15 @@ void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig
                     omin=o_s;
                 }
             }
-            
-            int sizeA=a.size();
-            for (int i=0; i<sizeA; i++)
+
+            for (int i=0; i<a.size(); i++)
                 descriptor[a[i]]=xmin[i];
         }
         grad=A*descriptor+b;
 
         Vector tmp;
 
-        for (int i=0; i<desSize; i++)
+        for (int i=0; i<descriptor.size(); i++)
         {
             if (descriptor[i]==0.0)
                 tmp.push_back(grad[i]);
