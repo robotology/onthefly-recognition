@@ -21,7 +21,7 @@ linearClassifierThread::linearClassifierThread(yarp::os::ResourceFinder &rf, Por
         this->outputPortName += moduleName;
         this->outputPortName += rf.check("OutputPortClassification",Value("/classification:o"),"Input image port (string)").asString().c_str();
         
-        this->bufferSize = rf.check("BufferSize",Value(5),"Buffer Size").asInt();
+        this->bufferSize = rf.check("BufferSize",Value(15),"Buffer Size").asInt();
 
 
 }
@@ -132,22 +132,38 @@ void linearClassifierThread::run(){
         if(currentState==STATE_RECOGNIZING)
         {
             //cout << "ISTANT SCORES: ";
+            double maxVal=-1000;
+            double idWin=-1;
             for(int i =0; i<linearClassifiers.size(); i++)
             {
                 double value=linearClassifiers[i].predictModel(feature);
+                if(value>maxVal)
+                {
+                    maxVal=value;
+                    idWin=i;
+                }
                 bufferScores[current%bufferSize][i]=value;
+                countBuffer[current%bufferSize][i]=0;
                 //cout << knownObjects[i].first << " " << value << " ";
             }
+            countBuffer[current%bufferSize][idWin]=1;
 
 
             vector<double> avgScores(linearClassifiers.size(),0.0);
+            vector<double> bufferVotes(linearClassifiers.size(),0.0);
+            
 
             for(int i =0; i<bufferSize; i++)
                 for(int k =0; k<linearClassifiers.size(); k++)
+                {
                     avgScores[k]=avgScores[k]+bufferScores[i][k];
+                    bufferVotes[k]=bufferVotes[k]+countBuffer[i][k];
+                }
 
             double maxValue=-100;
+            double maxVote=0;
             int indexClass=-1;
+            int indexMaxVote=-1;
             cout << "BUFFER SCORES: ";
             for(int i =0; i<linearClassifiers.size(); i++)
             {
@@ -157,13 +173,22 @@ void linearClassifierThread::run(){
                     maxValue=avgScores[i];
                     indexClass=i;
                 }
-                cout  << knownObjects[i].first << " " << avgScores[i] << " ";
+                if(bufferVotes[i]>maxVote)
+                {
+                    maxVote=bufferVotes[i];
+                    indexMaxVote=i;
+                }
+                cout  << knownObjects[i].first << " S: " << avgScores[i] << " V: " << bufferVotes[i] << " " ;
             }
 
             string winnerClass=knownObjects[indexClass].first;
+            string winnerVote=knownObjects[indexMaxVote].first;
             current++;
-            cout << "WINNER: " << winnerClass << endl;
+            cout << "WINNER: " << winnerClass  << " WINNER VOTE: " << winnerVote << endl;
             
+            if(bufferVotes[indexMaxVote]/bufferSize<0.75)
+                winnerClass="?";
+
             if(outputPort.getOutputCount()>0)
             {
                 Bottle &b=outputPort.prepare();
@@ -390,9 +415,13 @@ bool linearClassifierThread::startRecognition()
     mutex->wait();
     currentState=STATE_RECOGNIZING;
 
+    this->countBuffer.resize(bufferSize);
     this->bufferScores.resize(bufferSize);
     for (int i=0; i<bufferSize; i++)
+    {
         bufferScores[i].resize(linearClassifiers.size());
+        countBuffer[i].resize(linearClassifiers.size());
+    }
     mutex->post();
     return true;
 }

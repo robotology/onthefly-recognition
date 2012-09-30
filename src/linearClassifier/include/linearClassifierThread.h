@@ -38,11 +38,12 @@ private:
         Semaphore * mutex;
         fstream objFeatures;
 
-        vector<pair<string,vector<string>>> knownObjects;
+        vector<pair<string,vector<string> > > knownObjects;
         vector<SVMLinear> linearClassifiers;
         vector<int> datasetSizes;
-        vector<vector<vector<double>>> Features;
-        vector<vector<double>> bufferScores;
+        vector<vector<vector<double> > > Features;
+        vector<vector<double > > bufferScores;
+        vector<vector<int > > countBuffer;
         int bufferSize;
 
         int currentState;
