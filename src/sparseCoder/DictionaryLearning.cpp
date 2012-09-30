@@ -376,7 +376,10 @@ void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig
             for (int i=0; i<a.size(); i++)
                 descriptor[a[i]]=xmin[i];
         }
-        grad=A*descriptor+b;
+        //grad=A*descriptor+b;
+        grad=descriptor;
+        grad*=A;
+        grad+=b;
 
         Vector tmp;
 
