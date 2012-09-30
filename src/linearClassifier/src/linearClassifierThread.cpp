@@ -130,12 +130,12 @@ void linearClassifierThread::run(){
 
         if(currentState==STATE_RECOGNIZING)
         {
-            cout << "ISTANT SCORES: ";
+            //cout << "ISTANT SCORES: ";
             for(int i =0; i<linearClassifiers.size(); i++)
             {
                 double value=linearClassifiers[i].predictModel(feature);
                 bufferScores[current%bufferSize][i]=value;
-                cout << knownObjects[i].first << " " << value << " ";
+                //cout << knownObjects[i].first << " " << value << " ";
             }
 
 
@@ -161,7 +161,7 @@ void linearClassifierThread::run(){
 
             string winnerClass=knownObjects[indexClass].first;
             current++;
-            cout << " " << winnerClass << endl;
+            cout << "WINNER: " << winnerClass << endl;
             
             if(outputPort.getOutputCount()>0)
             {

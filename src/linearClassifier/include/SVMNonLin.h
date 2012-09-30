@@ -22,7 +22,7 @@ class SVMNonLin
 
         void trainModel(std::vector<std::vector<double>> &features, vector<double> &labels, svm_parameter &param);
         double predictModel(vector<double> features);
-        svm_parameter initialiseParam(int solverTYPE=C_SVC, double C=1.0, double eps=0.1, int kernelType=RBF, double gamma=0.1);
+        svm_parameter initialiseParam(int solverTYPE=C_SVC, double C=1.0, double eps=0.1, int kernelType=RBF, double gamma=3.0);
         void saveModel(string pathFile);
         void loadModel(string pathFile);
         vector<vector<double>> readFeatures(string filePath);
