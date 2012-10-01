@@ -20,7 +20,11 @@ linearClassifierThread::linearClassifierThread(yarp::os::ResourceFinder &rf, Por
         this->outputPortName = "/";
         this->outputPortName += moduleName;
         this->outputPortName += rf.check("OutputPortClassification",Value("/classification:o"),"Input image port (string)").asString().c_str();
-        
+
+        this->outputScorePortName = "/";
+        this->outputScorePortName += moduleName;
+        this->outputScorePortName += rf.check("OutputPortScores",Value("/scores:o"),"Input image port (string)").asString().c_str();
+
         this->bufferSize = rf.check("BufferSize",Value(15),"Buffer Size").asInt();
 
 
@@ -85,8 +89,13 @@ bool linearClassifierThread::threadInit()
         return false; 
     }
 
-     if (!outputPort.open(outputPortName.c_str())) {
+    if (!outputPort.open(outputPortName.c_str())) {
         cout  << ": unable to open port " << outputPortName << endl;
+        return false; 
+    }
+
+    if (!scorePort.open(outputScorePortName.c_str())) {
+        cout  << ": unable to open port " << outputScorePortName << endl;
         return false; 
     }
 
@@ -183,7 +192,6 @@ void linearClassifierThread::run(){
 
             string winnerClass=knownObjects[indexClass].first;
             string winnerVote=knownObjects[indexMaxVote].first;
-            current++;
             cout << "WINNER: " << winnerClass  << " WINNER VOTE: " << winnerVote << endl;
             
             if(bufferVotes[indexMaxVote]/bufferSize<0.75)
@@ -196,6 +204,19 @@ void linearClassifierThread::run(){
                 b.addString(winnerClass.c_str());
                 outputPort.write();
             }
+
+            if(scorePort.getOutputCount()>0)
+            {
+                Bottle b;
+                for(int i =0; i<linearClassifiers.size(); i++)
+                {
+                    b.addDouble(bufferScores[current%bufferSize][i]);
+                }
+                scorePort.write(b);
+            }
+
+            current++;
+
 
         }
 
@@ -214,6 +235,7 @@ void linearClassifierThread::threadRelease()
     this->commandPort->close();
     this->featuresPort.close();
     this->outputPort.close();
+    this->scorePort.close();
     delete mutex;
 
 }
@@ -221,6 +243,7 @@ void linearClassifierThread::onStop() {
     this->commandPort->interrupt();
     this->featuresPort.interrupt();
     this->outputPort.interrupt();
+    this->scorePort.interrupt();
 }
 
 

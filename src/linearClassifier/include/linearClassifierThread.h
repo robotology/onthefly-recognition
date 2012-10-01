@@ -29,12 +29,14 @@ class linearClassifierThread : public Thread
 private:
         string inputFeatures;
         string outputPortName;
+        string outputScorePortName;
 
         string currPath;
         string pathObj;
         Port *commandPort;
         BufferedPort<Bottle> featuresPort;
         BufferedPort<Bottle> outputPort;
+        Port scorePort;
         Semaphore * mutex;
         fstream objFeatures;
 

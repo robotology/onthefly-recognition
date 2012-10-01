@@ -56,7 +56,7 @@ bool linearClassifierModule::respond(const Bottle& command, Bottle& reply)
 {
     if(command.size()==0)
     {
-        reply.addString("NACK");
+        reply.addString("nack");
         return true;
     }
 
@@ -64,7 +64,7 @@ bool linearClassifierModule::respond(const Bottle& command, Bottle& reply)
     {
         string obj=command.get(1).asString();
         this->lCThread->prepareObjPath(obj);
-        reply.addString("ACK");
+        reply.addString("ack");
         return true;
 
     }
@@ -73,7 +73,7 @@ bool linearClassifierModule::respond(const Bottle& command, Bottle& reply)
     {
     
         this->lCThread->stopAll();
-        reply.addString("ACK");
+        reply.addString("ack");
         return true;
 
     } 
@@ -82,7 +82,7 @@ bool linearClassifierModule::respond(const Bottle& command, Bottle& reply)
     {
     
         this->lCThread->trainClassifiers();
-        reply.addString("ACK");
+        reply.addString("ack");
         return true;
     }
 
@@ -90,12 +90,12 @@ bool linearClassifierModule::respond(const Bottle& command, Bottle& reply)
     {
     
         this->lCThread->startRecognition();
-        reply.addString("ACK");
+        reply.addString("ack");
         return true;
     }
 
 
-    reply.addString("NACK");
+    reply.addString("nack");
     return true;
 }
 

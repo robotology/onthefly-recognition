@@ -51,6 +51,9 @@ using namespace yarp::math;
 
 
 
+#define                 ACK                 VOCAB3('a','c','k')
+#define                 NACK                VOCAB4('n','a','c','k')
+
 #define                 STATE_IDLE          0
 #define                 STATE_TRAINING      1
 #define                 STATE_CLASSIFY      2
@@ -58,6 +61,7 @@ using namespace yarp::math;
 #define                 MODE_ROBOT          0
 #define                 MODE_HUMAN          1
 
+#define                 CMD_IDLE            VOCAB4('i','d','l','e')
 #define                 CMD_TRAIN           VOCAB4('t','r','a','i')
 #define                 CMD_CLASSIFY        VOCAB4('c','l','a','s')
 #define                 CMD_ROBOT           VOCAB4('r','o','b','o')
@@ -69,6 +73,7 @@ class TransformerThread: public RateThread
 {
 private:
     ResourceFinder                      &rf;
+    Semaphore                           mutex;
     bool                                verbose;
 
     //input
@@ -130,9 +135,13 @@ public:
 
     virtual void run()
     {
+        mutex.wait();
         Image *img=port_in_img.read(false);
         if(img==NULL)
+        {
+            mutex.post();
             return;
+        }
 
         Stamp stamp;
         port_in_img.getEnvelope(stamp);
@@ -179,12 +188,20 @@ public:
 
         if(port_out_show.getOutputCount()>0)
             port_out_show.write(*img);
+
+        mutex.post();
     }
 
 
     bool set_current_class(string _current_class)
     {
         current_class=_current_class;
+        return true;
+    }
+
+    bool get_current_class(string &_current_class)
+    {
+        _current_class=current_class;
         return true;
     }
 
@@ -200,18 +217,22 @@ public:
 
     virtual void interrupt()
     {
+        mutex.wait();
         port_in_img.interrupt();
         port_in_blobs.interrupt();
         port_out_show.interrupt();
         port_out_crop.interrupt();
+        mutex.post();
     }
 
     virtual bool releaseThread()
     {
+        mutex.wait();
         port_in_img.close();
         port_in_blobs.close();
         port_out_show.close();
         port_out_crop.close();
+        mutex.post();
 
         return true;
     }
@@ -313,6 +334,9 @@ private:
     RpcClient                           port_rpc_human;
     RpcClient                           port_rpc_classifier;
 
+    //output
+    Port                                port_out_speech;
+
     list<Bottle>                        scores_buffer;
 
     double                              observe_human_time_training;
@@ -325,25 +349,40 @@ private:
 
 private:
 
+    bool speak(string speech)
+    {
+        if(port_out_speech.getOutputCount()>0)
+        {
+            Bottle b;
+            b.addString(speech.c_str());
+            port_out_speech.write(b);
+            return true;
+        }
+        return false;
+
+    }
     bool observe_robot()
     {
         //check if the robot is already holding an object
         Bottle command,reply;
-        command.addString("holding");
+        command.addString("get");
+        command.addString("hold");
         port_rpc_are_get.write(command,reply);
 
         if(reply.size()==0)
             return false;
 
         //if the robot is not holding an object then ask the human to give one
-        if(reply.get(0).asString()!="true")
+        if(reply.get(0).asVocab()!=ACK)
         {
             reply.clear();
             command.clear();
-            command.addString("beg");
+            command.addString("expect");
+            command.addString("near");
+            command.addString("no_sacc");
             port_rpc_are_cmd.write(command,reply);
 
-            if(reply.size()==0 || reply.get(0).asString()!="ack")
+            if(reply.size()==0 || reply.get(0).asVocab()!=ACK)
                 return false;
         }
 
@@ -355,6 +394,7 @@ private:
         command.clear();
         command.addString("explore");
         command.addString("hand");
+        command.addString("no_sacc");
         port_rpc_are_cmd.write(command,reply);
 
         //interrupt the storer
@@ -378,6 +418,7 @@ private:
 
     bool observe()
     {
+        speak("Let me see.");
         bool ok;
         switch(mode)
         {
@@ -403,11 +444,12 @@ private:
     {
         //just drop the object
         Bottle command,reply;
-        command.addString("drop");
+        command.addString("give");
         port_rpc_are_cmd.write(command,reply);
 
-        //wait for new commands
-        state=STATE_IDLE;
+        command.clear();
+        command.addString("home");
+        port_rpc_are_cmd.write(command,reply);
 
         return true;
     }
@@ -441,6 +483,8 @@ private:
         thr_transformer->interruptCoding();
         port_in_scores.reset_scores();
         scores_buffer.clear();
+
+        state=STATE_IDLE;
 
         return ok;
     }
@@ -487,6 +531,7 @@ private:
 
         for(int class_idx=0; class_idx<n_classes; class_idx++)
         {
+            class_avg[class_idx]=class_avg[class_idx]/n_classes;
             if(class_avg[class_idx]>max_avg)
             {
                 max_avg=class_avg[class_idx];
@@ -505,6 +550,17 @@ private:
             label="?";
 
         thr_transformer->set_current_class(label);
+        
+         cout << "Score: ";
+        for (int i=0; i<n_classes; i++)
+            cout << known_objects[i] << ": " << class_avg[i] << " "<< class_votes[i];
+        cout << endl;
+        scores_buffer.clear();
+
+        if(label!="?")
+            speak("I think this is a "+label);
+        else
+            speak("I am not sure, let me check it again.");
 
         return label!="?";
     }
@@ -539,10 +595,15 @@ private:
             cmd_classifier.addString("train");
             port_rpc_classifier.write(cmd_classifier,reply_classifier);
 
-            if(reply_classifier.size()>0 && reply_classifier.get(0)=="ack")
+            if(reply_classifier.size()>0 && reply_classifier.get(0).asVocab()==ACK)
                 done=true;
         }
 
+        string current_class;
+        thr_transformer->get_current_class(current_class);
+        speak("Ok, now I know the "+current_class);
+
+        state=STATE_IDLE;
         return done;
     }
 
@@ -560,7 +621,7 @@ public:
         string name=rf.find("name").asString().c_str();
 
         observe_human_time_training=rf.check("observe_human_time_training",Value(10.0)).asDouble();
-        observe_human_time_classify=rf.check("observe_human_time_classify",Value(2.0)).asDouble();
+        observe_human_time_classify=rf.check("observe_human_time_classify",Value(5.0)).asDouble();
 
         thr_transformer=new TransformerThread(rf);
         thr_transformer->start();
@@ -569,12 +630,16 @@ public:
         //-----------------------------------------------------------
         //input
         port_in_scores.open(("/"+name+"/scores:i").c_str());
+        port_in_scores.useCallback();
 
         //rpc
         port_rpc_are.open(("/"+name+"/are/rpc").c_str());
         port_rpc_are_get.open(("/"+name+"/are/get:io").c_str());
         port_rpc_are_cmd.open(("/"+name+"/are/cmd:io").c_str());
         port_rpc_classifier.open(("/"+name+"/classifier:io").c_str());
+
+        //speech
+        port_out_speech.open(("/"+name+"/speech:o").c_str());
         //------------------------------------------------------------
 
         thr_transformer->interruptCoding();
@@ -615,6 +680,15 @@ public:
     {
         switch(command.get(0).asVocab())
         {
+            case CMD_IDLE:
+            {
+                mutex.wait();
+                state=STATE_IDLE;
+                thr_transformer->set_current_class("?");
+                mutex.post();
+                break;
+            }
+
             case CMD_TRAIN:
             {
                 mutex.wait();
@@ -627,9 +701,8 @@ public:
                     cmd_classifier.addString(class_name.c_str());
                     port_rpc_classifier.write(cmd_classifier,reply_classifier);
 
-                    if(reply_classifier.size()>0 && reply_classifier.get(0)=="ack")
+                    if(reply_classifier.size()>0 && reply_classifier.get(0).asVocab()==ACK)
                     {
-                        mutex.wait();
                         thr_transformer->set_current_class(class_name);
                         state=STATE_TRAINING;
 
@@ -643,7 +716,6 @@ public:
                             known_objects.push_back(class_name);
                             sort(known_objects.begin(),known_objects.end());
                         }
-                        mutex.post();
 
                         reply.addString(("learning "+class_name).c_str());
                     }
@@ -665,7 +737,7 @@ public:
                 cmd_classifier.addString("recognize");
                 port_rpc_classifier.write(cmd_classifier,reply_classifer);
 
-                if(reply_classifer.size()>0 && reply_classifer.get(0)=="ack")
+                if(reply_classifer.size()>0 && reply_classifer.get(0).asVocab()==ACK)
                 {
                     thr_transformer->set_current_class("?");
                     state=STATE_CLASSIFY;
@@ -688,15 +760,18 @@ public:
                 cmd_are.addString("idle");
                 port_rpc_are_cmd.write(cmd_are,reply_are);
 
-                if(reply_are.size()>0 && reply_are.get(0).asString()=="ack")
+                if(reply_are.size()>0 && reply_are.get(0).asVocab()==ACK)
                 {
                     reply_are.clear();
                     cmd_are.clear();
                     cmd_are.addString("home");
                     port_rpc_are_cmd.write(cmd_are,reply_are);
 
-                    if(reply_are.size()>0 && reply_are.get(0).asString()=="ack")
+                    if(reply_are.size()>0 && reply_are.get(0).asVocab()==ACK)
+                    {
                         mode=MODE_ROBOT;
+                        reply.addString("ack");
+                    }
                     else
                         reply.addString("Error!");
                 }
@@ -715,16 +790,20 @@ public:
                 cmd_are.addString("idle");
                 port_rpc_are_cmd.write(cmd_are,reply_are);
 
-                if(reply_are.size()>0 && reply_are.get(0).asString()=="ack")
+                if(reply_are.size()>0 && reply_are.get(0).asVocab()==ACK)
                 {
                     reply_are.clear();
                     cmd_are.clear();
                     cmd_are.addString("track");
                     cmd_are.addString("motion");
+                    cmd_are.addString("no_sacc");
                     port_rpc_are_cmd.write(cmd_are,reply_are);
 
-                    if(reply_are.size()>0 && reply_are.get(0).asString()=="ack")
+                    if(reply_are.size()>0 && reply_are.get(0).asVocab()==ACK)
+                    {
                         mode=MODE_HUMAN;
+                        reply.addString("ack");
+                    }
                     else
                         reply.addString("Error!");
                 }
@@ -743,25 +822,29 @@ public:
 
     virtual void interrupt()
     {
+        mutex.wait();
         port_in_scores.interrupt();
         port_rpc_are.interrupt();
         port_rpc_are_cmd.interrupt();
         port_rpc_are_cmd.interrupt();
         port_rpc_classifier.interrupt();
-
+        port_out_speech.interrupt();
         thr_transformer->interrupt();
+        mutex.post();
     }
 
     virtual bool releaseThread()
     {
+        mutex.wait();
         port_in_scores.close();
         port_rpc_are.close();
         port_rpc_are_cmd.close();
         port_rpc_are_cmd.close();
         port_rpc_classifier.close();
-
+        port_out_speech.close();
         thr_transformer->stop();
         delete thr_transformer;
+        mutex.post();
 
         return true;
     }
@@ -798,20 +881,25 @@ public:
         port_rpc_human.open(("/"+name+"/human:io").c_str());
         port_rpc.open(("/"+name+"/rpc").c_str());
         attach(port_rpc);
+        return true;
+    }
 
+    
+
+    virtual bool interruptModule()
+    {
+        manager_thr->interrupt();
+        port_rpc_human.interrupt();
+        port_rpc.interrupt();
         return true;
     }
 
     virtual bool close()
     {
-        manager_thr->interrupt();
         manager_thr->stop();
         delete manager_thr;
 
-        port_rpc_human.interrupt();
         port_rpc_human.close();
-
-        port_rpc.interrupt();
         port_rpc.close();
 
         return true;
@@ -831,8 +919,10 @@ public:
         Bottle human_cmd,reply;
         port_rpc_human.read(human_cmd,true);
         if(human_cmd.size()>0)
+        {
             manager_thr->execHumanCmd(human_cmd,reply);
-        port_rpc_human.reply(reply);
+            port_rpc_human.reply(reply);
+        }
 
         return true;
     }
