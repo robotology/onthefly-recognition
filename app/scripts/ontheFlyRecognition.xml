@@ -6,89 +6,162 @@
                 <port>/icub/camcalib/left/out</port>
         </dependencies>
 
+        <!-- Modules -->
         <module>
                 <name>motionCUT</name>
                 <parameters>--recogThres 0.6</parameters>
-                <node>icub-b11</node>
+                <node>pwrNode1</node>
                 <tag>motionDetector</tag>
         </module>
 		
         <module>
                 <name>linearClassifier</name>
-                <node>sean</node>
-                <tag>learningModule</tag>
+                <node>pwrNode2</node>
+                <tag>classifier</tag>
+        </module>
+                
+        <module>
+                <name>actionsRenderingEngine</name>
+                <node>pwrNode3</node>
+                <tag>are</tag>
+        </module>
+
+        <module>
+                <name>onTheFlyRecognition</name>               
+                <node>pwrNode4</node>
+                <tag>manager</tag>
         </module>
 		
         <module>
                 <name>sparseCoder</name>
                 <node>icub-cuda</node>
-                <tag>featureExtractionModule</tag>
-        </module>
-		
-        <module>
-                <name>actionsRenderingEngine</name>
-                <node>pwrNode4</node>
-                <tag>icub-b11</tag>
+                <tag>image_coder</tag>
         </module>
 
         <module>
                 <name>yarpview</name>
-                <parameters>--name /classViewer</parameters>
+                <parameters>--name /onTheFlyRecognition/view</parameters>
                 <node>console</node>
-                <tag>classificationViewer</tag>
+                <tag>main_viewer</tag>
         </module>
-		
+
         <module>
-                <name>onTheFlyRecognition</name>               
+                <name>iSpeak</name>
                 <node>console</node>
-                <tag>visualizationModule</tag>
+                <tag>speaking_module</tag>
         </module>
 
+        <module>
+                <name>speechRecognizer</name>
+                <node>winnode1</node>
+                <tag>speech_recognition_module</tag>
+        </module>
+		
 
-        <connection>
-                <from>/motionCUT/crop:o</from>
-                <to>/sparseCoder/img:i</to>
-                <protocol>tcp</protocol>
-        </connection> 
-        <connection>
-                <from>/icub/camcalib/left/out</from>
-                <to>/showOnTheFly/img:i</to>
-                <protocol>tcp</protocol>
-        </connection>   
+
+        <!-- Connections -->
+
+        
+        <!-- motionCUT -->
         <connection>
                 <from>/icub/camcalib/left/out</from>
-                <to>/motionCUT/img:i</to>
-                <protocol>tcp</protocol>
-        </connection>   		
-		
-        <connection>
-                <from>/showOnTheFly/img:o</from>
-                <to>/classViewer</to>
-                <protocol>tcp</protocol>
+                <to>/motionCUT/left/img:i</to>
+                <protocol>mcast</protocol>
         </connection> 
-		<connection>
-                <from>/sparseCoder/code:o</from>
-                <to>/linearClassifier/features:i</to>
-                <protocol>tcp</protocol>
-        </connection> 
-		
-        <connection>
-                <from>/icub/camcalib/left/out</from>
-                <to>/motionCUT/img:i</to>
-                <protocol>tcp</protocol>
-        </connection>
-		
+
+
+        <!-- ActionsRenderingEngine -->
         <connection>
                 <from>/motionCUT/blobs:o</from>
-                <to>/showOnTheFly/blobs:i</to>
-                <protocol>tcp</protocol>
+                <to>/actionsRenderingEngine/left/blobs:i</to>
+                <protocol>udp</protocol>
         </connection>
-		
+
+
+        <!-- Coding -->
         <connection>
-                <from>/linearClassifier/classification:o</from>
-                <to>/showOnTheFly/label:i</to>
+                <from>/icub/camcalib/left/out</from>
+                <to>/onTheFlyRecognition/img:i</to>
+                <protocol>mcast</protocol>
+        </connection>
+
+        <connection>
+                <from>/motionCUT/left/blobs:o</from>
+                <to>/onTheFlyRecognition/blobs:i</to>
+                <protocol>mcast</protocol>
+        </connection>
+
+        <connection>
+                <from>/onTheFlyRecognition/crop:o</from>
+                <to>/sparseCoder/img:i</to>
+                <protocol>mcast</protocol>
+        </connection>
+
+        <connection>
+                <from>/sparseCoder/code:o</from>
+                <to>/linearClassifier/features:i</to>
+                <protocol>mcast</protocol>
+        </connection> 
+
+        <connection>
+                <from>/linearClassifier/scores:o</from>
+                <to>/onTheFlyRecognition/scores:i</to>
+                <protocol>mcast</protocol>
+        </connection> 
+
+
+        <!-- Manager -->
+        <connection>
+                <from>/onTheFlyRecognition/are/rpc</from>
+                <to>/actionsRenderingEngine/rpc</to>
                 <protocol>tcp</protocol>
         </connection>
+
+        <connection>
+                <from>/onTheFlyRecognition/are/get:io</from>
+                <to>/actionsRenderingEngine/get:io</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+                <from>/onTheFlyRecognition/are/cmd:io</from>
+                <to>/actionsRenderingEngine/cmd:io</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+                <from>/onTheFlyRecognition/classifier:io</from>
+                <to>/linearClassifier/???</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+
+
+        <!-- Speech -->
+        <connection>
+                <from>/speechRecognizer/recog/continuous:o</from>
+                <to>/onTheFlyRecognition/interrupt:i</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/speechRecognizer/tts/iSpeak:o</from>
+                <to>/iSpeak</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/iSpeak/emotions:o</from>
+                <to>/icub/face/emotions/in</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+
+        <!-- Visualization -->
+        <connection>
+                <from>/onTheFlyRecognition/show:o</from>
+                <to>/onTheFlyRecognition/view</to>
+                <protocol>mcast</protocol>
+        </connection>
+        
         
 </application>
 
