@@ -191,10 +191,10 @@ public:
         grid_step=rf.check("grid_step",Value(8)).asInt();
         grid_scale=rf.check("grid_scale",Value(1)).asInt();
 
-		string dictionary_path=rf.getContextPath().c_str();
+        string contextPath=rf.getContextPath().c_str();
         string dictionary_name=rf.check("dictionary_file",Value("dictionary_bow.ini")).asString().c_str();
-		
-		dictionary_path=dictionary_path+"/"+dictionary_name;
+
+        string dictionary_path=contextPath+"/"+dictionary_name;
         string dictionary_group=rf.check("dictionary_group",Value("DICTIONARY")).asString().c_str();
 
         no_code=rf.check("no_code");
@@ -203,7 +203,7 @@ public:
         if(dump_sift)
         {
             string sift_path=rf.check("dump_sift",Value("sift.txt")).asString().c_str();
-
+            sift_path=contextPath+"/"+sift_path;
             string sift_write_mode=rf.check("append")?"a":"w";
 
             fout_sift=fopen(sift_path.c_str(),sift_write_mode.c_str());
