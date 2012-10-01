@@ -8,7 +8,7 @@ SVMLinear::SVMLinear(string className) {
 
 }
 
-void SVMLinear::trainModel(std::vector<std::vector<double>> &features, vector<double> &labels, parameter &param,int bias) {
+void SVMLinear::trainModel(std::vector<std::vector<double> > &features, vector<double> &labels, parameter &param,int bias) {
 
 
     SVMProblem.bias=bias;
@@ -164,9 +164,9 @@ double SVMLinear::predictModel(vector<double> features)
 }
 
 
-vector<vector<double>> SVMLinear::readFeatures(string filePath)
+vector<vector<double> > SVMLinear::readFeatures(string filePath)
 {
-    vector<vector<double>> featuresMat;
+    vector<vector<double> > featuresMat;
 
     string line;
     ifstream infile;

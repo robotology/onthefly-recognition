@@ -11,7 +11,7 @@ SVMNonLin::~SVMNonLin()
 {
 }
 
-void SVMNonLin::trainModel(std::vector<std::vector<double>> &features, vector<double> &labels, svm_parameter &param) {
+void SVMNonLin::trainModel(std::vector<std::vector<double> > &features, vector<double> &labels, svm_parameter &param) {
 
 
     SVMProblem.l=features.size();
@@ -128,9 +128,9 @@ double SVMNonLin::predictModel(vector<double> features)
 }
 
 
-vector<vector<double>> SVMNonLin::readFeatures(string filePath)
+vector<vector<double> > SVMNonLin::readFeatures(string filePath)
 {
-    vector<vector<double>> featuresMat;
+    vector<vector<double> > featuresMat;
 
     string line;
     ifstream infile;

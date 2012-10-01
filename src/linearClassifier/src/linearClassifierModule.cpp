@@ -62,7 +62,7 @@ bool linearClassifierModule::respond(const Bottle& command, Bottle& reply)
 
     if(command.get(0).asString()=="save" && command.size()==2)
     {
-        string obj=command.get(1).asString();
+        string obj=command.get(1).asString().c_str();
         this->lCThread->prepareObjPath(obj);
         reply.addString("ack");
         return true;

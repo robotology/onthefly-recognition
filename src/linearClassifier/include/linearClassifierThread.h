@@ -11,8 +11,12 @@
 #include "SVMLinear.h"
 #include "SVMNonLin.h"
 #include <yarp/os/Semaphore.h>
-#include "dirent.h"
 
+#ifdef _WIN32
+	#include "win_dirent.h"
+#else
+	#include "dirent.h"
+#endif
 
 #define STATE_DONOTHING         0
 #define STATE_SAVING            1

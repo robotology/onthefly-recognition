@@ -74,7 +74,7 @@ void linearClassifierThread::checkKnownObjects()
             tmpFiles.push_back(tmp);
         }
 
-        pair<string, vector<string>> obj(files[i],tmpFiles);
+        pair<string, vector<string> > obj(files[i],tmpFiles);
         knownObjects.push_back(obj);
 
 
@@ -321,8 +321,8 @@ int linearClassifierThread::getdir(string dir, vector<string> &files)
     DIR *dp;
     struct dirent *dirp;
     if((dp  = opendir(dir.c_str())) == NULL) {
-        cout << "Error(" << errno << ") opening " << dir << endl;
-        return errno;
+        cout << "Error opening " << dir << endl;
+        return -1;
     }
 
     while ((dirp = readdir(dp)) != NULL) {
@@ -349,7 +349,7 @@ bool linearClassifierThread::loadFeatures()
         int cnt=0;
         for (int k=0; k< obj.size(); k++)
         {
-            vector<vector<double>> tmpF=svmmodel.readFeatures(obj[k]);
+            vector<vector<double> > tmpF=svmmodel.readFeatures(obj[k]);
             cnt=cnt+tmpF.size();
             for (int t =0; t<tmpF.size(); t++)
                 Features[i].push_back(tmpF[t]);
@@ -386,7 +386,7 @@ bool linearClassifierThread::trainClassifiers()
     {
         string name=knownObjects[i].first;
         SVMLinear svmmodel(name);
-        vector<vector<double>> orderedF;
+        vector<vector<double> > orderedF;
         vector<double> orderedLabels;
         for (int k=0; k<knownObjects.size(); k++)
         {
@@ -407,8 +407,9 @@ bool linearClassifierThread::trainClassifiers()
                     orderedLabels.push_back(-1.0);
                 }
         }
-
-        svmmodel.trainModel(orderedF,orderedLabels,svmmodel.initialiseParam());
+	
+	parameter param=svmmodel.initialiseParam();
+        svmmodel.trainModel(orderedF,orderedLabels,param);
 
         linearClassifiers.push_back(svmmodel);
         /*for (int k=0; k<Features[0][0].size(); k++)
