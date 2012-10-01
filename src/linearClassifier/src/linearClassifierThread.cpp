@@ -207,12 +207,15 @@ void linearClassifierThread::run(){
 
             if(scorePort.getOutputCount()>0)
             {
-                Bottle b;
+                Bottle allScores;
                 for(int i =0; i<linearClassifiers.size(); i++)
                 {
+                    Bottle &b=allScores.addList();
+                    b.addString(knownObjects[i].first.c_str());
                     b.addDouble(bufferScores[current%bufferSize][i]);
+                    
                 }
-                scorePort.write(b);
+                scorePort.write(allScores);
             }
 
             current++;
@@ -252,12 +255,7 @@ void linearClassifierThread::prepareObjPath(string objName)
 
     mutex->wait();
 
-    if(currentState!=STATE_DONOTHING)
-    {   
-        cout << "Stop the current activity first!" << endl;
-        mutex->post();
-        return;
-    }
+    stopAll();
     pathObj=currPath+"/"+objName;
 
     if(yarp::os::stat(pathObj.c_str()))

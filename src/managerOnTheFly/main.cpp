@@ -418,7 +418,24 @@ private:
 
     bool observe()
     {
-        speak("Let me see.");
+        switch(state)
+        {
+            case STATE_TRAINING:
+            {
+                string current_class;
+                thr_transformer->get_current_class(current_class);
+                speak("Ok, show me this phantomatic "+current_class);
+
+                break;
+            }
+
+            case STATE_CLASSIFY:
+            {
+                speak("Let me see.");
+                break;
+            }
+        }
+
         bool ok;
         switch(mode)
         {
@@ -493,7 +510,6 @@ private:
 
     bool classified()
     {
-        string label="?";
         //do the mumbo jumbo for classification
         //get the buffer from the score store
         port_in_scores.get_scores(scores_buffer);
@@ -512,7 +528,7 @@ private:
             int max_idx;
             for(int class_idx=0; class_idx<n_classes; class_idx++)
             {
-                double s=score_itr->get(class_idx).asDouble();
+                double s=score_itr->get(class_idx).asList()->get(1).asDouble();
                 class_avg[class_idx]+=s;
                 if(s>max_score)
                 {
@@ -545,7 +561,7 @@ private:
             }
         }
 
-        label=known_objects[max_avg_idx];
+        string label=scores_buffer.front().get(max_avg_idx).asList()->get(0).asString().c_str();
         if(max_votes/scores_buffer.size()<0.75)
             label="?";
 
