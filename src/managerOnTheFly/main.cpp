@@ -84,8 +84,12 @@ private:
     Port                                port_out_show;
     Port                                port_out_crop;
 
+    //rpc
+    RpcClient                           port_rpc_are_get_hand;
 
     int                                 radius_crop;
+    int                                 radius_crop_robot;
+    int                                 radius_crop_human;
 
     ImageOf<PixelBgr>                   img_crop;
 
@@ -93,6 +97,8 @@ private:
     string                              current_class;
 
     bool                                coding_interrupted;
+    int                                 mode;
+    int                                 state;
 
 
 
@@ -113,7 +119,9 @@ public:
 
         string name=rf.find("name").asString().c_str();
 
-        radius_crop=rf.check("radius_crop",Value(40)).asInt();
+        radius_crop_robot=rf.check("radius_crop_robot",Value(80)).asInt();
+        radius_crop_human=rf.check("radius_crop_human",Value(40)).asInt();
+        radius_crop=radius_crop_human;
 
         //Ports
         //-----------------------------------------------------------
@@ -124,6 +132,9 @@ public:
         //output
         port_out_show.open(("/"+name+"/show:o").c_str());
         port_out_crop.open(("/"+name+"/crop:o").c_str());
+        
+        //rpc
+        port_rpc_are_get_hand.open(("/"+name+"/are/hand:io").c_str());
         //------------------------------------------------------------
 
         current_class="?";
@@ -146,19 +157,50 @@ public:
         Stamp stamp;
         port_in_img.getEnvelope(stamp);
 
-        Bottle *blobs=port_in_blobs.read(false);
-        if(blobs!=NULL)
+        bool found=false;
+        int x,y;
+        if(mode==MODE_HUMAN)
         {
-            Bottle *window=blobs->get(0).asList();
-            if(window->get(2).asInt()>10)
+            Bottle *blobs=port_in_blobs.read(false);
+            if(blobs!=NULL)
             {
-                int x=window->get(0).asInt();
-                int y=window->get(1).asInt();
-
-                int radius=std::min(radius_crop,x);
-                radius=std::min(radius,y);
-                radius=std::min(radius,img->width()-x-1);
-                radius=std::min(radius,img->height()-y-1);
+                Bottle *window=blobs->get(0).asList();
+                x=window->get(0).asInt();
+                y=window->get(1).asInt();
+                radius_crop=radius_crop_human;
+                found=true;
+            }
+        }
+        
+        if(mode==MODE_ROBOT)
+        {
+            Bottle cmd_are_hand,reply_are_hand;
+            cmd_are_hand.addString("get");
+            cmd_are_hand.addString("hand");
+            cmd_are_hand.addString("image");
+            
+            port_rpc_are_get_hand.write(cmd_are_hand,reply_are_hand);
+            
+            if(reply_are_hand.size()>0 && reply_are_hand.get(0).asVocab()!=NACK)
+            {
+                x=reply_are_hand.get(0).asInt();
+                y=reply_are_hand.get(1).asInt();
+                radius_crop=radius_crop_robot;
+                
+                if(0<x && x<img->width() && 0<y && y<img->height())
+                    found=true;
+            }
+        }
+        
+        if(found)
+        {
+            int radius=std::min(radius_crop,x);
+            radius=std::min(radius,y);
+            radius=std::min(radius,img->width()-x-1);
+            radius=std::min(radius,img->height()-y-1);
+            
+            if(radius>10)
+            {
                 int radius2=radius<<1;
 
                 img_crop.resize(radius2,radius2);
@@ -180,9 +222,20 @@ public:
 
                 int y_text=y-radius-10;
                 if(y_text<5) y_text=y+radius+2;
+                
+                CvScalar text_color=cvScalar(0,0,255);
+                string text_string=current_class;
+                
+                if(state==STATE_TRAINING)
+                {
+                    text_color=cvScalar(255,0,0);
+                    text_string="train: "+current_class;
+                }
 
                 cvRectangle(img->getIplImage(),cvPoint(x-radius,y-radius),cvPoint(x+radius,y+radius),cvScalar(0,255,0),2);
-                cvPutText(img->getIplImage(),current_class.c_str(),cvPoint(x-radius,y_text),&font,cvScalar(0,0,255));
+                cvPutText(img->getIplImage(),text_string.c_str(),cvPoint(x-radius,y_text),&font,cvScalar(0,0,255));
+                
+                cvCircle(img->getIplImage(),cvPoint(x,y),3,cvScalar(255,0,0),3);
             }
         }
 
@@ -196,6 +249,24 @@ public:
     bool set_current_class(string _current_class)
     {
         current_class=_current_class;
+        return true;
+    }
+    
+    bool set_mode(int _mode)
+    {
+        mutex.wait();
+        mode=_mode;
+        mutex.post();
+            
+        return true;
+    }
+    
+    bool set_state(int _state)
+    {
+        mutex.wait();
+        state=_state;
+        mutex.post();
+            
         return true;
     }
 
@@ -222,6 +293,7 @@ public:
         port_in_blobs.interrupt();
         port_out_show.interrupt();
         port_out_crop.interrupt();
+        port_rpc_are_get_hand.interrupt();
         mutex.post();
     }
 
@@ -232,6 +304,7 @@ public:
         port_in_blobs.close();
         port_out_show.close();
         port_out_crop.close();
+        port_rpc_are_get_hand.close();
         mutex.post();
 
         return true;
@@ -346,8 +419,28 @@ private:
     int                                 state;
 
     deque<string>                       known_objects;
+    
+    int                                 class_itr_current;
+    int                                 class_itr_max;
 
 private:
+
+    bool set_state(int _state)
+    {
+        state=_state;
+        thr_transformer->set_state(state);
+        
+        return true;
+    }
+    
+    
+    bool set_mode(int _mode)
+    {
+        mode=_mode;
+        thr_transformer->set_mode(mode);
+        
+        return true;
+    }
 
     bool speak(string speech)
     {
@@ -501,7 +594,7 @@ private:
         port_in_scores.reset_scores();
         scores_buffer.clear();
 
-        state=STATE_IDLE;
+        set_state(STATE_IDLE);
 
         return ok;
     }
@@ -515,8 +608,11 @@ private:
         port_in_scores.get_scores(scores_buffer);
 
         if(scores_buffer.size()==0)
+        {
+            set_state(STATE_IDLE);
             return false;
-
+        }
+        
         int n_classes=scores_buffer.front().size();
 
         vector<double> class_avg(n_classes,0.0);
@@ -562,23 +658,37 @@ private:
         }
 
         string label=scores_buffer.front().get(max_avg_idx).asList()->get(0).asString().c_str();
-        if(max_votes/scores_buffer.size()<0.75)
+        if(max_votes/scores_buffer.size()<0.2)
             label="?";
 
         thr_transformer->set_current_class(label);
         
-         cout << "Score: ";
+         cout << "Scores: " << endl;
         for (int i=0; i<n_classes; i++)
-            cout << known_objects[i] << ": " << class_avg[i] << " "<< class_votes[i];
-        cout << endl;
+            cout << "[" << scores_buffer.front().get(i).asList()->get(0).asString().c_str() << "]: " << class_avg[i] << " "<< class_votes[i] << endl;
+        cout << endl << endl;
         scores_buffer.clear();
 
-        if(label!="?")
-            speak("I think this is a "+label);
+        if(label=="?")
+        {
+            class_itr_current++;
+            if(class_itr_current<=class_itr_max)
+            {
+                speak("I am not sure, let me check it again.");
+                return false;
+            }
+            else
+            {
+                speak("Sorry, I cannot recognize this object. I am the shame of the whole robot world.");
+                set_state(STATE_IDLE);    
+                return true;
+            }
+        }
         else
-            speak("I am not sure, let me check it again.");
-
-        return label!="?";
+        {
+            speak("I think this is a "+label);
+            return true;
+        }        
     }
 
     void decide()
@@ -619,7 +729,7 @@ private:
         thr_transformer->get_current_class(current_class);
         speak("Ok, now I know the "+current_class);
 
-        state=STATE_IDLE;
+        set_state(STATE_IDLE);
         return done;
     }
 
@@ -638,6 +748,8 @@ public:
 
         observe_human_time_training=rf.check("observe_human_time_training",Value(10.0)).asDouble();
         observe_human_time_classify=rf.check("observe_human_time_classify",Value(5.0)).asDouble();
+
+        class_itr_max=rf.check("class_iter_max",Value(3)).asInt();
 
         thr_transformer=new TransformerThread(rf);
         thr_transformer->start();
@@ -660,8 +772,8 @@ public:
 
         thr_transformer->interruptCoding();
 
-        state=STATE_IDLE;
-        mode=MODE_HUMAN;
+        set_state(STATE_IDLE);
+        set_mode(MODE_HUMAN);
 
         return true;
     }
@@ -699,7 +811,7 @@ public:
             case CMD_IDLE:
             {
                 mutex.wait();
-                state=STATE_IDLE;
+                set_state(STATE_IDLE);
                 thr_transformer->set_current_class("?");
                 mutex.post();
                 break;
@@ -720,7 +832,7 @@ public:
                     if(reply_classifier.size()>0 && reply_classifier.get(0).asVocab()==ACK)
                     {
                         thr_transformer->set_current_class(class_name);
-                        state=STATE_TRAINING;
+                        set_state(STATE_TRAINING);
 
                         bool found=false;
                         for(unsigned int i=0; i<known_objects.size(); i++)
@@ -756,8 +868,8 @@ public:
                 if(reply_classifer.size()>0 && reply_classifer.get(0).asVocab()==ACK)
                 {
                     thr_transformer->set_current_class("?");
-                    state=STATE_CLASSIFY;
-
+                    set_state(STATE_CLASSIFY);
+                    class_itr_current=0;
 
                     reply.addString("classifing");
                 }
@@ -785,7 +897,7 @@ public:
 
                     if(reply_are.size()>0 && reply_are.get(0).asVocab()==ACK)
                     {
-                        mode=MODE_ROBOT;
+                        set_mode(MODE_ROBOT);
                         reply.addString("ack");
                     }
                     else
@@ -817,7 +929,7 @@ public:
 
                     if(reply_are.size()>0 && reply_are.get(0).asVocab()==ACK)
                     {
-                        mode=MODE_HUMAN;
+                        set_mode(MODE_HUMAN);
                         reply.addString("ack");
                     }
                     else
