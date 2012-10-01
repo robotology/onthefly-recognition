@@ -9,9 +9,9 @@
         <!-- Modules -->
         <module>
                 <name>motionCUT</name>
-                <parameters>--recogThres 0.6</parameters>
-                <node>pwrNode1</node>
-                <tag>motionDetector</tag>
+                <parameters>--name motionCUT/left --coverXratio 0.7 --coverYratio 0.7 --framesPersistence 2 --numThreads 5 --nodesStep 6 --recogThres 0.512</parameters>
+                <node>icub-b11</node>
+                <tag>motionCUTLeft</tag>
         </module>
 		
         <module>
@@ -22,7 +22,7 @@
                 
         <module>
                 <name>actionsRenderingEngine</name>
-                <node>pwrNode3</node>
+                <node>icub-b12</node>
                 <tag>are</tag>
         </module>
 
@@ -41,13 +41,13 @@
         <module>
                 <name>yarpview</name>
                 <parameters>--name /onTheFlyRecognition/view</parameters>
-                <node>console</node>
+                <node>icub15</node>
                 <tag>main_viewer</tag>
         </module>
 
         <module>
                 <name>iSpeak</name>
-                <node>console</node>
+                <node>icub15</node>
                 <tag>speaking_module</tag>
         </module>
 
@@ -72,7 +72,7 @@
 
         <!-- ActionsRenderingEngine -->
         <connection>
-                <from>/motionCUT/blobs:o</from>
+                <from>/motionCUT/left/blobs:o</from>
                 <to>/actionsRenderingEngine/left/blobs:i</to>
                 <protocol>udp</protocol>
         </connection>
@@ -100,13 +100,13 @@
         <connection>
                 <from>/sparseCoder/code:o</from>
                 <to>/linearClassifier/features:i</to>
-                <protocol>mcast</protocol>
+                <protocol>tcp</protocol>
         </connection> 
 
         <connection>
                 <from>/linearClassifier/scores:o</from>
                 <to>/onTheFlyRecognition/scores:i</to>
-                <protocol>mcast</protocol>
+                <protocol>tcp</protocol>
         </connection> 
 
 
@@ -131,7 +131,7 @@
 
         <connection>
                 <from>/onTheFlyRecognition/classifier:io</from>
-                <to>/linearClassifier/???</to>
+                <to>/linearClassifier/rpc</to>
                 <protocol>tcp</protocol>
         </connection>
 
@@ -151,6 +151,11 @@
         <connection>
                 <from>/iSpeak/emotions:o</from>
                 <to>/icub/face/emotions/in</to>
+                <protocol>tcp</protocol>
+        </connection>
+        <connection>
+                <from>/onTheFlyRecognition/speech:o</from>
+                <to>/iSpeak</to>
                 <protocol>tcp</protocol>
         </connection>
 
