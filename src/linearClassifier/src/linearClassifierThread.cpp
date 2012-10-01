@@ -253,9 +253,10 @@ void linearClassifierThread::onStop() {
 void linearClassifierThread::prepareObjPath(string objName)
 {
 
-    mutex->wait();
 
     stopAll();
+    mutex->wait();
+
     pathObj=currPath+"/"+objName;
 
     if(yarp::os::stat(pathObj.c_str()))
