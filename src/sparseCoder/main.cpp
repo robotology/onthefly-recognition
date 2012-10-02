@@ -78,7 +78,8 @@ private:
     vector<SiftGPU::SiftKeypoint>       keypoints;
     vector<float>                       descriptors;
 
-    Port                                outPort;
+    Port                                port_out_code;
+    Port                                port_out_img;
 
     SiftGPU_Extractor                   siftGPU_extractor;
 
@@ -118,9 +119,8 @@ private:
         }
 
         cvCvtColor((IplImage*)img.getIplImage(),ipl,CV_RGB2GRAY);
-
+        
         //cvSmooth(ipl,ipl);  
-
         siftGPU_extractor.extractDenseSift(ipl,&keypoints,&descriptors);
         //siftGPU_extractor.extractSift(ipl,&keypoints,&descriptors);
 
@@ -161,18 +161,20 @@ private:
             }
             
             
-            if(outPort.getOutputCount())
+            if(port_out_code.getOutputCount())
             {
-                /*
+                port_out_code.write(coding);
+            }
+            
+            if(port_out_img.getOutputCount())
+            {
                 for(unsigned int i=0; i<keypoints.size(); i++)
                 {   
                     int x = cvRound(keypoints[i].x);
                     int y = cvRound(keypoints[i].y);
                     cvCircle(img.getIplImage(),cvPoint(x,y),2,cvScalar(255),2);
                 }
-                outPort.write(img);s
-                //*/
-                outPort.write(coding);
+                port_out_img.write(img);
             }
         }
 
@@ -230,8 +232,31 @@ public:
 
         string name=rf.find("name").asString().c_str();
 
-        outPort.open(("/"+name+"/code:o").c_str());
+        port_out_img.open(("/"+name+"/img:o").c_str());
+        port_out_code.open(("/"+name+"/code:o").c_str());
         BufferedPort<Image>::useCallback();
+   }
+
+   virtual void interrupt()
+   {
+        mutex.wait();
+        //some closure :P
+
+        port_out_code.interrupt();
+        port_out_img.interrupt();
+        BufferedPort<Image>::interrupt();
+        mutex.post();
+   }
+
+   virtual void resume()
+   {
+        mutex.wait();
+        //some closure :P
+
+        port_out_code.resume();
+        port_out_img.resume();
+        BufferedPort<Image>::resume();
+        mutex.post();
    }
 
    virtual void close()
@@ -247,8 +272,10 @@ public:
         if(sparse_coder!=NULL)
             delete sparse_coder;
 
-        outPort.close();
+        port_out_code.close();
+        port_out_img.close();
         BufferedPort<Image>::close();
+        mutex.post();
    }
 
 

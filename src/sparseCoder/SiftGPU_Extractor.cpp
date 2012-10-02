@@ -81,9 +81,9 @@
 
         keypoints_grid.resize(widthNodes*heightNodes);
         int idx=0;
-        for(int row=step; row<height-1; row+=step)
+        for(int row=step; row<=height-step; row+=step)
         {
-            for(int col=step; col<width-1; col+=step)
+            for(int col=step; col<=width-step; col+=step)
             {
                 //int idx=(row/step)*widthNodes + col/step;
                 keypoints_grid[idx].x=col;
@@ -93,7 +93,8 @@
                 idx++;
             }
         }   
-
+        
+        return true;
     }
 
 
