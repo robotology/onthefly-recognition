@@ -348,6 +348,10 @@ private:
     int                                 mode;
     int                                 state;
 
+    
+    int                                 confidence_width;
+    int                                 confidence_height;
+
 
 public:
     StorerThread(ResourceFinder &_rf)
@@ -361,6 +365,8 @@ public:
 
         string name=rf.find("name").asString().c_str();
 
+        confidence_width=rf.check("confidence_width",Value(500)).asInt();
+        confidence_height=rf.check("confidence_height",Value(500)).asInt();
 
         //Ports
         //-----------------------------------------------------------
@@ -441,11 +447,33 @@ public:
         if(max_votes/scores_buffer.size()<0.2)
             current_class="?";
 
-        
-         cout << "Scores: " << endl;
+
+
+        cout << "Scores: " << endl;
         for (int i=0; i<n_classes; i++)
             cout << "[" << scores_buffer.front().get(i).asList()->get(0).asString().c_str() << "]: " << class_avg[i] << " "<< class_votes[i] << endl;
         cout << endl << endl;
+
+        //plot confidence values
+        if(port_out_confidence.getOutputCount()>0)
+        {
+            ImageOf<PixelBgr> img_conf;
+            img_conf.resize(confidence_width,confidence_height);
+            cvZero(img_conf.getIplImage());
+            int max_height=(int)img_conf.height()*0.8;
+
+            int width_step=(int)img_conf.width()/n_classes;
+
+            for(int class_idx=0; class_idx<n_classes; class_idx++)
+            {
+                int class_height=(int)max_votes*class_votes[class_idx]/max_height;
+
+                cvRectangle(img_conf.getIplImage(),cvPoint(class_idx*width_step,img_conf.height()-class_height),cvPoint((class_idx+1)*width_step,img_conf.height()),cvScalar(155,155,255),CV_FILLED);
+                cvRectangle(img_conf.getIplImage(),cvPoint(class_idx*width_step,img_conf.height()-class_height),cvPoint((class_idx+1)*width_step,img_conf.height()),cvScalar(0,0,255),3);
+            }
+
+            port_out_confidence.write(img_conf);
+        }
 
 
         mutex.post();
