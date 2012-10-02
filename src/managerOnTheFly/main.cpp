@@ -66,7 +66,7 @@ using namespace yarp::math;
 #define                 CMD_CLASSIFY        VOCAB4('c','l','a','s')
 #define                 CMD_ROBOT           VOCAB4('r','o','b','o')
 #define                 CMD_HUMAN           VOCAB4('h','u','m','a')
-
+#define                 CMD_FORGET          VOCAB4('f','o','r','g')
 
 
 class TransformerThread: public RateThread
@@ -99,6 +99,10 @@ private:
     bool                                coding_interrupted;
     int                                 mode;
     int                                 state;
+    
+    double                              blink_init_time;
+    double                              blink_visible_time;
+    double                              blink_invisible_time;
 
 
 
@@ -139,6 +143,11 @@ public:
 
         current_class="?";
         coding_interrupted=true;
+        
+        
+        blink_init_time=Time::now();
+        blink_visible_time=0.5;
+        blink_invisible_time=0.0;
 
         return true;
     }
@@ -183,8 +192,8 @@ public:
             
             if(reply_are_hand.size()>0 && reply_are_hand.get(0).asVocab()!=NACK)
             {
-                x=reply_are_hand.get(0).asInt();
-                y=reply_are_hand.get(1).asInt();
+                x=reply_are_hand.get(2).asInt();
+                y=reply_are_hand.get(3).asInt();
                 radius_crop=radius_crop_robot;
                 
                 if(0<x && x<img->width() && 0<y && y<img->height())
@@ -226,16 +235,33 @@ public:
                 CvScalar text_color=cvScalar(0,0,255);
                 string text_string=current_class;
                 
+
+                bool blink_visible=true;
+                double diff=Time::now()-blink_init_time;
+                if(Time::now()-blink_init_time>blink_visible_time)
+                {
+                    if(Time::now()-blink_init_time<blink_visible_time+blink_invisible_time)
+                        blink_visible=false;
+                    else
+                        blink_init_time=Time::now();
+                }
+                
+                                
+                bool visible=true;
                 if(state==STATE_TRAINING)
                 {
                     text_color=cvScalar(255,0,0);
                     text_string="train: "+current_class;
+                    
+                    visible=blink_visible;
                 }
 
                 cvRectangle(img->getIplImage(),cvPoint(x-radius,y-radius),cvPoint(x+radius,y+radius),cvScalar(0,255,0),2);
-                cvPutText(img->getIplImage(),text_string.c_str(),cvPoint(x-radius,y_text),&font,cvScalar(0,0,255));
+
+                if(visible)
+                    cvPutText(img->getIplImage(),text_string.c_str(),cvPoint(x-radius,y_text),&font,text_color);
                 
-                cvCircle(img->getIplImage(),cvPoint(x,y),3,cvScalar(255,0,0),3);
+                //cvCircle(img->getIplImage(),cvPoint(x,y),3,cvScalar(255,0,0),3);
             }
         }
 
@@ -398,6 +424,12 @@ public:
         //if the scores exceed a certain threshold clear its head
         while(scores_buffer.size()>200)
             scores_buffer.pop_front();
+            
+        if(scores_buffer.size()<10)
+        {   
+            mutex.post();
+            return;
+        }
 
         int n_classes=scores_buffer.front().size();
 
@@ -426,6 +458,7 @@ public:
         double max_votes=-10000.0;
         int max_avg_idx;
         int max_votes_idx;
+        int max_votes_sum=0;
 
         for(int class_idx=0; class_idx<n_classes; class_idx++)
         {
@@ -441,6 +474,8 @@ public:
                 max_votes=class_votes[class_idx];
                 max_votes_idx=class_idx;
             }
+            
+            max_votes_sum+=class_votes[class_idx];
         }
 
         current_class=scores_buffer.front().get(max_avg_idx).asList()->get(0).asString().c_str();
@@ -457,19 +492,27 @@ public:
         //plot confidence values
         if(port_out_confidence.getOutputCount()>0)
         {
-            ImageOf<PixelBgr> img_conf;
+            ImageOf<PixelRgb> img_conf;
             img_conf.resize(confidence_width,confidence_height);
             cvZero(img_conf.getIplImage());
             int max_height=(int)img_conf.height()*0.8;
+            int min_height=img_conf.height()-20;
 
             int width_step=(int)img_conf.width()/n_classes;
 
             for(int class_idx=0; class_idx<n_classes; class_idx++)
             {
-                int class_height=(int)max_votes*class_votes[class_idx]/max_height;
+                int class_height=img_conf.height()-((int)max_height*class_votes[class_idx]/max_votes_sum);
+                if(class_height>min_height)
+                    class_height=min_height;
 
-                cvRectangle(img_conf.getIplImage(),cvPoint(class_idx*width_step,img_conf.height()-class_height),cvPoint((class_idx+1)*width_step,img_conf.height()),cvScalar(155,155,255),CV_FILLED);
-                cvRectangle(img_conf.getIplImage(),cvPoint(class_idx*width_step,img_conf.height()-class_height),cvPoint((class_idx+1)*width_step,img_conf.height()),cvScalar(0,0,255),3);
+                cvRectangle(img_conf.getIplImage(),cvPoint(class_idx*width_step,class_height),cvPoint((class_idx+1)*width_step,min_height),cvScalar(155,155,255),CV_FILLED);
+                cvRectangle(img_conf.getIplImage(),cvPoint(class_idx*width_step,class_height),cvPoint((class_idx+1)*width_step,min_height),cvScalar(0,0,255),3);
+                
+                CvFont font;
+                cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX,0.6,0.6,0,2);
+                
+                cvPutText(img_conf.getIplImage(),scores_buffer.front().get(class_idx).asList()->get(0).asString().c_str(),cvPoint(class_idx*width_step,img_conf.height()-5),&font,cvScalar(255,255,255));
             }
 
             port_out_confidence.write(img_conf);
@@ -578,8 +621,6 @@ private:
 
     //output
     Port                                port_out_speech;
-
-    list<Bottle>                        scores_buffer;
 
     double                              observe_human_time_training;
     double                              observe_human_time_classify;
@@ -761,7 +802,6 @@ private:
         //clear the buffer
         thr_transformer->interruptCoding();
         thr_storer->reset_scores();
-        scores_buffer.clear();
 
         set_state(STATE_IDLE);
 
@@ -855,7 +895,7 @@ public:
 
         string name=rf.find("name").asString().c_str();
 
-        observe_human_time_training=rf.check("observe_human_time_training",Value(10.0)).asDouble();
+        observe_human_time_training=rf.check("observe_human_time_training",Value(30.0)).asDouble();
         observe_human_time_classify=rf.check("observe_human_time_classify",Value(5.0)).asDouble();
 
         class_itr_max=rf.check("class_iter_max",Value(3)).asInt();
@@ -1048,6 +1088,50 @@ public:
 
                 mutex.post();
                 break;
+            }
+            case CMD_FORGET:
+            {
+                mutex.wait();
+                
+
+                Bottle cmd_classifier,reply_classifer;
+                cmd_classifier.addString("forget");
+                
+                if(command.size()>1)
+                {
+                    string class_forget=command.get(0).asString().c_str();
+                    cmd_classifier.addString(class_forget.c_str());
+                
+                    port_rpc_classifier.write(cmd_classifier,reply_classifer);
+                    
+                    if(reply_classifer.size()>0 && reply_classifer.get(0).asVocab()==ACK)
+                    {
+                        speak("forgotten "+class_forget);
+                        reply.addVocab(ACK);
+                    }
+                    else
+                        reply.addVocab(NACK);
+                }
+                else
+                {
+                    cmd_classifier.addString("all");
+                
+                    port_rpc_classifier.write(cmd_classifier,reply_classifer);
+                    
+                    if(reply_classifer.size()>0 && reply_classifer.get(0).asVocab()==ACK)
+                    {
+                        speak("memory obliteration complete!");
+                        reply.addVocab(ACK);
+                    }
+                    else
+                        reply.addVocab(NACK);
+                }
+                
+                
+                mutex.post();
+                break;
+            
+            
             }
 
 
