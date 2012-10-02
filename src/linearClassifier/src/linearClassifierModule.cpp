@@ -94,6 +94,17 @@ bool linearClassifierModule::respond(const Bottle& command, Bottle& reply)
         return true;
     }
 
+    if(command.get(0).asString()=="forget" && command.size()>1)
+    {
+        string className=command.get(1).asString().c_str();
+        if(className=="all")
+            this->lCThread->forgetAll();
+        else
+            this->lCThread->forgetClass(className);
+        reply.addString("ack");
+        return true;
+    }
+
 
     reply.addString("nack");
     return true;

@@ -26,6 +26,7 @@ linearClassifierThread::linearClassifierThread(yarp::os::ResourceFinder &rf, Por
         this->outputScorePortName += rf.check("OutputPortScores",Value("/scores:o"),"Input image port (string)").asString().c_str();
 
         this->bufferSize = rf.check("BufferSize",Value(15),"Buffer Size").asInt();
+        forgetAll();
 
 
 }
@@ -408,8 +409,7 @@ bool linearClassifierThread::trainClassifiers()
                     orderedLabels.push_back(-1.0);
                 }
         }
-	
-	parameter param=svmmodel.initialiseParam();
+        parameter param=svmmodel.initialiseParam();
         svmmodel.trainModel(orderedF,orderedLabels,param);
 
         linearClassifiers.push_back(svmmodel);
@@ -450,3 +450,36 @@ bool linearClassifierThread::startRecognition()
     return true;
 }
 
+bool linearClassifierThread::forgetClass(string className)
+{
+
+    string classPath=currPath+"/"+className;
+    if(yarp::os::stat(classPath.c_str()))
+    {
+        return true;
+    }
+
+    vector<string> files;
+    getdir(classPath,files);
+
+    for (int i=0; i< files.size(); i++)
+    {
+        if(!files[i].compare(".") || !files[i].compare(".."))
+            continue;
+        string feature=classPath+"/"+files[i];
+        remove(feature.c_str());
+    }
+
+    return yarp::os::rmdir(classPath.c_str())==0;
+}
+
+bool linearClassifierThread::forgetAll()
+{
+    checkKnownObjects();
+
+    for (int i=0; i<knownObjects.size(); i++)
+        forgetClass(knownObjects[i].first);
+
+    return true;
+
+}
