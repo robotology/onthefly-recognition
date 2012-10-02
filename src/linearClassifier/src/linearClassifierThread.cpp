@@ -355,9 +355,10 @@ bool linearClassifierThread::loadFeatures()
                 Features[i].push_back(tmpF[t]);
     
         }
-        this->datasetSizes.push_back(cnt);
+        if(cnt>0)
+            this->datasetSizes.push_back(cnt);
     }
-
+    
     return true;
 
 }
