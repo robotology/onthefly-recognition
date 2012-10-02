@@ -280,7 +280,7 @@ void linearClassifierThread::prepareObjPath(string objName)
 
     }
 
-    objFeatures.open(pathObj.c_str(),ios_base::app);
+    objFeatures.open(pathObj.c_str(),fstream::out | fstream::out);
     currentState=STATE_SAVING;
     mutex->post();
 

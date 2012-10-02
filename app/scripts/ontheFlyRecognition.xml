@@ -15,8 +15,8 @@
         </module>
 		
         <module>
-                <name>linearClassifier</name>
-                <node>pwrNode2</node>
+                <name>linearClassifierModule</name>
+                <node>icub-b13</node>
                 <tag>classifier</tag>
         </module>
                 
@@ -28,7 +28,7 @@
 
         <module>
                 <name>onTheFlyRecognition</name>               
-                <node>pwrNode4</node>
+                <node>icub-b13</node>
                 <tag>manager</tag>
         </module>
 		
@@ -53,7 +53,7 @@
 
         <module>
                 <name>speechRecognizer</name>
-                <node>winnode1</node>
+                <node>icub-win1</node>
                 <tag>speech_recognition_module</tag>
         </module>
 		
@@ -116,6 +116,12 @@
                 <to>/actionsRenderingEngine/rpc</to>
                 <protocol>tcp</protocol>
         </connection>
+        
+        <connection>
+                <from>/onTheFlyRecognition/are/hand:io</from>
+                <to>/actionsRenderingEngine/get:io</to>
+                <protocol>tcp</protocol>
+        </connection>
 
         <connection>
                 <from>/onTheFlyRecognition/are/get:io</from>
@@ -136,13 +142,7 @@
         </connection>
 
 
-
         <!-- Speech -->
-        <connection>
-                <from>/speechRecognizer/recog/continuous:o</from>
-                <to>/onTheFlyRecognition/interrupt:i</to>
-                <protocol>tcp</protocol>
-        </connection>
         <connection>
                 <from>/speechRecognizer/tts/iSpeak:o</from>
                 <to>/iSpeak</to>
