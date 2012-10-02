@@ -329,44 +329,142 @@ public:
 
 
 
-class StorerPort: public BufferedPort<Bottle>
+class StorerThread: public RateThread
 {
 private:
-    Semaphore                       mutex;
-    list<Bottle>                    *scores_current;
-    list<Bottle>                    scores_main;
-    list<Bottle>                    scores_back;
+    ResourceFinder                      &rf;
+    Semaphore                           mutex;
+    bool                                verbose;
 
-    virtual void onRead(Bottle &bot)
-    {
-        mutex.wait();
-        scores_current->push_back(bot);
+    //input
+    BufferedPort<Bottle>                port_in_scores;
 
-        //if the scores exceed a certain threshold clear its head
-        while(scores_current->size()>200)
-            scores_current->pop_front();
-        mutex.post();
-    }
+    //output
+    Port                                port_out_confidence;
+
+    list<Bottle>                        scores_buffer;
+    string                              current_class;
+
+    int                                 mode;
+    int                                 state;
+
 
 public:
-    StorerPort()
+    StorerThread(ResourceFinder &_rf)
+        :RateThread(5),rf(_rf)
     {
-        scores_current=&scores_main;
+    }
+
+    virtual bool threadInit()
+    {
+        verbose=rf.check("verbose");
+
+        string name=rf.find("name").asString().c_str();
+
+
+        //Ports
+        //-----------------------------------------------------------
+        //input
+        port_in_scores.open(("/"+name+"/scores:i").c_str());
+
+        //output
+        port_out_confidence.open(("/"+name+"/confidence:o").c_str());
+        //------------------------------------------------------------
+
+        current_class="?";
+        return true;
     }
 
 
-    bool get_scores(list<Bottle> &_scores)
+    virtual void run()
     {
         mutex.wait();
-        scores_current=&scores_main;
+        Bottle *bot=port_in_scores.read(false);
+
+        if(bot==NULL)
+        {
+            mutex.post();
+            return;
+        }
+
+        scores_buffer.push_back(*bot);
+
+        //if the scores exceed a certain threshold clear its head
+        while(scores_buffer.size()>200)
+            scores_buffer.pop_front();
+
+        int n_classes=scores_buffer.front().size();
+
+        vector<double> class_avg(n_classes,0.0);
+        vector<int> class_votes(n_classes,0);
+
+        for(list<Bottle>::iterator score_itr=scores_buffer.begin(); score_itr!=scores_buffer.end(); score_itr++)
+        {
+            double max_score=-1000.0;
+            int max_idx;
+            for(int class_idx=0; class_idx<n_classes; class_idx++)
+            {
+                double s=score_itr->get(class_idx).asList()->get(1).asDouble();
+                class_avg[class_idx]+=s;
+                if(s>max_score)
+                {
+                    max_score=s;
+                    max_idx=class_idx;
+                }
+            }
+
+            class_votes[max_idx]++;
+        }
+
+        double max_avg=-10000.0;
+        double max_votes=-10000.0;
+        int max_avg_idx;
+        int max_votes_idx;
+
+        for(int class_idx=0; class_idx<n_classes; class_idx++)
+        {
+            class_avg[class_idx]=class_avg[class_idx]/n_classes;
+            if(class_avg[class_idx]>max_avg)
+            {
+                max_avg=class_avg[class_idx];
+                max_avg_idx=class_idx;
+            }
+
+            if(class_votes[class_idx]>max_votes)
+            {
+                max_votes=class_votes[class_idx];
+                max_votes_idx=class_idx;
+            }
+        }
+
+        current_class=scores_buffer.front().get(max_avg_idx).asList()->get(0).asString().c_str();
+        if(max_votes/scores_buffer.size()<0.2)
+            current_class="?";
+
+        
+         cout << "Scores: " << endl;
+        for (int i=0; i<n_classes; i++)
+            cout << "[" << scores_buffer.front().get(i).asList()->get(0).asString().c_str() << "]: " << class_avg[i] << " "<< class_votes[i] << endl;
+        cout << endl << endl;
+
+
+        mutex.post();
+    }
+
+
+    bool set_current_class(string _current_class)
+    {
+        mutex.wait();
+        current_class=_current_class;
         mutex.post();
 
-        for(list<Bottle>::iterator itr=scores_main.begin(); itr!=scores_main.end(); itr++)
-            _scores.push_back(*itr);
-
+        return true;
+    }
+    
+    bool get_current_class(string &_current_class)
+    {
         mutex.wait();
-        scores_main.splice(scores_main.end(),scores_back);
-        scores_current=&scores_main;
+        _current_class=current_class;
         mutex.post();
 
         return true;
@@ -375,13 +473,58 @@ public:
     bool reset_scores()
     {
         mutex.wait();
-        scores_current->clear();
+        scores_buffer.clear();
+        mutex.post();
+
+        return true;
+    }
+    bool set_mode(int _mode)
+    {
+        mutex.wait();
+        mode=_mode;
+        mutex.post();
+            
+        return true;
+    }
+    
+    bool set_state(int _state)
+    {
+        mutex.wait();
+        state=_state;
+        mutex.post();
+            
+        return true;
+    }
+
+
+    bool execReq(const Bottle &command, Bottle &reply)
+    {
+        switch(command.get(0).asVocab())
+        {
+            default:
+                return false;
+        }
+    }
+
+
+    virtual void interrupt()
+    {
+        mutex.wait();
+        port_in_scores.interrupt();
+        port_out_confidence.interrupt();
+        mutex.post();
+    }
+
+    virtual bool releaseThread()
+    {
+        mutex.wait();
+        port_in_scores.close();
+        port_out_confidence.close();
         mutex.post();
 
         return true;
     }
 };
-
 
 
 
@@ -396,9 +539,7 @@ private:
 
     //threads
     TransformerThread                   *thr_transformer;
-
-    //input
-    StorerPort                          port_in_scores;
+    StorerThread                        *thr_storer;
 
     //rpc
     RpcClient                           port_rpc_are;
@@ -591,7 +732,7 @@ private:
 
         //clear the buffer
         thr_transformer->interruptCoding();
-        port_in_scores.reset_scores();
+        thr_storer->reset_scores();
         scores_buffer.clear();
 
         set_state(STATE_IDLE);
@@ -605,71 +746,11 @@ private:
     {
         //do the mumbo jumbo for classification
         //get the buffer from the score store
-        port_in_scores.get_scores(scores_buffer);
+        string current_class;
+        thr_storer->get_current_class(current_class);
+        thr_transformer->set_current_class(current_class);
 
-        if(scores_buffer.size()==0)
-        {
-            set_state(STATE_IDLE);
-            return false;
-        }
-        
-        int n_classes=scores_buffer.front().size();
-
-        vector<double> class_avg(n_classes,0.0);
-        vector<int> class_votes(n_classes,0);
-
-        for(list<Bottle>::iterator score_itr=scores_buffer.begin(); score_itr!=scores_buffer.end(); score_itr++)
-        {
-            double max_score=-1000.0;
-            int max_idx;
-            for(int class_idx=0; class_idx<n_classes; class_idx++)
-            {
-                double s=score_itr->get(class_idx).asList()->get(1).asDouble();
-                class_avg[class_idx]+=s;
-                if(s>max_score)
-                {
-                    max_score=s;
-                    max_idx=class_idx;
-                }
-            }
-
-            class_votes[max_idx]++;
-        }
-
-        double max_avg=-10000.0;
-        double max_votes=-10000.0;
-        int max_avg_idx;
-        int max_votes_idx;
-
-        for(int class_idx=0; class_idx<n_classes; class_idx++)
-        {
-            class_avg[class_idx]=class_avg[class_idx]/n_classes;
-            if(class_avg[class_idx]>max_avg)
-            {
-                max_avg=class_avg[class_idx];
-                max_avg_idx=class_idx;
-            }
-
-            if(class_votes[class_idx]>max_votes)
-            {
-                max_votes=class_votes[class_idx];
-                max_votes_idx=class_idx;
-            }
-        }
-
-        string label=scores_buffer.front().get(max_avg_idx).asList()->get(0).asString().c_str();
-        if(max_votes/scores_buffer.size()<0.2)
-            label="?";
-
-        thr_transformer->set_current_class(label);
-        
-         cout << "Scores: " << endl;
-        for (int i=0; i<n_classes; i++)
-            cout << "[" << scores_buffer.front().get(i).asList()->get(0).asString().c_str() << "]: " << class_avg[i] << " "<< class_votes[i] << endl;
-        cout << endl << endl;
-        scores_buffer.clear();
-
-        if(label=="?")
+        if(current_class=="?")
         {
             class_itr_current++;
             if(class_itr_current<=class_itr_max)
@@ -686,9 +767,9 @@ private:
         }
         else
         {
-            speak("I think this is a "+label);
+            speak("I think this is a "+current_class);
             return true;
-        }        
+        }
     }
 
     void decide()
@@ -754,12 +835,11 @@ public:
         thr_transformer=new TransformerThread(rf);
         thr_transformer->start();
 
+        thr_storer=new StorerThread(rf);
+        thr_storer->start();
+
         //Ports
         //-----------------------------------------------------------
-        //input
-        port_in_scores.open(("/"+name+"/scores:i").c_str());
-        port_in_scores.useCallback();
-
         //rpc
         port_rpc_are.open(("/"+name+"/are/rpc").c_str());
         port_rpc_are_get.open(("/"+name+"/are/get:io").c_str());
@@ -951,7 +1031,6 @@ public:
     virtual void interrupt()
     {
         mutex.wait();
-        port_in_scores.interrupt();
         port_rpc_are.interrupt();
         port_rpc_are_cmd.interrupt();
         port_rpc_are_cmd.interrupt();
@@ -964,7 +1043,6 @@ public:
     virtual bool releaseThread()
     {
         mutex.wait();
-        port_in_scores.close();
         port_rpc_are.close();
         port_rpc_are_cmd.close();
         port_rpc_are_cmd.close();
