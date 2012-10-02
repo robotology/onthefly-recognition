@@ -70,7 +70,7 @@ public:
     bool loadFeatures();
     bool trainClassifiers();
     bool startRecognition();
-    bool forgetClass(string className);
+    bool forgetClass(string className, bool retrain);
     bool forgetAll();
 
 };

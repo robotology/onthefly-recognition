@@ -100,7 +100,7 @@ bool linearClassifierModule::respond(const Bottle& command, Bottle& reply)
         if(className=="all")
             this->lCThread->forgetAll();
         else
-            this->lCThread->forgetClass(className);
+            this->lCThread->forgetClass(className,true);
         reply.addString("ack");
         return true;
     }

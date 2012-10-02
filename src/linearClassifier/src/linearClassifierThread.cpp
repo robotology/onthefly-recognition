@@ -26,7 +26,6 @@ linearClassifierThread::linearClassifierThread(yarp::os::ResourceFinder &rf, Por
         this->outputScorePortName += rf.check("OutputPortScores",Value("/scores:o"),"Input image port (string)").asString().c_str();
 
         this->bufferSize = rf.check("BufferSize",Value(15),"Buffer Size").asInt();
-        forgetAll();
 
 
 }
@@ -450,7 +449,7 @@ bool linearClassifierThread::startRecognition()
     return true;
 }
 
-bool linearClassifierThread::forgetClass(string className)
+bool linearClassifierThread::forgetClass(string className, bool retrain)
 {
 
     string classPath=currPath+"/"+className;
@@ -471,7 +470,7 @@ bool linearClassifierThread::forgetClass(string className)
     }
     bool res=yarp::os::rmdir(classPath.c_str())==0;
 
-    if(res)
+    if(res && retrain)
         trainClassifiers();
 
     return res;
@@ -482,7 +481,7 @@ bool linearClassifierThread::forgetAll()
     checkKnownObjects();
 
     for (int i=0; i<knownObjects.size(); i++)
-        forgetClass(knownObjects[i].first);
+        forgetClass(knownObjects[i].first, false);
 
     trainClassifiers();
     return true;
