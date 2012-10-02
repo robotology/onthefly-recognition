@@ -469,8 +469,12 @@ bool linearClassifierThread::forgetClass(string className)
         string feature=classPath+"/"+files[i];
         remove(feature.c_str());
     }
+    bool res=yarp::os::rmdir(classPath.c_str())==0;
 
-    return yarp::os::rmdir(classPath.c_str())==0;
+    if(res)
+        trainClassifiers();
+
+    return res;
 }
 
 bool linearClassifierThread::forgetAll()
@@ -480,6 +484,7 @@ bool linearClassifierThread::forgetAll()
     for (int i=0; i<knownObjects.size(); i++)
         forgetClass(knownObjects[i].first);
 
+    trainClassifiers();
     return true;
 
 }
