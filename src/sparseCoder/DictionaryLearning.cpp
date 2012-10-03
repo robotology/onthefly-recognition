@@ -377,6 +377,8 @@ void DictionaryLearning::computeCode(const yarp::sig::Vector& feature, yarp::sig
                 descriptor[a[i]]=xmin[i];
         }
         //grad=A*descriptor+b;
+		
+		// We can perform this operation since the matrix A is symmetric! 10 times faster
         grad=descriptor;
         grad*=A;
         grad+=b;
