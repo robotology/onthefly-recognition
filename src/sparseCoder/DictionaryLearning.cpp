@@ -205,9 +205,9 @@ void DictionaryLearning::bow(std::vector<yarp::sig::Vector> & features, yarp::si
 
 }
 
-void DictionaryLearning::maxPooling(std::vector<yarp::sig::Vector> & features, yarp::sig::Vector & code)
+void DictionaryLearning::maxPooling(std::vector<yarp::sig::Vector> & features, yarp::sig::Vector & code, vector<SiftGPU::SiftKeypoint> & keypoints, int pLevels, int imgW, int imgH)
 {
-     fprintf(stdout, "Starting max pooling \n");
+     //fprintf(stdout, "Starting max pooling \n");
      double time=Time::now();
      vector<Vector> allCodes;
      allCodes.resize(features.size());
@@ -220,11 +220,85 @@ void DictionaryLearning::maxPooling(std::vector<yarp::sig::Vector> & features, y
          allCodes[i]=currentCode;
      }
      
+     //fprintf(stdout, "Finished \n");
+     
      int sizeF=allCodes[0].size();
      int sizeS=allCodes.size();
-     code.resize(sizeF);
+     
 
-     for (int i=0; i<sizeF; i++)
+     vector<int> pBins(pLevels);
+     vector<int> pyramid(pLevels);
+     
+     pBins[0]=1;
+     pyramid[0]=1;
+     int tBins=1;
+     
+     for (int i=1; i<pLevels; i++)
+     {
+         pyramid[i]=i*2;
+         pBins[i]=(i*2)*(i*2);
+         tBins+=pBins[i];
+     }
+     
+
+     
+     code.resize(sizeF*tBins);
+     int binId=0;
+     //cvZero(debugImg);
+     for (int iter=0; iter<pLevels; iter++)     
+     {
+              //fprintf(stdout, "Iter: %d \n", iter);
+              int nBins=pyramid[iter];
+              int wUnit= imgW/pyramid[iter];
+              int hUnit= imgH/pyramid[iter];
+              
+              //fprintf(stdout, "tBins: %d nBins: %d  imgW: %d imgH: %d \n", tBins, nBins,wUnit,hUnit);
+              
+              for (int iterBinW=0; iterBinW<nBins; iterBinW++)
+              {
+                   for (int iterBinH=0; iterBinH<nBins; iterBinH++)
+                   {
+                       int currBinW=wUnit*(iterBinW+1);
+                       int currBinH=hUnit*(iterBinH+1);
+                       int prevBinW=wUnit*iterBinW;
+                       int prevBinH=hUnit*iterBinH;
+                       
+                       //fprintf(stdout, "prevBinW: %d  currBinW: %d prevBinH: %d currBinH: %d  KeypointsSize: %d\n", prevBinW,currBinW,prevBinH,currBinH, keypoints.size());
+                       
+                       for (int i=0; i<sizeF; i++)                       
+                       {
+                           double maxVal=-1000.0;
+         
+                           for (int k=0; k<sizeS; k++)
+                           {
+                               
+                               if(keypoints[k].x< prevBinW || keypoints[k].x>= currBinW || keypoints[k].y< prevBinH || keypoints[k].y>= currBinH)
+                                   continue;
+                                   
+                                   /*if(iter==2 && iterBinW==3 && iterBinH==3)
+                                   {                           
+                                       int x = cvRound(keypoints[k].x);
+                                       int y = cvRound(keypoints[k].y);
+                                       cvCircle(debugImg,cvPoint(x,y),2,cvScalar(255),2);
+                                       //fprintf(stdout,"Feature X %f: Feature Y: %f \n", keypoints[k].x,keypoints[k].y);                       
+                       
+                                    }*/                              
+                               double val=allCodes[k][i];
+                               if(val>maxVal)
+                                   maxVal=val;
+                           }
+                                code[binId]=maxVal;
+                                binId++;
+                        }
+                   
+                   }
+              }
+     
+     }
+     
+     //fprintf(stdout, "Pooling Finished \n");
+     
+     /*for (int i=0; i<sizeF; i++)
      {
          double maxVal=-1000.0;
          
@@ -235,10 +309,10 @@ void DictionaryLearning::maxPooling(std::vector<yarp::sig::Vector> & features, y
                  maxVal=val;
          }
          code[i]=maxVal;
-     }
+     }*/
      
-        
-     code=code/yarp::math::norm(code); 
+     double norm= yarp::math::norm(code);
+     code=code/norm; 
      /*for (int i=0; i<code.size(); i++)
          cout << code[i] << " " ;
         cout << endl;*/

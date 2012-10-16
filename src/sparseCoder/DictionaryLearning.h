@@ -12,6 +12,8 @@
 #include <yarp/os/Property.h>
 #include <yarp/math/Math.h>
 #include <yarp/os/Time.h>
+#include "SiftGPU_Extractor.h"
+
 
 class DictionaryLearning
 {
@@ -37,7 +39,7 @@ public:
     DictionaryLearning(std::string dictionariesFilePath, std::string group);
     void computeCode(const yarp::sig::Vector& feature, yarp::sig::Vector& descriptor);
     void learnDictionary();
-    void maxPooling(std::vector<yarp::sig::Vector> & features, yarp::sig::Vector & code);
+    void maxPooling(std::vector<yarp::sig::Vector> & features, yarp::sig::Vector & code, vector<SiftGPU::SiftKeypoint> & keypoints, int pLevels=1, int imgW=320, int imgH=240);
     void bow(std::vector<yarp::sig::Vector> & features, yarp::sig::Vector & code);
     void f_bow(std::vector<yarp::sig::Vector> & features, yarp::sig::Vector & code);
     ~DictionaryLearning();

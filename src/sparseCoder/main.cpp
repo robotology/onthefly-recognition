@@ -99,6 +99,7 @@ private:
     double                              last_read;
 
     int                                 code_mode;
+    int                                 pyramidLevels;
 
 
     virtual void onRead(Image &img)
@@ -133,7 +134,6 @@ private:
                 fprintf(fout_sift,"\n");
             }
         }
-
         //code the input vector
         if(!no_code)
         {
@@ -150,7 +150,7 @@ private:
             {
                 case CODE_MODE_SC:
                 {
-                    sparse_coder->maxPooling(features,coding);
+                    sparse_coder->maxPooling(features,coding,keypoints,pyramidLevels,ipl->width, ipl->height);
                     break;
                 }
                 case CODE_MODE_BOW:
@@ -214,6 +214,7 @@ public:
         rate=rf.check("rate",Value(0.0)).asDouble();
         last_read=0.0;
 
+        pyramidLevels=rf.check("PyramidLevels",Value(3)).asInt();
         sparse_coder=NULL;
         sparse_coder=new DictionaryLearning(dictionary_path,dictionary_group);
 
