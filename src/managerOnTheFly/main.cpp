@@ -107,6 +107,7 @@ private:
 
 
 
+
 public:
     TransformerThread(ResourceFinder &_rf)
         :RateThread(5),rf(_rf)
@@ -412,6 +413,7 @@ public:
     {
         mutex.wait();
         Bottle *bot=port_in_scores.read(false);
+        
 
         if(bot==NULL)
         {
@@ -632,6 +634,8 @@ private:
     
     int                                 class_itr_current;
     int                                 class_itr_max;
+    double                              reset_label_time;
+    double                              curr_time;
 
 private:
 
@@ -711,11 +715,15 @@ private:
     {
         thr_transformer->resumeCoding();
         if(state==STATE_TRAINING)
+        {
             Time::delay(observe_human_time_training);
+            thr_transformer->interruptCoding();
+            thr_storer->reset_scores();
+        }
         else
             Time::delay(observe_human_time_classify);
 
-        thr_transformer->interruptCoding();
+        
         return true;
     }
 
@@ -800,8 +808,8 @@ private:
         }
 
         //clear the buffer
-        thr_transformer->interruptCoding();
-        thr_storer->reset_scores();
+        //thr_transformer->interruptCoding();
+        //thr_storer->reset_scores();
 
         set_state(STATE_IDLE);
 
@@ -835,6 +843,7 @@ private:
         }
         else
         {
+            curr_time=Time::now();
             speak("I think this is a "+current_class);
             return true;
         }
@@ -877,6 +886,7 @@ private:
         string current_class;
         thr_transformer->get_current_class(current_class);
         speak("Ok, now I know the "+current_class);
+        curr_time=Time::now();
 
         set_state(STATE_IDLE);
         return done;
@@ -922,13 +932,19 @@ public:
 
         set_state(STATE_IDLE);
         set_mode(MODE_HUMAN);
-
+        curr_time=Time::now();
+        reset_label_time=3.0;
         return true;
     }
 
 
     virtual void run()
     {
+        if(Time::now()-curr_time> reset_label_time)
+        {
+            thr_transformer->set_current_class("?");
+            curr_time=Time::now();
+        }
         if(state==STATE_IDLE)
             return;
 
@@ -1016,6 +1032,7 @@ public:
                 if(reply_classifer.size()>0 && reply_classifer.get(0).asVocab()==ACK)
                 {
                     thr_transformer->set_current_class("?");
+                    thr_storer->reset_scores();
                     set_state(STATE_CLASSIFY);
                     class_itr_current=0;
 
