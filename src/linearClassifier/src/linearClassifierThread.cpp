@@ -140,6 +140,11 @@ void linearClassifierThread::run(){
 
         if(currentState==STATE_RECOGNIZING)
         {
+            if(linearClassifiers.size()==0)
+            {
+                mutex->post();
+                continue;
+            }
             //cout << "ISTANT SCORES: ";
             double maxVal=-1000;
             double idWin=-1;
