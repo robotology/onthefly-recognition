@@ -735,7 +735,7 @@ private:
             {
                 string current_class;
                 thr_transformer->get_current_class(current_class);
-                speak("Ok, show me this phantomatic "+current_class);
+                speak("Ok, show me this wonderful "+current_class);
 
                 break;
             }
@@ -1032,7 +1032,8 @@ public:
                 if(reply_classifer.size()>0 && reply_classifer.get(0).asVocab()==ACK)
                 {
                     thr_transformer->set_current_class("?");
-                    //thr_storer->reset_scores();
+                    if(mode==MODE_ROBOT)
+                        thr_storer->reset_scores();
                     set_state(STATE_CLASSIFY);
                     class_itr_current=0;
 
@@ -1137,7 +1138,7 @@ public:
                     
                     if(reply_classifer.size()>0 && reply_classifer.get(0).asVocab()==ACK)
                     {
-                        speak("memory obliteration complete!");
+                        speak("I have forgotten all the objects!");
                         reply.addVocab(ACK);
                     }
                     else
