@@ -933,7 +933,7 @@ public:
         set_state(STATE_IDLE);
         set_mode(MODE_HUMAN);
         curr_time=Time::now();
-        reset_label_time=3.0;
+        reset_label_time=5.0;
         return true;
     }
 
@@ -1032,7 +1032,7 @@ public:
                 if(reply_classifer.size()>0 && reply_classifer.get(0).asVocab()==ACK)
                 {
                     thr_transformer->set_current_class("?");
-                    thr_storer->reset_scores();
+                    //thr_storer->reset_scores();
                     set_state(STATE_CLASSIFY);
                     class_itr_current=0;
 
