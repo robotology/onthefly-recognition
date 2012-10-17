@@ -424,7 +424,7 @@ public:
         scores_buffer.push_back(*bot);
 
         //if the scores exceed a certain threshold clear its head
-        while(scores_buffer.size()>200)
+        while(scores_buffer.size()>50)
             scores_buffer.pop_front();
             
         if(scores_buffer.size()<10)
