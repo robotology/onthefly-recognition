@@ -1,8 +1,6 @@
 #include "linearClassifierModule.h"
 #include <yarp/os/Stamp.h>
 
-
-
 bool linearClassifierModule::configure(yarp::os::ResourceFinder &rf)
 {    
 
@@ -73,6 +71,15 @@ bool linearClassifierModule::respond(const Bottle& command, Bottle& reply)
     {
     
         this->lCThread->stopAll();
+        reply.addString("ack");
+        return true;
+
+    } 
+
+    if(command.get(0).asString()=="objList")
+    {
+    
+        this->lCThread->getClassList(reply);
         reply.addString("ack");
         return true;
 

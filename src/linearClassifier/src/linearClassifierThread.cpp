@@ -30,6 +30,14 @@ linearClassifierThread::linearClassifierThread(yarp::os::ResourceFinder &rf, Por
 
 }
 
+bool linearClassifierThread::getClassList(Bottle &b)
+{
+    mutex->wait();
+    for(int i=0; i<knownObjects.size(); i++)
+        b.addString(knownObjects[i].first.c_str());
+    mutex->post();
+    return true;
+}
 
 void linearClassifierThread::checkKnownObjects()
 {
@@ -147,6 +155,7 @@ void linearClassifierThread::run(){
             }
             //cout << "ISTANT SCORES: ";
             double maxVal=-1000;
+            double minValue=1000;
             double idWin=-1;
             for(int i =0; i<linearClassifiers.size(); i++)
             {
@@ -156,7 +165,9 @@ void linearClassifierThread::run(){
                     maxVal=value;
                     idWin=i;
                 }
-                bufferScores[current%bufferSize][i]=value;
+                if(value<minValue)
+                    minValue=value;
+                bufferScores[current%bufferSize][i]=(value);
                 countBuffer[current%bufferSize][i]=0;
                 //cout << knownObjects[i].first << " " << value << " ";
             }
@@ -178,7 +189,7 @@ void linearClassifierThread::run(){
             double maxVote=0;
             int indexClass=-1;
             int indexMaxVote=-1;
-            cout << "BUFFER SCORES: ";
+            
             for(int i =0; i<linearClassifiers.size(); i++)
             {
                 avgScores[i]=avgScores[i]/bufferSize;
@@ -197,7 +208,6 @@ void linearClassifierThread::run(){
 
             string winnerClass=knownObjects[indexClass].first;
             string winnerVote=knownObjects[indexMaxVote].first;
-            cout << "WINNER: " << winnerClass  << " WINNER VOTE: " << winnerVote << endl;
             
             if(bufferVotes[indexMaxVote]/bufferSize<0.75)
                 winnerClass="?";

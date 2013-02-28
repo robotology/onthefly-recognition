@@ -72,5 +72,6 @@ public:
     bool startRecognition();
     bool forgetClass(string className, bool retrain);
     bool forgetAll();
+    bool getClassList(Bottle &b);
 
 };
