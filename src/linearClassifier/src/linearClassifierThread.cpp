@@ -9,7 +9,7 @@ linearClassifierThread::linearClassifierThread(yarp::os::ResourceFinder &rf, Por
         currentState=STATE_DONOTHING;
 
         this->currPath = rf.getContextPath().c_str();
-        this->currPath=this->currPath+"/database";
+        
         mutex=new Semaphore(1);
 
         string moduleName = rf.check("name",Value("linearClassifier"), "module name (string)").asString().c_str();
@@ -26,6 +26,9 @@ linearClassifierThread::linearClassifierThread(yarp::os::ResourceFinder &rf, Por
         this->outputScorePortName += rf.check("OutputPortScores",Value("/scores:o"),"Input image port (string)").asString().c_str();
 
         this->bufferSize = rf.check("BufferSize",Value(15),"Buffer Size").asInt();
+
+        string dbfolder = rf.check("databaseFolder",Value("database"), "module name (string)").asString().c_str();
+        this->currPath=this->currPath+dbfolder;
 
 
 }
