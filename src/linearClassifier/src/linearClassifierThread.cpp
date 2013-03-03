@@ -28,6 +28,7 @@ linearClassifierThread::linearClassifierThread(yarp::os::ResourceFinder &rf, Por
         this->bufferSize = rf.check("BufferSize",Value(15),"Buffer Size").asInt();
 
         string dbfolder = rf.check("databaseFolder",Value("database"), "module name (string)").asString().c_str();
+        dbfolder="/"+dbfolder;
         this->currPath=this->currPath+dbfolder;
 
 
