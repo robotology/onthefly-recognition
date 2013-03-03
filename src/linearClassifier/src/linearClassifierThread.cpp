@@ -207,7 +207,7 @@ void linearClassifierThread::run(){
                     maxVote=bufferVotes[i];
                     indexMaxVote=i;
                 }
-                cout  << knownObjects[i].first << " S: " << avgScores[i] << " V: " << bufferVotes[i] << " " ;
+                //cout  << knownObjects[i].first << " S: " << avgScores[i] << " V: " << bufferVotes[i] << " " ;
             }
 
             string winnerClass=knownObjects[indexClass].first;
