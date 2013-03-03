@@ -5,8 +5,6 @@
 include(FindLibSVMLin.cmake)
 include(FindLibSVM.cmake)
 
-
-
 IF(LIBSVM_FOUND)
 IF(LIBSVMLIN_FOUND)
 	cmake_minimum_required(VERSION 2.6)
