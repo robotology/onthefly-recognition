@@ -171,7 +171,7 @@ private:
                 {   
                     int x = cvRound(keypoints[i].x);
                     int y = cvRound(keypoints[i].y);
-                    cvCircle(img.getIplImage(),cvPoint(x,y),0.3,cvScalar(255),0.3);
+                    cvCircle(img.getIplImage(),cvPoint(x,y),3,cvScalar(0,0,255),-1);
                 }
                 port_out_img.write(img);
 
