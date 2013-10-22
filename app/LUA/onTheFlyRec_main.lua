@@ -2,7 +2,6 @@
 
 require("rfsm")
 require("yarp")
-
 require("onTheFlyRec_funcs")
 
 yarp.Network()
@@ -21,12 +20,17 @@ user = {"robot", "human"}
 
 -- defining speech grammar for Menu
 
-grammar = "Mode #User | Train #Object | Let's recognize | Forget all objects  | See you soon "
+grammar = "Mode #User | Train #Object | Let recognize | Forget all objects  | See you soon "
 
 -- load state machine model and initalize it
-fsm_model = rfsm.load("./onTheFlyRec_root_fsm.lua")
+rf = yarp.ResourceFinder()
+rf:setDefaultContext("onTheFlyRecognition/LUA")
+rf:configure(0,nil)
+fsm_file = rf:findFile("onTheFlyRec_root_fsm.lua")
+fsm_model = rfsm.load(fsm_file)
 fsm = rfsm.init(fsm_model)
 rfsm.run(fsm)
+
 
 repeat
     rfsm.run(fsm)

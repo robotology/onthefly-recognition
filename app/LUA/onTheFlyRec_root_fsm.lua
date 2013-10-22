@@ -15,7 +15,7 @@ return rfsm.state {
 			if ret == false then
 				rfsm.send_events(fsm, 'e_error')
 			else
-				rfsm.send_events(fsm, 'e_connect')
+				rfsm.send_events(fsm, 'e_connect')                
 			end
 		end
 	},
@@ -25,9 +25,9 @@ return rfsm.state {
 	----------------------------------
 	ST_CONNECTPORTS = rfsm.state{
 		entry=function()
-			ret = yarp.NetworkBase_connect(ispeak_port:getName():c_str(), "/iSpeak")
-			ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName():c_str(), "/speechRecognizer/rpc")
-			ret =  ret and yarp.NetworkBase_connect(onTheFlyRec_port:getName():c_str(), "/onTheFlyRecognition/human:io")
+			ret = yarp.NetworkBase_connect(ispeak_port:getName(), "/iSpeak")
+			ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName(), "/speechRecognizer/rpc")
+			ret =  ret and yarp.NetworkBase_connect(onTheFlyRec_port:getName(), "/onTheFlyRecognition/human:io")
 			if ret == false then
 				print("\n\nERROR WITH CONNECTIONS, PLEASE CHECK\n\n")
 				rfsm.send_events(fsm, 'e_error')
@@ -86,9 +86,9 @@ return rfsm.state {
 	ST_FINI = rfsm.state{
 		entry=function()
 			print("Closing...")
-			yarp.NetworkBase_disconnect(ispeak_port:getName():c_str(), "/iSpeak")
-			yarp.NetworkBase_disconnect(speechRecog_port:getName():c_str(), "/speechRecognizer/rpc")
-			yarp.NetworkBase_disconnect(onTheFlyRec_port:getName():c_str(), "/onTheFlyRecognition/human:io")
+			yarp.NetworkBase_disconnect(ispeak_port:getName(), "/iSpeak")
+			yarp.NetworkBase_disconnect(speechRecog_port:getName(), "/speechRecognizer/rpc")
+			yarp.NetworkBase_disconnect(onTheFlyRec_port:getName(), "/onTheFlyRecognition/human:io")
 			ispeak_port:close()
 			speechRecog_port:close()
 			onTheFlyRec_port:close()

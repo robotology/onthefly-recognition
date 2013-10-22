@@ -18,7 +18,7 @@ function onTheFlyRec_train(port, objName)
     wb:addString("train")
 	wb:addString(objName)
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 function onTheFlyRec_recognize(port)
@@ -27,7 +27,7 @@ function onTheFlyRec_recognize(port)
 	wb:clear()
     wb:addString("classify")
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 function onTheFlyRec_mode(port, userName)
@@ -36,7 +36,7 @@ function onTheFlyRec_mode(port, userName)
 	wb:clear()
 	wb:addString(userName)
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 function onTheFlyRec_forget(port, objName)
@@ -46,7 +46,7 @@ function onTheFlyRec_forget(port, objName)
     wb:addString("forget")
 	--wb:addString(objName)
     port:write(wb,reply)
-	return reply:get(0):asString():c_str()
+	return reply:get(0):asString()
 end
 
 
@@ -64,8 +64,8 @@ function SM_RGM_Expand(port, vocab, word)
 	wb:addString(vocab)
 	wb:addString(word)
     port:write(wb,reply)
-	--print(reply:get(1):asString():c_str())
-	return reply:get(1):asString():c_str()
+	--print(reply:get(1):asString()
+	return reply:get(1):asString()
 end
 
 function SM_Expand_asyncrecog(port, gram)
@@ -98,7 +98,7 @@ function SM_RGM_Expand_Auto(port, vocab)
 	wb:addString("addAuto")
 	wb:addString(vocab)
     port:write(wb,reply)
-	return reply:get(1):asString():c_str()
+	return reply:get(1):asString()
 end
 
 --[[
