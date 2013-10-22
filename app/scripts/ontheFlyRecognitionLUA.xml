@@ -57,7 +57,7 @@
                 <tag>speech_recognition_module</tag>
         </module>
 		<module>
-            <name>iol_main.lua</name>
+            <name>onTheFlyRec_main.lua</name>
             <node>icub15</node>
             <dependencies>
                 <port timeout="10">/iSpeak</port>
