@@ -65,7 +65,7 @@
                 <port timeout="10">/onTheFlyRecognition/human:io</port>
             </dependencies> -->
              <name>lua</name>
-            <parameters>onTheFlyRec.lua</parameters>
+            <parameters>onTheFlyRec_main.lua</parameters>
             <node>icub15</node>
             <workdir>/usr/local/src/robot/iCub/contrib/src/onTheFlyRecognition/app/LUA</workdir>
         </module>
