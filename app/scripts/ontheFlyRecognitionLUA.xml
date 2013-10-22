@@ -57,13 +57,17 @@
                 <tag>speech_recognition_module</tag>
         </module>
 		<module>
-            <name>onTheFlyRec_main.lua</name>
+            <!--<name>onTheFlyRec_main.lua</name>
             <node>icub15</node>
             <dependencies>
                 <port timeout="10">/iSpeak</port>
                 <port timeout="10">/speechRecognizer/rpc</port>
                 <port timeout="10">/onTheFlyRecognition/human:io</port>
-            </dependencies>
+            </dependencies> -->
+             <name>lua</name>
+            <parameters>onTheFlyRec.lua</parameters>
+            <node>icub15</node>
+            <workdir>/usr/local/src/robot/iCub/contrib/src/onTheFlyRecognition/app/LUA</workdir>
         </module>
 
 
