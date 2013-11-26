@@ -879,7 +879,7 @@ private:
             cmd_classifier.addString("train");
             port_rpc_classifier.write(cmd_classifier,reply_classifier);
 
-            if(reply_classifier.size()>0 && reply_classifier.get(0).asVocab()==ACK)
+            if(reply_classifier.size()>0 && (reply_classifier.get(0).asVocab()==ACK || reply_classifier.get(0).asString() =="ok"))
                 done=true;
         }
 
@@ -993,7 +993,7 @@ public:
                     cmd_classifier.addString(class_name.c_str());
                     port_rpc_classifier.write(cmd_classifier,reply_classifier);
 
-                    if(reply_classifier.size()>0 && reply_classifier.get(0).asVocab()==ACK)
+                    if(reply_classifier.size()>0 && (reply_classifier.get(0).asVocab()==ACK || reply_classifier.get(0).asString() =="ok"))
                     {
                         thr_transformer->set_current_class(class_name);
                         set_state(STATE_TRAINING);
@@ -1029,7 +1029,7 @@ public:
                 cmd_classifier.addString("recognize");
                 port_rpc_classifier.write(cmd_classifier,reply_classifer);
 
-                if(reply_classifer.size()>0 && reply_classifer.get(0).asVocab()==ACK)
+                if(reply_classifer.size()>0 && (reply_classifer.get(0).asVocab()==ACK || reply_classifer.get(0).asString()=="ok"))
                 {
                     thr_transformer->set_current_class("?");
                     if(mode==MODE_ROBOT)
@@ -1117,7 +1117,7 @@ public:
                 
                 if(command.size()>1)
                 {
-                    string class_forget=command.get(0).asString().c_str();
+                    string class_forget=command.get(1).asString().c_str();
                     cmd_classifier.addString(class_forget.c_str());
                 
                     port_rpc_classifier.write(cmd_classifier,reply_classifer);
@@ -1277,9 +1277,9 @@ int main(int argc, char *argv[])
 
    ResourceFinder rf;
    rf.setVerbose(true);
-   rf.setDefaultContext("onTheFlyRecognition/conf");
+   rf.setDefaultContext("onTheFlyRecognition");
    rf.setDefaultConfigFile("config.ini");
-   rf.configure("ICUB_ROOT",argc,argv);
+   rf.configure(argc,argv);
    rf.setDefault("name","onTheFlyRecognition");
    ManagerModule mod;
 
