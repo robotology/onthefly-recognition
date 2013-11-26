@@ -10,25 +10,25 @@
         <module>
                 <name>motionCUT</name>
                 <parameters>--name motionCUT/left --coverXratio 0.7 --coverYratio 0.7 --framesPersistence 2 --numThreads 5 --nodesStep 6 --recogThres 0.512</parameters>
-                <node>icub-b11</node>
+                <node>icub-b14</node>
                 <tag>motionCUTLeft</tag>
         </module>
 		
         <module>
                 <name>linearClassifierModule</name>
-                <node>icub-b13</node>
+                <node>icub-b15</node>
                 <tag>classifier</tag>
         </module>
                 
         <module>
                 <name>actionsRenderingEngine</name>
-                <node>icub-b12</node>
+                <node>icub-b16</node>
                 <tag>are</tag>
         </module>
 
         <module>
                 <name>onTheFlyRecognition</name>               
-                <node>icub-b13</node>
+                <node>icub-b16</node>
                 <tag>manager</tag>
         </module>
 		
@@ -41,13 +41,21 @@
         <module>
                 <name>yarpview</name>
                 <parameters>--name /onTheFlyRecognition/view</parameters>
-                <node>icub15</node>
+                <node>icub14</node>
                 <tag>main_viewer</tag>
+        </module>
+
+
+        <module>
+                <name>yarpview</name>
+                <parameters>--name /onTheFlyRecognition/confidence</parameters>
+                <node>icub14</node>
+                <tag>conf_viewer</tag>
         </module>
 
         <module>
                 <name>iSpeak</name>
-                <node>icub15</node>
+                <node>icub14</node>
                 <tag>speaking_module</tag>
         </module>
 
@@ -164,6 +172,12 @@
         <connection>
                 <from>/onTheFlyRecognition/show:o</from>
                 <to>/onTheFlyRecognition/view</to>
+                <protocol>mcast</protocol>
+        </connection>
+        
+        <connection>
+                <from>/onTheFlyRecognition/confidence:o</from>
+                <to>/onTheFlyRecognition/confidence</to>
                 <protocol>mcast</protocol>
         </connection>
         
