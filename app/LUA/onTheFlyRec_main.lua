@@ -25,7 +25,7 @@ grammar = "Mode #User | Train #Object | Let recognize | Forget all objects  | Se
 -- load state machine model and initalize it
 rf = yarp.ResourceFinder()
 rf:setDefaultContext("onTheFlyRecognition/LUA")
-rf:configure(0,nil)
+rf:configure(arg)
 fsm_file = rf:findFile("onTheFlyRec_root_fsm.lua")
 fsm_model = rfsm.load(fsm_file)
 fsm = rfsm.init(fsm_model)
