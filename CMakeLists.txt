@@ -17,6 +17,7 @@ include_directories(${YARP_INCLUDE_DIRS})
 include_directories(${ICUB_INCLUDE_DIRS})
 include(YarpInstallationHelpers)
 include(ICUBcontribHelpers)
+include(ICUBcontribOptions)
 icubcontrib_set_default_prefix()
 
 add_subdirectory(app)

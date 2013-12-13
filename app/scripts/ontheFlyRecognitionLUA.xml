@@ -40,7 +40,14 @@
 
         <module>
                 <name>yarpview</name>
-                <parameters>--name /onTheFlyRecognition/view</parameters>
+                <parameters>--name /onTheFlyRecognition/view --x 0 --y 0 --RefreshTime 50</parameters>
+                <node>icub15</node>
+                <tag>main_viewer</tag>
+        </module>
+
+        <module>
+                <name>yarpview</name>
+                <parameters>--name --name /onTheFlyRecognition/confidence/view --x 320 --y 0 --RefreshTime 50</parameters>
                 <node>icub15</node>
                 <tag>main_viewer</tag>
         </module>
@@ -78,7 +85,7 @@
         <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/motionCUT/left/img:i</to>
-                <protocol>mcast</protocol>
+                <protocol>udp</protocol>
         </connection> 
 
 
@@ -94,19 +101,19 @@
         <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/onTheFlyRecognition/img:i</to>
-                <protocol>mcast</protocol>
+                <protocol>udp</protocol>
         </connection>
 
         <connection>
                 <from>/motionCUT/left/blobs:o</from>
                 <to>/onTheFlyRecognition/blobs:i</to>
-                <protocol>mcast</protocol>
+                <protocol>udp</protocol>
         </connection>
 
         <connection>
                 <from>/onTheFlyRecognition/crop:o</from>
                 <to>/sparseCoder/img:i</to>
-                <protocol>mcast</protocol>
+                <protocol>udp</protocol>
         </connection>
 
         <connection>
@@ -176,7 +183,13 @@
         <connection>
                 <from>/onTheFlyRecognition/show:o</from>
                 <to>/onTheFlyRecognition/view</to>
-                <protocol>mcast</protocol>
+                <protocol>udp</protocol>
+        </connection>
+
+        <connection>
+                <from>/onTheFlyRecognition/confidence:o</from>
+                <to>/onTheFlyRecognition/confidence/view</to>
+                <protocol>udp</protocol>
         </connection>
 
         <!-- LUA state machine helper-->
@@ -197,8 +210,6 @@
                 <to>/onTheFlyRecognition/human:io</to>
                 <protocol>tcp</protocol>
         </connection>
-
-        
         
 </application>
 

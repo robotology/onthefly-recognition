@@ -2,9 +2,9 @@
     <name>On_The_Fly_Recognition_with_GURLS</name>
     <module>
         <name>GurlsClassificationBatch</name>
-        <parameters></parameters>
+        <parameters>--experiment onTheFly</parameters>
         <node>icub15</node>
-        <prefix>/On_The_Fly_Recognition_with_GURLS:GurlsClassificationBatch:1</prefix>
+        <prefix></prefix>
         <geometry>(Pos (x 833) (y 0))</geometry>
     </module>
     <module>
@@ -58,15 +58,15 @@
     </module>
     <module>
         <name>yarpview</name>
-        <parameters></parameters>
+        <parameters>--x 0 --y 0 --RefreshTime 50</parameters>
         <node>icub15</node>
         <prefix>/onTheFlyViewer</prefix>
         <geometry>(Pos (x 794) (y 255.9))</geometry>
     </module>
     <module>
         <name>yarpview</name>
-        <parameters></parameters>
-        <node>icub14</node>
+        <parameters>-x 320 --y 0 --RefreshTime 50</parameters>
+        <node>icub15</node>
         <prefix>/onTheFlyViewConfidence</prefix>
         <geometry>(Pos (x 894) (y 189.9))</geometry>
     </module>
@@ -156,18 +156,18 @@
     </connection>
     <connection>
         <from>/sparseCoder/code:o</from>
-        <to>/On_The_Fly_Recognition_with_GURLS:GurlsClassificationBatch:1/gurlsClassifier/features:i</to>
+        <to>/gurlsClassifier/features:i</to>
         <protocol>tcp</protocol>
         <geometry>(Pos ((x 805.5) (y 113)) ((x 798) (y 183)) ((x 834) (y 43))  )</geometry>
     </connection>
     <connection>
         <from>/onTheFlyRecognition/classifier:io</from>
-        <to>/On_The_Fly_Recognition_with_GURLS:GurlsClassificationBatch:1/gurlsClassifier/rpc</to>
+        <to>/gurlsClassifier/rpc</to>
         <protocol>tcp</protocol>
         <geometry>(Pos ((x 635.5) (y 108.5)) ((x 503) (y 207)) ((x 596) (y 110)) ((x 834) (y 68))  )</geometry>
     </connection>
     <connection>
-        <from>/On_The_Fly_Recognition_with_GURLS:GurlsClassificationBatch:1/gurlsClassifier/scores:o</from>
+        <from>/gurlsClassifier/scores:o</from>
         <to>/onTheFlyRecognition/scores:i</to>
         <protocol>tcp</protocol>
         <geometry>(Pos ((x 638.5) (y 76.5)) ((x 1115) (y 55)) ((x 1144) (y 87)) ((x 240) (y 100)) ((x 262) (y 232))  )</geometry>

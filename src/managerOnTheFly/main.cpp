@@ -415,7 +415,7 @@ public:
         Bottle *bot=port_in_scores.read(false);
         
 
-        if(bot==NULL)
+        if(bot==NULL || bot->size()<1)
         {
             mutex.post();
             return;
