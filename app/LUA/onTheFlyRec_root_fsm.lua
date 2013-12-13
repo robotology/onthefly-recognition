@@ -1,6 +1,6 @@
 
-require("onTheFlyRec_interact_fsm")
-
+dofile(rf:findFile("onTheFlyRec_interact_fsm.lua"))
+dofile(rf:findFile("onTheFlyRec_funcs.lua"))
 return rfsm.state {
 
 	----------------------------------
@@ -25,12 +25,14 @@ return rfsm.state {
 	----------------------------------
 	ST_CONNECTPORTS = rfsm.state{
 		entry=function()
-			ret = yarp.NetworkBase_connect(ispeak_port:getName(), "/iSpeak")
-			ret =  ret and yarp.NetworkBase_connect(speechRecog_port:getName(), "/speechRecognizer/rpc")
-			ret =  ret and yarp.NetworkBase_connect(onTheFlyRec_port:getName(), "/onTheFlyRecognition/human:io")
-			if ret == false then
-				print("\n\nERROR WITH CONNECTIONS, PLEASE CHECK\n\n")
-				rfsm.send_events(fsm, 'e_error')
+                        ret = false
+                        while ret==false
+                        do
+                            print("WAITING FOR CONNECTION ON PORTS\n")
+			    ret =  ispeak_port:getOutputCount() >0
+			    ret =  ret and speechRecog_port:getOutputCount() >0
+			    ret =  ret and onTheFlyRec_port:getOutputCount() >0
+                            yarp.Time_delay(1.0)
 			end
 		end
 	},
@@ -112,7 +114,6 @@ return rfsm.state {
 	rfsm.transition { src='ST_INITPORTS', tgt='ST_CONNECTPORTS', events={ 'e_connect' } },
 	rfsm.transition { src='ST_INITPORTS', tgt='ST_FATAL', events={ 'e_error' } },
 
-    rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_FINI', events={ 'e_error' } },
 	rfsm.transition { src='ST_CONNECTPORTS', tgt='ST_INITVOCABS', events={ 'e_done' } },
 
 	rfsm.transition { src='ST_INITVOCABS', tgt='ST_FINI', events={ 'e_error' } },

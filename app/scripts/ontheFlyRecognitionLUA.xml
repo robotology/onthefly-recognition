@@ -67,7 +67,7 @@
              <name>lua</name>
             <parameters>onTheFlyRec_main.lua</parameters>
             <node>icub15</node>
-            <workdir>/usr/local/src/robot/iCub/contrib/src/onTheFlyRecognition/app/LUA</workdir>
+            <!--workdir>/usr/local/src/robot/iCub/contrib/src/onTheFlyRecognition/app/LUA</workdir-->
         </module>
 
 
@@ -178,6 +178,26 @@
                 <to>/onTheFlyRecognition/view</to>
                 <protocol>mcast</protocol>
         </connection>
+
+        <!-- LUA state machine helper-->
+        <connection>
+                <from>/onTheFlyRec/speak</from>
+                <to>/iSpeak</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+                <from>/onTheFlyRec/speechRecog</from>
+                <to>/speechRecognizer/rpc</to>
+                <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+                <from>/onTheFlyRec/manager</from>
+                <to>/onTheFlyRecognition/human:io</to>
+                <protocol>tcp</protocol>
+        </connection>
+
         
         
 </application>

@@ -1,0 +1,193 @@
+<application>
+    <name>On_The_Fly_Recognition_with_GURLS</name>
+    <module>
+        <name>GurlsClassificationBatch</name>
+        <parameters></parameters>
+        <node>icub15</node>
+        <prefix>/On_The_Fly_Recognition_with_GURLS:GurlsClassificationBatch:1</prefix>
+        <geometry>(Pos (x 833) (y 0))</geometry>
+    </module>
+    <module>
+        <name>actionsRenderingEngine</name>
+        <parameters></parameters>
+        <node>icub-b12</node>
+        <prefix></prefix>
+        <geometry>(Pos (x 713) (y 336.9))</geometry>
+    </module>
+    <module>
+        <name>iSpeak</name>
+        <parameters></parameters>
+        <node>icub15</node>
+        <prefix></prefix>
+        <geometry>(Pos (x 364) (y 638.9))</geometry>
+    </module>
+    <module>
+        <name>motionCUT</name>
+        <parameters>--name motionCUT/left --coverXratio 0.7 --coverYratio 0.7 --framesPersistence 2 --numThreads 5 --nodesStep 6 --recogThres 0.512</parameters>
+        <node>icub-b11</node>
+        <prefix></prefix>
+        <geometry>(Pos (x 121) (y 450.9))</geometry>
+    </module>
+    <module>
+        <name>onTheFlyRec_main.lua</name>
+        <parameters></parameters>
+        <node>icub15</node>
+        <prefix></prefix>
+        <geometry>(Pos (x 0.9) (y 57.9))</geometry>
+    </module>
+    <module>
+        <name>onTheFlyRecognition</name>
+        <parameters></parameters>
+        <node>icub-b13</node>
+        <prefix></prefix>
+        <geometry>(Pos (x 261) (y 113.9))</geometry>
+    </module>
+    <module>
+        <name>sparseCoder</name>
+        <parameters></parameters>
+        <node>icub-cuda</node>
+        <prefix></prefix>
+        <geometry>(Pos (x 620) (y 139.9))</geometry>
+    </module>
+    <module>
+        <name>speechRecognizer</name>
+        <parameters></parameters>
+        <node>icub-win1</node>
+        <prefix></prefix>
+        <geometry>(Pos (x 45) (y 652.9))</geometry>
+    </module>
+    <module>
+        <name>yarpview</name>
+        <parameters></parameters>
+        <node>icub15</node>
+        <prefix>/onTheFlyViewer</prefix>
+        <geometry>(Pos (x 794) (y 255.9))</geometry>
+    </module>
+    <module>
+        <name>yarpview</name>
+        <parameters></parameters>
+        <node>icub14</node>
+        <prefix>/onTheFlyViewConfidence</prefix>
+        <geometry>(Pos (x 894) (y 189.9))</geometry>
+    </module>
+    <connection>
+        <from>/onTheFlyRecognition/confidence:o</from>
+        <to>/onTheFlyViewConfidence/yarpview/img:i</to>
+        <protocol>udp</protocol>
+        <geometry>(Pos ((x 688.5) (y 232.5)) ((x 503) (y 257)) ((x 895) (y 208))  )</geometry>
+    </connection>
+    <connection>
+        <from external="true">/icub/camcalib/left/out</from>
+        <to>/onTheFlyRecognition/img:i</to>
+        <protocol>mcast</protocol>
+        <geometry>(Pos ((x 209.5) (y 285.5)) ((x 192) (y 313)) ((x 262) (y 257))  )</geometry>
+    </connection>
+    <connection>
+        <from>/onTheFlyRecognition/crop:o</from>
+        <to>/sparseCoder/img:i</to>
+        <protocol>mcast</protocol>
+        <geometry>(Pos ((x 544.5) (y 232.5)) ((x 503) (y 307)) ((x 621) (y 158))  )</geometry>
+    </connection>
+    <connection>
+        <from>/onTheFlyRecognition/are/rpc</from>
+        <to>/actionsRenderingEngine/rpc</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 598) (y 268.5)) ((x 503) (y 132)) ((x 714) (y 405))  )</geometry>
+    </connection>
+    <connection>
+        <from>/onTheFlyRecognition/are/hand:io</from>
+        <to>/actionsRenderingEngine/get:io</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 598) (y 356)) ((x 503) (y 332)) ((x 714) (y 380))  )</geometry>
+    </connection>
+    <connection>
+        <from>/onTheFlyRecognition/are/get:io</from>
+        <to>/actionsRenderingEngine/get:io</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 598) (y 268.5)) ((x 503) (y 157)) ((x 714) (y 380))  )</geometry>
+    </connection>
+    <connection>
+        <from>/onTheFlyRecognition/are/cmd:io</from>
+        <to>/actionsRenderingEngine/cmd:io</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 598) (y 268.5)) ((x 503) (y 182)) ((x 714) (y 355))  )</geometry>
+    </connection>
+    <connection>
+        <from>/speechRecognizer/tts/iSpeak:o</from>
+        <to>/iSpeak</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 303.5) (y 664)) ((x 263) (y 671)) ((x 365) (y 657))  )</geometry>
+    </connection>
+    <connection>
+        <from>/iSpeak/emotions:o</from>
+        <to external="true">/icub/face/emotions/in</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 518) (y 726.5)) ((x 502) (y 669)) ((x 587) (y 780))  )</geometry>
+    </connection>
+    <connection>
+        <from>/onTheFlyRecognition/speech:o</from>
+        <to>/iSpeak</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 423.5) (y 444.5)) ((x 503) (y 232)) ((x 365) (y 657))  )</geometry>
+    </connection>
+    <connection>
+        <from external="true">/icub/camcalib/left/out</from>
+        <to>/motionCUT/img:i</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 104.5) (y 383.5)) ((x 192) (y 313)) ((x 221) (y 345)) ((x 90) (y 345)) ((x 122) (y 506))  )</geometry>
+    </connection>
+    <connection>
+        <from>/motionCUT/blobs:o</from>
+        <to>/actionsRenderingEngine/left/blobs:i</to>
+        <protocol>udp</protocol>
+        <geometry>(Pos ((x 488) (y 512)) ((x 283) (y 519)) ((x 714) (y 505))  )</geometry>
+    </connection>
+    <connection>
+        <from>/motionCUT/blobs:o</from>
+        <to>/onTheFlyRecognition/blobs:i</to>
+        <protocol>udp</protocol>
+        <geometry>(Pos ((x 262) (y 400.5)) ((x 283) (y 519)) ((x 262) (y 282))  )</geometry>
+    </connection>
+    <connection>
+        <from>/onTheFlyRecognition/show:o</from>
+        <to>/onTheFlyViewer/yarpview/img:i</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 638.5) (y 278)) ((x 503) (y 282)) ((x 795) (y 274))  )</geometry>
+    </connection>
+    <connection>
+        <from>/sparseCoder/code:o</from>
+        <to>/On_The_Fly_Recognition_with_GURLS:GurlsClassificationBatch:1/gurlsClassifier/features:i</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 805.5) (y 113)) ((x 798) (y 183)) ((x 834) (y 43))  )</geometry>
+    </connection>
+    <connection>
+        <from>/onTheFlyRecognition/classifier:io</from>
+        <to>/On_The_Fly_Recognition_with_GURLS:GurlsClassificationBatch:1/gurlsClassifier/rpc</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 635.5) (y 108.5)) ((x 503) (y 207)) ((x 596) (y 110)) ((x 834) (y 68))  )</geometry>
+    </connection>
+    <connection>
+        <from>/On_The_Fly_Recognition_with_GURLS:GurlsClassificationBatch:1/gurlsClassifier/scores:o</from>
+        <to>/onTheFlyRecognition/scores:i</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 638.5) (y 76.5)) ((x 1115) (y 55)) ((x 1144) (y 87)) ((x 240) (y 100)) ((x 262) (y 232))  )</geometry>
+    </connection>
+    <connection>
+        <from external="true">/onTheFlyRec/speak</from>
+        <to>/iSpeak</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 253) (y 382.5)) ((x 162) (y 105)) ((x 365) (y 657))  )</geometry>
+    </connection>
+    <connection>
+        <from external="true">/onTheFlyRec/speechRecog</from>
+        <to>/speechRecognizer/rpc</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 119) (y 409)) ((x 213) (y 132)) ((x 46) (y 683))  )</geometry>
+    </connection>
+    <connection>
+        <from external="true">/onTheFlyRec/manager</from>
+        <to>/onTheFlyRecognition/human:io</to>
+        <protocol>tcp</protocol>
+        <geometry>(Pos ((x 231.5) (y 127)) ((x 222) (y 46)) ((x 262) (y 207))  )</geometry>
+    </connection>
+</application>
