@@ -16,6 +16,7 @@
 		
         <module>
                 <name>linearClassifierModule</name>
+                 <parameters>--CSVM 1.0 --WeightedSVM 1</parameters>
                 <node>icub-b13</node>
                 <tag>classifier</tag>
         </module>

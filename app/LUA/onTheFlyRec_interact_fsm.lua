@@ -19,7 +19,7 @@ interact_fsm = rfsm.state{
 
 		doo = function()
             while true do
-				    speak(ispeak_port, "What should I do?")
+				    -- speak(ispeak_port, "What should I do?")
 				    result = SM_Reco_Grammar(speechRecog_port, grammar)
 				    print("received REPLY: ", result:toString() )
 				    local cmd = result:get(1):asString()
