@@ -4,7 +4,7 @@ function speak(port, str)
     wb:clear()
     wb:addString(str)
     port:write()
-	yarp.Time_delay(1.0)
+    yarp.Time_delay(1.0)
 end
 
 ----------------------------------

@@ -19,7 +19,7 @@ user = {"robot", "human"}
 
 -- defining speech grammar for Menu
 
-grammar = "Mode #User | Train #Object | Let recognize | Forget all objects  | See you soon "
+grammar = "Mode #User | Train #Object | Let recognize | Forget all objects  | See you soon | I will teach you a new object"
 
 -- load state machine model and initalize it
 rf = yarp.ResourceFinder()
