@@ -27,7 +27,7 @@ interact_fsm = rfsm.state{
                 rfsm.send_events(fsm, event_table[cmd])
                 rfsm.yield(true)
             end
-        åend
+        end
     },
 
     ----------------------------------
