@@ -87,7 +87,7 @@ private:
     //rpc
     RpcClient                           port_rpc_are_get_hand;
 
-    int                                 radius_crop;
+    int                                 radius_crop; 
     int                                 radius_crop_robot;
     int                                 radius_crop_human;
 
