@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
 
    ResourceFinder rf;
    rf.setVerbose(true);
-   rf.setDefaultContext("showOnTheFly");
+   rf.setDefaultContext("onthefly-recognition");
    rf.setDefaultConfigFile("config.ini");
    rf.configure(argc,argv);
    rf.setDefault("name","showOnTheFly");
