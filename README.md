@@ -8,6 +8,7 @@ On The Fly Recognition
 - [iCub](https://github.com/robotology/icub-main)
 - [icub-contrib-common](https://github.com/robotology/icub-contrib-common)
 - [OpenCV](http://opencv.org/downloads.html)
+- [Hierarchical Image Representation](https://github.com/robotology/himrep)
 
 ## License
 
