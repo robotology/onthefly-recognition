@@ -2,8 +2,7 @@
 # Author: Sean Ryan Fanello, Carlo Ciliberto
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 cmake_minimum_required(VERSION 2.6)
-
-project(onTheFlyRecognition)
+project(onthefly-recognition)
 
 find_package(YARP REQUIRED)
 find_package(ICUB REQUIRED)
@@ -13,8 +12,6 @@ list(APPEND CMAKE_MODULE_PATH ${YARP_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUB_MODULE_PATH})
 list(APPEND CMAKE_MODULE_PATH ${ICUBCONTRIB_MODULE_PATH})
 
-include_directories(${YARP_INCLUDE_DIRS})
-include_directories(${ICUB_INCLUDE_DIRS})
 include(YarpInstallationHelpers)
 include(ICUBcontribHelpers)
 include(ICUBcontribOptions)

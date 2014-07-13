@@ -23,7 +23,7 @@
     </module>
     <module>
         <name>motionCUT</name>
-        <parameters>--name motionCUT/left --coverXratio 0.7 --coverYratio 0.7 --framesPersistence 2 --numThreads 5 --nodesStep 6 --recogThres 0.512</parameters>
+        <parameters>--name motionCUT/left --coverXratio 0.7 --coverYratio 0.7 --framesPersistence 2 --numThreads 5 --nodesStep 6</parameters>
         <node>icub-b11</node>
         <prefix></prefix>
         <geometry>(Pos (x 121) (y 450.9))</geometry>
@@ -36,7 +36,7 @@
         <geometry>(Pos (x 0.9) (y 57.9))</geometry>
     </module>
     <module>
-        <name>onTheFlyRecognition</name>
+        <name>managerOnTheFly</name>
         <parameters></parameters>
         <node>icub-b13</node>
         <prefix></prefix>

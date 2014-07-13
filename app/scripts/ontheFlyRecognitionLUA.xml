@@ -9,7 +9,7 @@
         <!-- Modules -->
         <module>
                 <name>motionCUT</name>
-                <parameters>--name motionCUT/left --coverXratio 0.7 --coverYratio 0.7 --framesPersistence 2 --numThreads 5 --nodesStep 6 --recogThres 0.512</parameters>
+                <parameters>--name motionCUT/left --coverXratio 0.7 --coverYratio 0.7 --framesPersistence 2 --numThreads 5 --nodesStep 6</parameters>
                 <node>icub-b11</node>
                 <tag>motionCUTLeft</tag>
         </module>
@@ -28,7 +28,7 @@
         </module>
 
         <module>
-                <name>onTheFlyRecognition</name>               
+                <name>managerOnTheFly</name>               
                 <node>icub-b13</node>
                 <tag>manager</tag>
         </module>

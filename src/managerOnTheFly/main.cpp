@@ -1277,7 +1277,7 @@ int main(int argc, char *argv[])
 
    ResourceFinder rf;
    rf.setVerbose(true);
-   rf.setDefaultContext("onTheFlyRecognition");
+   rf.setDefaultContext("onthefly-recognition");
    rf.setDefaultConfigFile("config.ini");
    rf.configure(argc,argv);
    rf.setDefault("name","onTheFlyRecognition");
