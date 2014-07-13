@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
    rf.setVerbose(true);
    rf.setDefaultContext("showOnTheFly");
    rf.setDefaultConfigFile("config.ini");
-   rf.configure("argc,argv");
+   rf.configure(argc,argv);
    rf.setDefault("name","showOnTheFly");
    ShowModule mod;
 
