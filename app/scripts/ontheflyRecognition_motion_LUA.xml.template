@@ -1,81 +1,75 @@
 
 <application>
-<name>On The Fly Recognition</name>
+<name>On The Fly Recognition with motion and LUA</name>
+
 
         <dependencies>
                 <port>/icub/camcalib/left/out</port>
         </dependencies>
 
+
         <!-- Modules -->
+
+
         <module>
                 <name>motionCUT</name>
                 <parameters>--name motionCUT/left --coverXratio 0.7 --coverYratio 0.7 --framesPersistence 2 --numThreads 5 --nodesStep 6</parameters>
-                <node>icub-b11</node>
-                <tag>motionCUTLeft</tag>
+                <node>node1</node>
         </module>
-		
-        <module>
-                <name>linearClassifierModule</name>
-                 <parameters>--CSVM 1.0 --WeightedSVM 1</parameters>
-                <node>icub-b13</node>
-                <tag>classifier</tag>
-        </module>
-                
-        <module>
-                <name>actionsRenderingEngine</name>
-                <node>icub-b12</node>
-                <tag>are</tag>
-        </module>
-
+    
         <module>
                 <name>managerOnTheFly</name>               
-                <node>icub-b13</node>
-                <tag>manager</tag>
-        </module>
-		
-        <module>
-                <name>sparseCoder</name>
-                <node>icub-cuda</node>
-                <tag>image_coder</tag>
+                <node>node1</node>
         </module>
 
         <module>
-                <name>yarpview</name>
-                <parameters>--name /onTheFlyRecognition/view --x 0 --y 0 --RefreshTime 50</parameters>
-                <node>icub15</node>
-                <tag>main_viewer</tag>
+                <name>actionsRenderingEngine</name>
+                <node>node2</node>
+        </module>
+        
+        <module>
+                <name>caffeCoder</name>
+                <node>gpu_node</node>
         </module>
 
         <module>
-                <name>yarpview</name>
-                <parameters>--name --name /onTheFlyRecognition/confidence/view --x 320 --y 0 --RefreshTime 50</parameters>
-                <node>icub15</node>
-                <tag>main_viewer</tag>
+                <name>linearClassifierModule</name>
+                <node>gpu_node</node>
         </module>
 
         <module>
                 <name>iSpeak</name>
-                <node>icub15</node>
-                <tag>speaking_module</tag>
+                <node>node3</node>
         </module>
 
         <module>
                 <name>speechRecognizer</name>
-                <node>icub-win1</node>
-                <tag>speech_recognition_module</tag>
+                <node>win_node</node>
         </module>
+
 		<module>
-            <!--<name>onTheFlyRec_main.lua</name>
-            <node>icub15</node>
-            <dependencies>
-                <port timeout="10">/iSpeak</port>
-                <port timeout="10">/speechRecognizer/rpc</port>
-                <port timeout="10">/onTheFlyRecognition/human:io</port>
-            </dependencies> -->
-             <name>lua</name>
-            <parameters>onTheFlyRec_main.lua</parameters>
-            <node>icub15</node>
-            <!--workdir>/usr/local/src/robot/iCub/contrib/src/onTheFlyRecognition/app/LUA</workdir-->
+                <!--<name>onTheFlyRec_main.lua</name>
+                <dependencies>
+                    <port timeout="10">/iSpeak</port>
+                    <port timeout="10">/speechRecognizer/rpc</port>
+                    <port timeout="10">/onTheFlyRecognition/human:io</port>
+                </dependencies> -->
+                <name>lua</name>
+                <parameters>onTheFlyRec_main.lua</parameters>
+                <node>node3</node>
+                <!--workdir>/usr/local/src/robot/iCub/contrib/src/onTheFlyRecognition/app/LUA</workdir-->
+        </module>
+
+       <module>
+                <name>yarpview</name>
+                <parameters>--name /onTheFlyRecognition/view</parameters>
+                <node>node4</node>
+        </module>
+
+        <module>
+                <name>yarpview</name>
+                <parameters>--name /onTheFlyRecognition/confidence</parameters>
+                <node>node4</node>
         </module>
 
 
@@ -83,6 +77,7 @@
 
         
         <!-- motionCUT -->
+
         <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/motionCUT/left/img:i</to>
@@ -91,6 +86,7 @@
 
 
         <!-- ActionsRenderingEngine -->
+
         <connection>
                 <from>/motionCUT/left/blobs:o</from>
                 <to>/actionsRenderingEngine/left/blobs:i</to>
@@ -99,6 +95,7 @@
 
 
         <!-- Coding -->
+
         <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/onTheFlyRecognition/img:i</to>
@@ -113,12 +110,12 @@
 
         <connection>
                 <from>/onTheFlyRecognition/crop:o</from>
-                <to>/sparseCoder/img:i</to>
+                <to>/caffeCoder/img:i</to>
                 <protocol>udp</protocol>
         </connection>
 
         <connection>
-                <from>/sparseCoder/code:o</from>
+                <from>/caffeCoder/code:o</from>
                 <to>/linearClassifier/features:i</to>
                 <protocol>tcp</protocol>
         </connection> 
@@ -131,6 +128,7 @@
 
 
         <!-- Manager -->
+
         <connection>
                 <from>/onTheFlyRecognition/are/rpc</from>
                 <to>/actionsRenderingEngine/rpc</to>
@@ -163,16 +161,19 @@
 
 
         <!-- Speech -->
+
         <connection>
                 <from>/speechRecognizer/tts/iSpeak:o</from>
                 <to>/iSpeak</to>
                 <protocol>tcp</protocol>
         </connection>
+
         <connection>
                 <from>/iSpeak/emotions:o</from>
                 <to>/icub/face/emotions/in</to>
                 <protocol>tcp</protocol>
         </connection>
+
         <connection>
                 <from>/onTheFlyRecognition/speech:o</from>
                 <to>/iSpeak</to>
@@ -181,6 +182,7 @@
 
 
         <!-- Visualization -->
+
         <connection>
                 <from>/onTheFlyRecognition/show:o</from>
                 <to>/onTheFlyRecognition/view</to>
@@ -193,7 +195,9 @@
                 <protocol>udp</protocol>
         </connection>
 
+
         <!-- LUA state machine helper-->
+        
         <connection>
                 <from>/onTheFlyRec/speak</from>
                 <to>/iSpeak</to>

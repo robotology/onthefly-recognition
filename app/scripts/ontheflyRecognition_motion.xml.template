@@ -1,76 +1,69 @@
 
 <application>
-<name>On The Fly Recognition</name>
+<name>On The Fly Recognition with motion</name>
+
 
         <dependencies>
                 <port>/icub/camcalib/left/out</port>
         </dependencies>
 
+
         <!-- Modules -->
+
         <module>
                 <name>motionCUT</name>
                 <parameters>--name motionCUT/left --coverXratio 0.7 --coverYratio 0.7 --framesPersistence 2 --numThreads 5 --nodesStep 6</parameters>
-                <node>icub-b14</node>
-                <tag>motionCUTLeft</tag>
+                <node>node1</node>
         </module>
-		
+	
         <module>
-                <name>linearClassifierModule</name>
-                <node>icub-b15</node>
-                <tag>classifier</tag>
-        </module>
-                
-        <module>
-                <name>actionsRenderingEngine</name>
-                <node>icub-b16</node>
-                <tag>are</tag>
+                <name>managerOnTheFly</name>               
+                <node>node1</node>
         </module>
 
         <module>
-                <name>managerOnTheFly</name>               
-                <node>icub-b16</node>
-                <tag>manager</tag>
+                <name>actionsRenderingEngine</name>
+                <node>node2</node>
         </module>
-		
+        
         <module>
-                <name>sparseCoder</name>
-                <node>icub-cuda</node>
-                <tag>image_coder</tag>
+                <name>caffeCoder</name>
+                <node>gpu_node</node>
+        </module>
+
+        <module>
+                <name>linearClassifierModule</name>
+                <node>gpu_node</node>
+        </module>
+
+        <module>
+                <name>iSpeak</name>
+                <node>node3</node>
+        </module>
+
+        <module>
+                <name>speechRecognizer</name>
+                <node>win_node</node>
         </module>
 
         <module>
                 <name>yarpview</name>
                 <parameters>--name /onTheFlyRecognition/view</parameters>
-                <node>icub14</node>
-                <tag>main_viewer</tag>
+                <node>node4</node>
         </module>
-
 
         <module>
                 <name>yarpview</name>
                 <parameters>--name /onTheFlyRecognition/confidence</parameters>
-                <node>icub14</node>
-                <tag>conf_viewer</tag>
+                <node>node4</node>
         </module>
-
-        <module>
-                <name>iSpeak</name>
-                <node>icub14</node>
-                <tag>speaking_module</tag>
-        </module>
-
-        <module>
-                <name>speechRecognizer</name>
-                <node>icub-win1</node>
-                <tag>speech_recognition_module</tag>
-        </module>
-		
 
 
         <!-- Connections -->
 
-        
+
         <!-- motionCUT -->
+
         <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/motionCUT/left/img:i</to>
@@ -79,6 +72,7 @@
 
 
         <!-- ActionsRenderingEngine -->
+
         <connection>
                 <from>/motionCUT/left/blobs:o</from>
                 <to>/actionsRenderingEngine/left/blobs:i</to>
@@ -87,6 +81,7 @@
 
 
         <!-- Coding -->
+
         <connection>
                 <from>/icub/camcalib/left/out</from>
                 <to>/onTheFlyRecognition/img:i</to>
@@ -101,12 +96,12 @@
 
         <connection>
                 <from>/onTheFlyRecognition/crop:o</from>
-                <to>/sparseCoder/img:i</to>
+                <to>/caffeCoder/img:i</to>
                 <protocol>mcast</protocol>
         </connection>
 
         <connection>
-                <from>/sparseCoder/code:o</from>
+                <from>/caffeCoder/code:o</from>
                 <to>/linearClassifier/features:i</to>
                 <protocol>tcp</protocol>
         </connection> 
@@ -119,6 +114,7 @@
 
 
         <!-- Manager -->
+
         <connection>
                 <from>/onTheFlyRecognition/are/rpc</from>
                 <to>/actionsRenderingEngine/rpc</to>
@@ -151,16 +147,19 @@
 
 
         <!-- Speech -->
+
         <connection>
                 <from>/speechRecognizer/tts/iSpeak:o</from>
                 <to>/iSpeak</to>
                 <protocol>tcp</protocol>
         </connection>
+
         <connection>
                 <from>/iSpeak/emotions:o</from>
                 <to>/icub/face/emotions/in</to>
                 <protocol>tcp</protocol>
         </connection>
+
         <connection>
                 <from>/onTheFlyRecognition/speech:o</from>
                 <to>/iSpeak</to>
@@ -169,6 +168,7 @@
 
 
         <!-- Visualization -->
+
         <connection>
                 <from>/onTheFlyRecognition/show:o</from>
                 <to>/onTheFlyRecognition/view</to>
