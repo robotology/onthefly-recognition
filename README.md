@@ -75,6 +75,7 @@ Of course, the two tasks can be performed seamlessy, depending on the label that
 - [LUA](http://www.lua.org/download.html)
 - [Hierarchical Image Representation](https://github.com/robotology/himrep)
 - [speechRecognizer](https://github.com/robotology/speech)
+- [segmentation](https://github.com/robotology/segmentation)
 
 Ensure to have the required dependencies and then clone and compile the repository in the usual way with CMake.
 
