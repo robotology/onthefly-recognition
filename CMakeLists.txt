@@ -2,8 +2,10 @@
 # Author: Giulia Pasquale, Sean Ryan Fanello, Carlo Ciliberto
 # CopyPolicy: Released under the terms of the GNU GPL v2.0.
 
-cmake_minimum_required(VERSION 2.6)
-project(onthefly-recognition)
+cmake_minimum_required(VERSION 2.8)
+
+set(PROJECTNAME onthefly-recognition)
+project(${PROJECTNAME})
 
 find_package(YARP REQUIRED)
 find_package(ICUB REQUIRED)
@@ -19,7 +21,7 @@ include(ICUBcontribOptions)
 icubcontrib_set_default_prefix()
 
 add_subdirectory(app)
-add_subdirectory(src)
+add_subdirectory(managerOnTheFly)
 
 icubcontrib_add_uninstall_target()
 
