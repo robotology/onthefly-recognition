@@ -94,11 +94,7 @@ public:
 
 	bool get_buffer_size(int &_bsize);
 
-	bool set_predicted_class(string _predicted_class);
-
 	bool get_predicted_class(string &_predicted_class);
-
-	bool reset_scores();
 
 	bool execReq(const Bottle &command, Bottle &reply);
 

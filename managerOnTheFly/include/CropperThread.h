@@ -81,6 +81,9 @@ private:
 	int                                 radius_robot;
 	int                                 radius_human;
 
+	int									skip_frames;
+	int									frame_counter;
+
 	string                              displayed_class;
 	string                              true_class;
 
@@ -102,9 +105,13 @@ public:
 
 	bool set_radius_robot(int _radius);
 
+	bool set_skip_frames(int _skip_frames);
+
 	int get_radius_human();
 
 	int get_radius_robot();
+
+	int get_skip_frames();
 
 	bool set_mode(int _mode);
 

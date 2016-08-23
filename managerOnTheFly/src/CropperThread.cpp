@@ -29,6 +29,9 @@ bool CropperThread::threadInit()
 	radius_human = rf.check("radius_human",Value(40)).asInt();
 	radius = radius_human;
 
+	skip_frames = rf.check("skip_frames",Value(0)).asInt();
+	frame_counter = 0;
+
 	//input
 	port_in_img.open(("/"+name+"/img:i").c_str());
 	port_in_blobs.open(("/"+name+"/blobs:i").c_str());
@@ -162,15 +165,32 @@ void CropperThread::run()
 		if (crop_valid)
 		{
 			cv::Rect img_ROI = cv::Rect(cv::Point( tlx, tly ), cv::Point( brx, bry ));
-			ImageOf<PixelBgr> img_crop;
+			ImageOf<PixelRgb> img_crop;
 			img_crop.resize(img_ROI.width, img_ROI.height);
 			cv::Mat img_crop_mat = cv::cvarrToMat((IplImage*)img_crop.getIplImage());
 			img_mat(img_ROI).copyTo(img_crop_mat);
 
 			if (port_out_crop.getOutputCount()>0)
 			{
-				port_out_crop.setEnvelope(stamp);
-				port_out_crop.write(img_crop);
+				if (state==STATE_TRAINING)
+				{
+					if (frame_counter<skip_frames)
+					{
+						frame_counter++;
+						cout << "skip" << endl;
+					} else
+					{
+						port_out_crop.setEnvelope(stamp);
+						port_out_crop.write(img_crop);
+						frame_counter = 0;
+					}
+
+				} else if (state==STATE_CLASSIFYING || state==STATE_WHATISTHIS)
+				{
+					frame_counter = 0;
+					port_out_crop.setEnvelope(stamp);
+					port_out_crop.write(img_crop);
+				}
 			}
 
 			if (port_out_img.getOutputCount()>0)
@@ -214,7 +234,7 @@ void CropperThread::run()
 				text_color = cv::Scalar(255,0,0);
 				text_string = "look: " + displayed_class;
 			}
-			else if (state==STATE_CLASSIFYING)
+			else if (state==STATE_CLASSIFYING || state==STATE_WHATISTHIS)
 			{
 				text_string = displayed_class;
 				text_color = cv::Scalar(0,0,255);
@@ -234,7 +254,9 @@ void CropperThread::run()
 
 bool CropperThread::set_displayed_class(string _displayed_class)
 {
+	mutex.wait();
 	displayed_class = _displayed_class;
+	mutex.post();
 	return true;
 }
 
@@ -242,7 +264,9 @@ bool CropperThread::set_radius_human(int _radius)
 {
 	if (_radius>0)
 	{
+		mutex.wait();
 		radius_human = _radius;
+		mutex.post();
 		return true;
 	}
 	else
@@ -253,7 +277,22 @@ bool CropperThread::set_radius_robot(int _radius)
 {
 	if (_radius>0)
 	{
+		mutex.wait();
 		radius_robot = _radius;
+		mutex.post();
+		return true;
+	}
+	else
+		return false;
+}
+
+bool CropperThread::set_skip_frames(int _frames)
+{
+	if (_frames>=0)
+	{
+		mutex.wait();
+		skip_frames = _frames;
+		mutex.post();
 		return true;
 	}
 	else
@@ -262,16 +301,33 @@ bool CropperThread::set_radius_robot(int _radius)
 
 int CropperThread::get_radius_human()
 {
-	return radius_human;
+	mutex.wait();
+	int r = radius_human;
+	mutex.post();
+	return r;
 }
 
 int CropperThread::get_radius_robot()
 {
-	return radius_robot;
+	mutex.wait();
+	int r = radius_robot;
+	mutex.post();
+	return r;
+}
+
+int CropperThread::get_skip_frames()
+{
+	mutex.wait();
+	int s = skip_frames;
+	mutex.post();
+	return s;
 }
 
 bool CropperThread::set_mode(int _mode)
 {
+	if (_mode!=MODE_HUMAN && _mode!=MODE_ROBOT)
+		return false;
+
 	mutex.wait();
 	mode = _mode;
 	mutex.post();
@@ -281,6 +337,9 @@ bool CropperThread::set_mode(int _mode)
 
 bool CropperThread::set_state(int _state)
 {
+	if (_state!=STATE_TRAINING && _state!=STATE_CLASSIFYING && _state!=STATE_WHATISTHIS)
+		return false;
+
 	mutex.wait();
 	state = _state;
 	mutex.post();
@@ -290,6 +349,9 @@ bool CropperThread::set_state(int _state)
 
 bool CropperThread::set_crop_mode(int _crop_mode)
 {
+	if (_crop_mode!=CROP_MODE_RADIUS && _crop_mode!=CROP_MODE_BBDISP)
+		return false;
+
 	mutex.wait();
 	crop_mode = _crop_mode;
 	mutex.post();
@@ -299,7 +361,10 @@ bool CropperThread::set_crop_mode(int _crop_mode)
 
 bool CropperThread::get_displayed_class(string &_displayed_class)
 {
+	mutex.wait();
 	_displayed_class = displayed_class;
+	mutex.post();
+
 	return true;
 }
 

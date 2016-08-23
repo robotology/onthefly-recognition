@@ -57,13 +57,18 @@ void ScorerThread::run()
 
 	Bottle *bot=port_in_scores.read(false);
 
-	if (bot==NULL || bot->size()<1)
+	if (bot==NULL)
 	{
 		mutex.post();
 		return;
 	}
 
 	int n_classes = bot->size();
+	if (n_classes==0)
+	{
+		mutex.post();
+		return;
+	}
 
 	int n_classes_old = 0;
 	if (scores_buffer.size()>0)
@@ -140,15 +145,19 @@ void ScorerThread::run()
 
 bool ScorerThread::clear_hist()
 {
+	mutex.wait();
+
 	ImageOf<PixelRgb> img_conf;
 	img_conf.resize(confidence_width,confidence_height);
 	cvZero(img_conf.getIplImage());
 
 	port_out_confidence.write(img_conf);
 
-	set_predicted_class("?");
+	predicted_class = "?";
 
-	reset_scores();
+	scores_buffer.clear();
+
+	mutex.post();
 
 	return true;
 }
@@ -208,8 +217,16 @@ void ScorerThread::draw_hist(vector<int> bins)
 
 bool ScorerThread::set_buffer_size(int _bsize)
 {
+	if (_bsize<=0)
+		return false;
+
 	mutex.wait();
+	if (_bsize!=buffer_size)
+	{
+		scores_buffer.clear();
+	}
 	buffer_size = _bsize;
+
 	mutex.post();
 
 	return true;
@@ -224,28 +241,10 @@ bool ScorerThread::get_buffer_size(int &_bsize)
 	return true;
 }
 
-bool ScorerThread::set_predicted_class(string _predicted_class)
-{
-	mutex.wait();
-	predicted_class = _predicted_class;
-	mutex.post();
-
-	return true;
-}
-
 bool ScorerThread::get_predicted_class(string &_predicted_class)
 {
 	mutex.wait();
 	_predicted_class = predicted_class;
-	mutex.post();
-
-	return true;
-}
-
-bool ScorerThread::reset_scores()
-{
-	mutex.wait();
-	scores_buffer.clear();
 	mutex.post();
 
 	return true;

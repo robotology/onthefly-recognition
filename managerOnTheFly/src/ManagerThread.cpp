@@ -183,7 +183,6 @@ bool ManagerThread::observe_robot(string &predicted_class)
 	int old_buffer_size;
 	thr_scorer->get_buffer_size(old_buffer_size);
 
-	thr_scorer->reset_scores();
 	thr_scorer->set_buffer_size(MAX_BUFFER_SIZE);
 
 	// perform the exploration of the hand
@@ -197,7 +196,6 @@ bool ManagerThread::observe_robot(string &predicted_class)
 	{
 		std::cout << "Cannot set are to explore hand no_sacc!" << std::endl;
 
-		thr_scorer->reset_scores();
 		thr_scorer->set_buffer_size(old_buffer_size);
 
 		complete_robot();
@@ -207,7 +205,6 @@ bool ManagerThread::observe_robot(string &predicted_class)
 
 	thr_scorer->get_predicted_class(predicted_class);
 
-	thr_scorer->reset_scores();
 	thr_scorer->set_buffer_size(old_buffer_size);
 
 	return true;
@@ -288,6 +285,7 @@ void ManagerThread::run()
 	if (port_rpc_classifier.getOutputCount()==0)
 	{
 		std::cout << "Please connect a classifier to start!" << std::endl;
+		thr_scorer->clear_hist();
 		mutex.post();
 		return;
 	}
@@ -307,6 +305,12 @@ void ManagerThread::run()
 				thr_scorer->clear_hist();
 			}
 
+		} else
+		{
+			std::cout << "Cannot get response to recognize command." << std::endl;
+			thr_scorer->clear_hist();
+			mutex.post();
+			return;
 		}
 	}
 
@@ -366,7 +370,7 @@ void ManagerThread::run()
 
 		speak("Ok, show me this wonderful " + current_class);
 
-		bool ok;
+		bool ok = false;;
 		switch (mode)
 		{
 		case MODE_ROBOT:
@@ -385,12 +389,10 @@ void ManagerThread::run()
 				set_state(STATE_CLASSIFYING);
 				break;
 			}
-			break;
-		}
+		} break;
 
 		case MODE_HUMAN:
 		{
-
 			ok = store_human(current_class.c_str());
 			if (!ok)
 			{
@@ -398,13 +400,13 @@ void ManagerThread::run()
 				set_state(STATE_CLASSIFYING);
 				break;
 			}
-			break;
-		}
+		} break;
 
 		}
 
 		if (!ok)
 		{
+			std::cout << "observe failed!" << std::endl;
 			set_state(STATE_CLASSIFYING);
 			mutex.post();
 			return;
@@ -617,7 +619,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
 					break;
 				}
 
-				speak("I have forgotten " + class_forget);
+				speak(class_forget + " forgotten!");
 
 				recognition_started = false;
 
@@ -662,7 +664,9 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
 				Bottle *class_list = reply_classifier.get(1).asList();
 				if (class_list->size()==0)
 				{
-					reply.addString("I don't know any class.");
+					reply.addString("No classes in database.");
+					speak("Sorry, I don't know anything.");
+
 				}
 				else
 				{
@@ -697,9 +701,15 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
 				int r = command.get(2).asInt();
 				ok = thr_cropper->set_radius_robot(r);
 			}
+			else if (property == "buffer_size")
+			{
+				int r = command.get(2).asInt();
+				ok = thr_scorer->set_buffer_size(r);
+			}
 			else if (property == "skip_frames")
 			{
-				ok = true;
+				int s = command.get(2).asInt();
+				ok = thr_cropper->set_skip_frames(s);
 			}
 			else if (property == "human_time_training")
 			{
