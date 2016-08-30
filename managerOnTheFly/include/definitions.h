@@ -34,4 +34,6 @@
 #define                 CMD_SET         VOCAB3('s','e','t')
 #define                 CMD_GET         VOCAB3('g','e','t')
 
+#define                 CMD_HELP         VOCAB4('h','e','l', 'p')
+
 #endif /* DEFINITIONS_H_ */
