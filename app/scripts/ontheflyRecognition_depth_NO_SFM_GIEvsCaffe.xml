@@ -1,0 +1,234 @@
+
+<application>
+
+    <name>On The Fly - NO SFM - GIE vs Caffe</name>
+
+    <dependencies>
+
+    </dependencies>
+
+    <!-- Modules -->
+
+    <module>
+        <name>yarpdev</name>
+        <parameters>--device OpenNI2DeviceServer </parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>dispBlobber</name>
+        <parameters>--imW 320 --imH 240 --bufferSize 1 --minBlobSize 300 --backgroundThresh 100  --imageThreshRatioLow 100 --imageThreshRatioHigh  100 </parameters>
+        <node>localhost</node>
+    </module>
+          
+    <module>
+        <name>managerOnTheFly</name>               
+        <parameters>--name managerGIE</parameters>
+	<node>localhost</node>
+    </module>
+
+    <module>
+        <name>managerOnTheFly</name>               
+        <parameters>--name managerCaffe</parameters>
+	<node>localhost</node>
+    </module>
+
+    <module>
+        <name>caffeCoder</name>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>GIECoder</name>
+        <node>jetson</node>
+    </module>
+
+    <module>
+        <name>linearClassifierModule</name>
+	<parameters>--name classifierGIE</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>linearClassifierModule</name>
+	<parameters>--name classifierCaffe</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /viewGIE --x 1300</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /viewCaffe --x 1300</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /confidenceGIE --x 900</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /confidenceCaffe --x 900</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /dispBlobber/optViewer --x 500 </parameters>
+        <node>localhost</node>
+    </module>
+    
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /dispViewer --x 100 </parameters>
+        <node>localhost</node>
+    </module>
+
+    <!-- Connections -->
+
+    <!-- Xtion and dispBlobber -->
+
+    <connection>
+        <from>/OpenNI2/depthFrame_char:o</from>
+        <to>/dispBlobber/img:i</to>
+        <protocol>tcp</protocol>
+    </connection> 
+
+    <!-- Coding -->
+
+    <connection>
+        <from>/OpenNI2/imageFrame:o</from>
+        <to>/managerGIE/img:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/OpenNI2/imageFrame:o</from>
+        <to>/managerCaffe/img:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/blobs/left:o</from>
+        <to>/managerGIE/blobs:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+   <connection>
+        <from>/dispBlobber/blobs/left:o</from>
+        <to>/managerCaffe/blobs:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/roi/left:o</from>
+        <to>/managerGIE/roi:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/roi/left:o</from>
+        <to>/managerCaffe/roi:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/managerGIE/crop:o</from>
+        <to>/GIECoder/img:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/managerCaffe/crop:o</from>
+        <to>/caffeCoder/img:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/GIECoder/code:o</from>
+        <to>/classifierGIE/features:i</to>
+        <protocol>tcp</protocol>
+    </connection> 
+
+    <connection>
+        <from>/caffeCoder/code:o</from>
+        <to>/classifierCaffe/features:i</to>
+        <protocol>tcp</protocol>
+    </connection> 
+
+    <connection>
+        <from>/classifierGIE/scores:o</from>
+        <to>/managerGIE/scores:i</to>
+        <protocol>tcp</protocol>
+    </connection> 
+
+    <connection>
+        <from>/classifierCaffe/scores:o</from>
+        <to>/managerCaffe/scores:i</to>
+        <protocol>tcp</protocol>
+    </connection> 
+
+    <!-- Manager -->
+
+    <connection>
+        <from>/managerCaffe/classifier:io</from>
+        <to>/classifierCaffe/rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+   <connection>
+        <from>/managerGIE/classifier:io</from>
+        <to>/classifierGIE/rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+
+    <!-- Visualization -->
+
+    <connection>
+        <from>/managerCaffe/show:o</from>
+        <to>/viewCaffe</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/managerGIE/show:o</from>
+        <to>/viewGIE</to>
+        <protocol>mcast</protocol>
+    </connection>
+    
+    <connection>
+        <from>/managerCaffe/confidence:o</from>
+        <to>/confidenceCaffe</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/managerGIE/confidence:o</from>
+        <to>/confidenceGIE</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/OpenNI2/depthFrame_char:o</from>
+        <to>/dispViewer</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/opt:o</from>
+        <to>/dispBlobber/optViewer</to>
+        <protocol>tcp</protocol>
+    </connection>
+   
+</application>
+
+
+

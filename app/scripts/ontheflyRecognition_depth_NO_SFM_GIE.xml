@@ -1,7 +1,7 @@
 
 <application>
 
-    <name>On The Fly - NO SFM</name>
+    <name>On The Fly - NO SFM - GIE</name>
 
     <dependencies>
 
@@ -27,7 +27,7 @@
     </module>
 
     <module>
-        <name>caffeCoder</name>
+        <name>GIECoder</name>
         <node>localhost</node>
     </module>
 
@@ -92,12 +92,12 @@
 
     <connection>
         <from>/onTheFlyRecognition/crop:o</from>
-        <to>/caffeCoder/img:i</to>
+        <to>/GIECoder/img:i</to>
         <protocol>mcast</protocol>
     </connection>
 
     <connection>
-        <from>/caffeCoder/code:o</from>
+        <from>/GIECoder/code:o</from>
         <to>/linearClassifier/features:i</to>
         <protocol>tcp</protocol>
     </connection> 
