@@ -198,6 +198,8 @@ while state ~= "exit" do
 
     elseif state == "track-blob" then
 
+        local t1 = yarp.Time_now()
+
         local blobs = port_blob:read(false)
         if blobs ~= nil then
            local blob = blobs:get(0):asList()
@@ -211,12 +213,20 @@ while state ~= "exit" do
 
            if area < max_track_area then
               look_at_pixel(px,py)
+              t0 = t1
            end
+        end
+
+        if t1-t0 > 5 then
+           look_at_angle(0,0)
+           t0 = t1
         end
 
         yarp.Time_delay(0.1)
 
     elseif state == "track-face" then
+
+        local t1 = yarp.Time_now()
 
         local faces = port_face:read(false)
         if faces ~= nil then
@@ -240,7 +250,13 @@ while state ~= "exit" do
 
            if max_area > 0 and max_area < max_track_area then
               look_at_pixel(px,py)
+              t0 = t1
            end
+        end
+
+        if t1-t0 > 5 then
+           look_at_angle(0,0)
+           t0 = t1
         end
 
         yarp.Time_delay(0.1)
@@ -262,6 +278,8 @@ while state ~= "exit" do
 
     end
 end
+
+look_at_angle(0,0)
 
 port_cmd:close()
 port_blob:close()
