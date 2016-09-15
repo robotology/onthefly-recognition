@@ -189,11 +189,12 @@ while state ~= "exit" do
 
     elseif state == "track-blob" then
 
-        local blob = port_blob:read(false)
-        if blob ~= nil then
+        local blobs = port_blob:read(false)
+        if blobs ~= nil then
+           local blob = blobs:get(0):asList()
            local px = blob:get(0):asInt()
            local py = blob:get(1):asInt()
-           
+
            look_at_pixel(px,py)
         end
 
