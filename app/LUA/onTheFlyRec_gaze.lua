@@ -108,7 +108,7 @@ while state ~= "exit" and port_gaze_rx:getInputCount() == 0 do
 end
 
 
-flip = rf:check("flip"):asBool()
+flip = rf:check("flip")
 w = rf:check("w",yarp.Value(320)):asInt()
 h = rf:check("h",yarp.Value(240)):asInt()
 
