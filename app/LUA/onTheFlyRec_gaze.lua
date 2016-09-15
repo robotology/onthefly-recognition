@@ -56,10 +56,6 @@ signal.signal(signal.SIGTERM, function(signum)
   state = "exit"
 end)
 
-signal.signal(signal.SIGBREAK, function(signum)
-  state = "exit"
-end)
-
 yarp.Network()
 
 port_cmd = yarp.BufferedPortBottle()
