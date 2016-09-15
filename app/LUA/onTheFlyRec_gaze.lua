@@ -14,6 +14,9 @@
 -- --look-around to start in looking around mode
 -- --track-blob to start in tracking blob mode
 -- --track-face to start in tracking face mode
+-- --flip to flip images left-right
+-- --w <int> to specify image width (320 by default)
+-- --h <int> to specify image height (240 by default)
 
 -- Available commands to be sent to /lua/gaze
 --
@@ -105,6 +108,10 @@ while state ~= "exit" and port_gaze_rx:getInputCount() == 0 do
 end
 
 
+flip = rf:check("flip"):asBool()
+w = rf:check("w",yarp.Value(320)):asInt()
+h = rf:check("h",yarp.Value(240)):asInt()
+
 azi = 0.0
 ele = 0.0
 azi_delta = 5
@@ -195,6 +202,10 @@ while state ~= "exit" do
            local px = blob:get(0):asInt()
            local py = blob:get(1):asInt()
 
+           if flip == true then
+               px = w-px
+           end
+
            look_at_pixel(px,py)
         end
 
@@ -216,6 +227,10 @@ while state ~= "exit" do
                  py = (face:get(1):asInt()+face:get(3):asInt())/2
                  max_area = area
               end
+           end
+
+           if flip == true then
+               px = w-px
            end
 
            if max_area > 0 then

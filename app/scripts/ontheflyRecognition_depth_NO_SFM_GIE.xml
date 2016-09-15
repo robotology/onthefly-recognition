@@ -57,7 +57,7 @@
 
     <module>
         <name>onTheFlyRec_gaze.lua</name>
-        <parameters>--track-blob</parameters>
+        <parameters>--track-blob --flip --w 320 --h 240</parameters>
         <deployer>lua</deployer>
         <node>cer-console-linux</node>
         <dependencies>
