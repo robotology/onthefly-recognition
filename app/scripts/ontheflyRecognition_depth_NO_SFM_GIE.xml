@@ -71,7 +71,7 @@
         <name>onTheFlyRec_main.lua</name>
         <parameters></parameters>
         <deployer>lua</deployer>
-        <node>cer-console-linux</node>
+        <node>cer-torso</node>
     </module>
 
     <module>

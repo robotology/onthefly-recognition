@@ -191,9 +191,9 @@ while state ~= "exit" do
 
         local blob = port_blob:read(false)
         if blob ~= nil then
-           local px = (blob:get(0):asInt()+blob:get(2):asInt())/2
-           local py = (blob:get(1):asInt()+blob:get(3):asInt())/2
-
+           local px = blob:get(0):asInt()
+           local py = blob:get(1):asInt()
+           
            look_at_pixel(px,py)
         end
 
