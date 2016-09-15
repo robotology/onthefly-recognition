@@ -12,28 +12,28 @@
     <module>
         <name>yarpdev</name>
         <parameters>--device OpenNI2DeviceServer </parameters>
-        <node>localhost</node>
+        <node>cer-torso</node>
     </module>
 
     <module>
         <name>dispBlobber</name>
         <parameters>--imW 320 --imH 240 --bufferSize 1 --minBlobSize 300 --backgroundThresh 100  --imageThreshRatioLow 100 --imageThreshRatioHigh  100 </parameters>
-        <node>localhost</node>
+        <node>cer-torso</node>
     </module>
           
     <module>
-        <name>managerOnTheFly</name>               
-        <node>localhost</node>
+        <name>managerOnTheFly --human_time_training 15 --skip_frames 5</name>
+        <node>cer-torso</node>
     </module>
 
     <module>
-        <name>GIECoder</name>
-        <node>localhost</node>
+        <name>GIECoder --from GIECoder_googlenet.ini</name>
+        <node>cer-torso</node>
     </module>
 
     <module>
         <name>linearClassifierModule</name>
-        <node>localhost</node>
+        <node>cer-torso</node>
     </module>
 
     <module>
@@ -67,7 +67,7 @@
     <connection>
         <from>/OpenNI2/depthFrame_char:o</from>
         <to>/dispBlobber/img:i</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection> 
 
     <!-- Coding -->
@@ -75,37 +75,37 @@
     <connection>
         <from>/OpenNI2/imageFrame:o</from>
         <to>/onTheFlyRecognition/img:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/dispBlobber/blobs/left:o</from>
         <to>/onTheFlyRecognition/blobs:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/dispBlobber/roi/left:o</from>
         <to>/onTheFlyRecognition/roi:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/onTheFlyRecognition/crop:o</from>
         <to>/GIECoder/img:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/GIECoder/code:o</from>
         <to>/linearClassifier/features:i</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection> 
 
     <connection>
         <from>/linearClassifier/scores:o</from>
         <to>/onTheFlyRecognition/scores:i</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection> 
 
     <!-- Manager -->
@@ -122,25 +122,25 @@
     <connection>
         <from>/onTheFlyRecognition/show:o</from>
         <to>/onTheFlyRecognition/view</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
     
     <connection>
         <from>/onTheFlyRecognition/confidence:o</from>
         <to>/onTheFlyRecognition/confidence</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/OpenNI2/depthFrame_char:o</from>
         <to>/dispViewer</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/dispBlobber/opt:o</from>
         <to>/dispBlobber/optViewer</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection>
    
 </application>

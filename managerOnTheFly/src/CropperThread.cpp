@@ -29,7 +29,7 @@ bool CropperThread::threadInit()
 	radius_human = rf.check("radius_human",Value(40)).asInt();
 	radius = radius_human;
 
-	skip_frames = rf.check("skip_frames",Value(0)).asInt();
+	skip_frames = rf.check("skip_frames",Value(5)).asInt();
 	frame_counter = 0;
 
 	//input

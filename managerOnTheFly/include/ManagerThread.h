@@ -67,7 +67,7 @@ private:
 	Semaphore                           mutex;
 
 	//threads
-	CropperThread                   	*thr_cropper;
+	CropperThread                       *thr_cropper;
 	ScorerThread                        *thr_scorer;
 
 	// rpc ARE
@@ -78,7 +78,7 @@ private:
 	// rpc linearClassifier
 	RpcClient                           port_rpc_classifier;
 
-	bool								recognition_started;
+	bool			                    recognition_started;
 
 	// rpc human commands
 	RpcClient                           port_rpc_human;
@@ -86,11 +86,11 @@ private:
 	// output
 	Port                                port_out_speech;
 
-	double                              observe_human_time_training;
+	double                              human_time_training;
 
 	int                                 mode;
 	int                                 state;
-	int									crop_mode;
+	int				    crop_mode;
 
 private:
 

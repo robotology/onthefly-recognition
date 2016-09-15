@@ -12,47 +12,47 @@
     <module>
         <name>yarpdev</name>
         <parameters>--device OpenNI2DeviceServer </parameters>
-        <node>localhost</node>
+        <node>cer-torso</node>
     </module>
 
     <module>
         <name>dispBlobber</name>
         <parameters>--imW 320 --imH 240 --bufferSize 1 --minBlobSize 300 --backgroundThresh 100  --imageThreshRatioLow 100 --imageThreshRatioHigh  100 </parameters>
-        <node>localhost</node>
+        <node>cer-torso</node>
     </module>
           
     <module>
-        <name>managerOnTheFly</name>               
-        <parameters>--name managerGIE</parameters>
-	<node>localhost</node>
+        <name>managerOnTheFly --human_time_training 15 --skip_frames 5</name>
+        <parameters>--name managerGIE </parameters>
+	<node>cer-torso</node>
     </module>
 
     <module>
-        <name>managerOnTheFly</name>               
-        <parameters>--name managerCaffe</parameters>
-	<node>localhost</node>
+        <name>managerOnTheFly --human_time_training 15 --skip_frames 5</name>
+        <parameters>--name managerCaffe </parameters>
+	<node>cer-torso</node>
     </module>
 
     <module>
-        <name>caffeCoder</name>
-        <node>localhost</node>
+        <name>caffeCoder --from CaffeCoder_googlenet.ini</name>
+        <node>cer-torso</node>
     </module>
 
     <module>
-        <name>GIECoder</name>
-        <node>jetson</node>
+        <name>GIECoder --from GIECoder_googlenet.ini</name>
+        <node>cer-torso</node>
     </module>
 
     <module>
         <name>linearClassifierModule</name>
 	<parameters>--name classifierGIE</parameters>
-        <node>localhost</node>
+        <node>cer-torso</node>
     </module>
 
     <module>
         <name>linearClassifierModule</name>
 	<parameters>--name classifierCaffe</parameters>
-        <node>localhost</node>
+        <node>cer-torso</node>
     </module>
 
     <module>
@@ -98,7 +98,7 @@
     <connection>
         <from>/OpenNI2/depthFrame_char:o</from>
         <to>/dispBlobber/img:i</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection> 
 
     <!-- Coding -->
@@ -106,73 +106,73 @@
     <connection>
         <from>/OpenNI2/imageFrame:o</from>
         <to>/managerGIE/img:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/OpenNI2/imageFrame:o</from>
         <to>/managerCaffe/img:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/dispBlobber/blobs/left:o</from>
         <to>/managerGIE/blobs:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
    <connection>
         <from>/dispBlobber/blobs/left:o</from>
         <to>/managerCaffe/blobs:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/dispBlobber/roi/left:o</from>
         <to>/managerGIE/roi:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/dispBlobber/roi/left:o</from>
         <to>/managerCaffe/roi:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/managerGIE/crop:o</from>
         <to>/GIECoder/img:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/managerCaffe/crop:o</from>
         <to>/caffeCoder/img:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/GIECoder/code:o</from>
         <to>/classifierGIE/features:i</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection> 
 
     <connection>
         <from>/caffeCoder/code:o</from>
         <to>/classifierCaffe/features:i</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection> 
 
     <connection>
         <from>/classifierGIE/scores:o</from>
         <to>/managerGIE/scores:i</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection> 
 
     <connection>
         <from>/classifierCaffe/scores:o</from>
         <to>/managerCaffe/scores:i</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection> 
 
     <!-- Manager -->
@@ -195,37 +195,37 @@
     <connection>
         <from>/managerCaffe/show:o</from>
         <to>/viewCaffe</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/managerGIE/show:o</from>
         <to>/viewGIE</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
     
     <connection>
         <from>/managerCaffe/confidence:o</from>
         <to>/confidenceCaffe</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/managerGIE/confidence:o</from>
         <to>/confidenceGIE</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/OpenNI2/depthFrame_char:o</from>
         <to>/dispViewer</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/dispBlobber/opt:o</from>
         <to>/dispBlobber/optViewer</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection>
    
 </application>

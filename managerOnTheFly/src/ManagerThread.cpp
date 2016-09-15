@@ -46,7 +46,7 @@ bool ManagerThread::set_human_time_training(double _t)
 {
     if (_t>0)
     {
-        observe_human_time_training = _t;
+        human_time_training = _t;
         return true;
     }
     else
@@ -74,7 +74,7 @@ bool ManagerThread::store_human(string class_name)
         return false;
     }
 
-    Time::delay(observe_human_time_training);
+    Time::delay(human_time_training);
 
     if (!send_cmd2rpc_classifier("stop", 10))
     {
@@ -241,7 +241,7 @@ bool ManagerThread::threadInit()
 
     string name = rf.find("name").asString().c_str();
 
-    observe_human_time_training = rf.check("observe_human_time_training", Value(20.0)).asDouble();
+    human_time_training = rf.check("human_time_training", Value(15.0)).asDouble();
 
     // rpc ARE
     port_rpc_are.open(("/"+name+"/are/rpc").c_str());

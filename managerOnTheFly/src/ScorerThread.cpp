@@ -59,14 +59,24 @@ void ScorerThread::run()
 
 	if (bot==NULL)
 	{
-		mutex.post();
+		if (scores_buffer.size()==0)
+        {
+            predicted_class = "?";
+
+            vector<int> no_votes;
+            draw_hist(no_votes);
+        }
+
+        mutex.post();
 		return;
 	}
 
 	int n_classes = bot->size();
 	if (n_classes==0)
 	{
-		mutex.post();
+        std::cout << "Undefined reply from classifier: empty bottle of scores!" << std::endl;
+
+        mutex.post();
 		return;
 	}
 
@@ -147,14 +157,6 @@ bool ScorerThread::clear_hist()
 {
 	mutex.wait();
 
-	ImageOf<PixelRgb> img_conf;
-	img_conf.resize(confidence_width,confidence_height);
-	cvZero(img_conf.getIplImage());
-
-	port_out_confidence.write(img_conf);
-
-	predicted_class = "?";
-
 	scores_buffer.clear();
 
 	mutex.post();
@@ -169,6 +171,18 @@ void ScorerThread::draw_hist(vector<int> bins)
 	{
 
 		int n_bins = bins.size();
+
+        if (n_bins==0)
+        {
+            ImageOf<PixelRgb> img_zero;
+            img_zero.resize(confidence_width,confidence_height);
+            cvZero(img_zero.getIplImage());
+
+            port_out_confidence.write(img_zero);
+
+            std::cout << "still printing" << std::endl;
+            return;
+        }
 
 		// normalize bins in [0,1]
 		vector<float> norm_bins(n_bins,0);
