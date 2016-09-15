@@ -17,6 +17,12 @@
     </module>
 
     <module>
+        <name>speechRecognizer</name>
+        <parameters></parameters>
+        <node>cer-console-windows</node>
+    </module>
+
+    <module>
         <name>yarpdev</name>
         <parameters>--device OpenNI2DeviceServer</parameters>
         <node>cer-torso</node>
