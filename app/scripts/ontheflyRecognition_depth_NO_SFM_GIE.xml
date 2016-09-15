@@ -45,7 +45,7 @@
 
     <module>
         <name>cer_gaze-controller</name>
-        <parameters>--cameras::context cameraCalibration --cameras::file cerEyes_640x480.ini</parameters>
+        <parameters>--cameras::context cameraCalibration --cameras::file cerEyes_320x240.ini</parameters>
         <node>cer-base</node>
     </module>
 
@@ -101,7 +101,7 @@
     <connection>
         <from>/OpenNI2/imageFrame:o</from>
         <to>/onTheFlyRecognition/img:i</to>
-        <protocol>udp</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
@@ -119,7 +119,7 @@
     <connection>
         <from>/onTheFlyRecognition/crop:o</from>
         <to>/GIECoder/img:i</to>
-        <protocol>udp</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
@@ -143,13 +143,13 @@
     <connection>
         <from>/onTheFlyRecognition/show:o</from>
         <to>/onTheFlyRecognition/view</to>
-        <protocol>udp</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
         <from>/onTheFlyRecognition/confidence:o</from>
         <to>/onTheFlyRecognition/confidence</to>
-        <protocol>udp</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
