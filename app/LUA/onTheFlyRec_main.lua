@@ -14,7 +14,7 @@ speechRecog_port = yarp.Port()
 onTheFlyRec_port = yarp.Port()
 
 -- defining objects and actions vocabularies
-objects = {"octopus", "ball", "toy", "phone"}
+objects = {"octopus", "ball", "toy", "phone", "bottle", "badge", "book", "keys", "hand", "face", "cup", "glass", "board", "car", "nvidia"}
 user = {"robot", "human"}
 
 -- defining speech grammar for Menu
