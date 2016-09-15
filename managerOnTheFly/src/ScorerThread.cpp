@@ -24,9 +24,15 @@ bool ScorerThread::threadInit()
 
 	string name = rf.find("name").asString().c_str();
 
+    mutex.wait();
+    
 	buffer_size = rf.check("buffer_size", Value(30)).asInt();
 	confidence_width = rf.check("confidence_width",Value(800)).asInt();
 	confidence_height = rf.check("confidence_height",Value(500)).asInt();
+
+    predicted_class = "?";
+
+    mutex.post();
 
 	//Ports
 	//-----------------------------------------------------------
@@ -36,8 +42,6 @@ bool ScorerThread::threadInit()
 	//output
 	port_out_confidence.open(("/"+name+"/confidence:o").c_str());
 	//------------------------------------------------------------
-
-	predicted_class = "?";
 
 	histColorsCode.push_back(cv::Scalar( 65, 47,213));
 	histColorsCode.push_back(cv::Scalar(122, 79, 58));
@@ -180,7 +184,7 @@ void ScorerThread::draw_hist(vector<int> bins)
 
             port_out_confidence.write(img_zero);
 
-            std::cout << "still printing" << std::endl;
+            //std::cout << "still printing" << std::endl;
             return;
         }
 
@@ -275,18 +279,18 @@ bool ScorerThread::execReq(const Bottle &command, Bottle &reply)
 
 void ScorerThread::interrupt()
 {
-	mutex.wait();
+//	mutex.wait();
 	port_in_scores.interrupt();
 	port_out_confidence.interrupt();
-	mutex.post();
+//	mutex.post();
 }
 
 bool ScorerThread::releaseThread()
 {
-	mutex.wait();
+//	mutex.wait();
 	port_in_scores.close();
 	port_out_confidence.close();
-	mutex.post();
+//	mutex.post();
 
 	return true;
 }

@@ -25,12 +25,19 @@ bool CropperThread::threadInit()
 
 	string name = rf.find("name").asString().c_str();
 
+    mutex.wait();
+
 	radius_robot = rf.check("radius_robot",Value(80)).asInt();
 	radius_human = rf.check("radius_human",Value(40)).asInt();
 	radius = radius_human;
 
 	skip_frames = rf.check("skip_frames",Value(5)).asInt();
 	frame_counter = 0;
+
+    displayed_class="?";
+    true_class="?";
+
+    mutex.post();
 
 	//input
 	port_in_img.open(("/"+name+"/img:i").c_str());
@@ -45,9 +52,6 @@ bool CropperThread::threadInit()
 
 	//rpc
 	port_rpc_are_get_hand.open(("/"+name+"/are/hand:io").c_str());
-
-	displayed_class="?";
-	true_class="?";
 
 	return true;
 }
@@ -177,7 +181,7 @@ void CropperThread::run()
 					if (frame_counter<skip_frames)
 					{
 						frame_counter++;
-						cout << "skip" << endl;
+						//cout << "skip" << endl;
 					} else
 					{
 						port_out_crop.setEnvelope(stamp);
@@ -379,7 +383,7 @@ bool CropperThread::execReq(const Bottle &command, Bottle &reply)
 
 void CropperThread::interrupt()
 {
-	mutex.wait();
+//	mutex.wait();
 
 	port_in_img.interrupt();
 	port_in_blobs.interrupt();
@@ -392,12 +396,12 @@ void CropperThread::interrupt()
 
 	port_rpc_are_get_hand.interrupt();
 
-	mutex.post();
+//	mutex.post();
 }
 
 bool CropperThread::releaseThread()
 {
-	mutex.wait();
+//	mutex.wait();
 
 	port_in_img.close();
 	port_in_blobs.close();
@@ -410,7 +414,7 @@ bool CropperThread::releaseThread()
 
 	port_rpc_are_get_hand.close();
 
-	mutex.post();
+//	mutex.post();
 
 	return true;
 }

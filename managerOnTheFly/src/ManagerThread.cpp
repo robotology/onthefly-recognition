@@ -241,8 +241,6 @@ bool ManagerThread::threadInit()
 
     string name = rf.find("name").asString().c_str();
 
-    human_time_training = rf.check("human_time_training", Value(15.0)).asDouble();
-
     // rpc ARE
     port_rpc_are.open(("/"+name+"/are/rpc").c_str());
     port_rpc_are_get.open(("/"+name+"/are/get:io").c_str());
@@ -254,23 +252,22 @@ bool ManagerThread::threadInit()
     // out speech
     port_out_speech.open(("/"+name+"/speech:o").c_str());
 
-    mutex.wait();
-
-    recognition_started = false;
-
-    mutex.post();
-
     thr_cropper = new CropperThread(rf);
     thr_cropper->start();
 
     thr_scorer = new ScorerThread(rf);
     thr_scorer->start();
 
+    mutex.wait();
+
+    human_time_training = rf.check("human_time_training", Value(15.0)).asDouble();
+    recognition_started = false;
+
     set_mode(MODE_HUMAN);
-
     set_state(STATE_CLASSIFYING);
-
     set_crop_mode(CROP_MODE_RADIUS);
+
+    mutex.post();
 
     return true;
 }
@@ -602,7 +599,6 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
 
     case CMD_FORGET:
     {
-
         if (command.size()>1)
         {
             string class_forget = command.get(1).asString().c_str();
@@ -638,33 +634,32 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
                 }
             }
 
-            if (class_known || class_forget=="all")
+            if (empty_classes==false)
             {
-
-                if (!send_doublecmd2rpc_classifier("forget", class_forget.c_str(), 10))
+                if (class_known || class_forget=="all")
                 {
-                    ok = false;
-                    reply.addString("Classifier busy for forgetting one object!");
-                    break;
+                    if (!send_doublecmd2rpc_classifier("forget", class_forget.c_str(), 10))
+                    {
+                        ok = false;
+                        reply.addString("Classifier busy for forgetting one object!");
+                        break;
+                    }
+
+                    speak(class_forget + " forgotten!");
+
+                    recognition_started = false;
+
+                    ok = true;
+                    reply.addVocab(ACK);
                 }
-
-                speak(class_forget + " forgotten!");
-
-                recognition_started = false;
-
-                ok = true;
-                reply.addVocab(ACK);
-                break;
-            }
-            else
-            {
-                if (empty_classes==false)
+                else
                 {
                     ok = false;
                     reply.addString("Class is unknown.");
-                    break;
                 }
             }
+            
+            break;
 
         }
         else
@@ -673,8 +668,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
             reply.addString("Syntax must be: forget <classname> or forget all");
             break;
         }
-
-    } break;
+    }
 
     case CMD_WHATISTHIS:
     {
@@ -710,7 +704,6 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         {
             ok = false;
             reply.addString("Classifier busy for getting objList!");
-            break;
         }
 
     } break;
@@ -764,7 +757,10 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         else
             reply.addString("Cannot set property (check e.g. property range)");
 
-    } break;
+        break;
+
+//  } break;
+    }
 
     case CMD_GET:
     {
@@ -801,8 +797,9 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
                 {
                     ok = false;
                     reply.addString("Classifier busy for getting objList!");
-                    break;
                 }
+
+                break;
 
             }
             else
@@ -819,7 +816,8 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
             break;
         }
 
-    } break;
+//  } break;
+    }
 
     case CMD_RADIUS:
     {

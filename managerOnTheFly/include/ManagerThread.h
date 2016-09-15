@@ -90,7 +90,7 @@ private:
 
 	int                                 mode;
 	int                                 state;
-	int				    crop_mode;
+	int				                    crop_mode;
 
 private:
 
