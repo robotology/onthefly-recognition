@@ -17,6 +17,7 @@
 -- --flip to flip images left-right
 -- --w <int> to specify image width (320 by default)
 -- --h <int> to specify image height (240 by default)
+-- --max-track-area to specify the max blob area to track (10000 by default)
 
 -- Available commands to be sent to /lua/gaze
 --
@@ -111,6 +112,7 @@ end
 flip = rf:check("flip")
 w = rf:check("w",yarp.Value(320)):asInt()
 h = rf:check("h",yarp.Value(240)):asInt()
+max_track_area = rf:check("max-track-area",yarp.Value(10000)):asInt()
 
 azi = 0.0
 ele = 0.0
@@ -201,12 +203,15 @@ while state ~= "exit" do
            local blob = blobs:get(0):asList()
            local px = blob:get(0):asInt()
            local py = blob:get(1):asInt()
+           local area = blob:get(2):asInt()
 
            if flip == true then
-               px = w-px
+              px = w-px
            end
 
-           look_at_pixel(px,py)
+           if area < max_track_area then
+              look_at_pixel(px,py)
+           end
         end
 
         yarp.Time_delay(0.1)
@@ -233,7 +238,7 @@ while state ~= "exit" do
                px = w-px
            end
 
-           if max_area > 0 then
+           if max_area > 0 and max_area < max_track_area then
               look_at_pixel(px,py)
            end
         end
