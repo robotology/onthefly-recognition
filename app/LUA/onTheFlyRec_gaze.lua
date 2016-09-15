@@ -29,7 +29,7 @@
 -- #6: track-face
 -- #7: stop
 -- #8: idle
--- #9: exit
+-- #9: quit
 
 local signal = require("posix.signal")
 require("yarp")
@@ -48,12 +48,13 @@ else
     state = "idle"
 end
 
+interrupting = false
 signal.signal(signal.SIGINT, function(signum)
-  state = "exit"
+  interrupting = true
 end)
 
 signal.signal(signal.SIGTERM, function(signum)
-  state = "exit"
+  interrupting = true
 end)
 
 yarp.Network()
@@ -107,7 +108,7 @@ function look_at_pixel(px,py)
 end
 
 
-while state ~= "exit" and port_gaze_rx:getInputCount() == 0 do
+while not interrupting and port_gaze_rx:getInputCount() == 0 do
     print("checking yarp connection...")
     yarp.Time_delay(1.0)
 end
@@ -125,7 +126,7 @@ ele_delta = 5
 t0 = yarp.Time_now()
 
 
-while state ~= "exit" do
+while state ~= "quit" and not interrupting do
 
     local cmd = port_cmd:read(false)
     if cmd ~= nil then
@@ -134,7 +135,7 @@ while state ~= "exit" do
         if cmd_rx == "look-around" or cmd_rx == "look" or
            cmd_rx == "track-blob" or cmd_rx == "track-face" or
            cmd_rx == "stop" or cmd_rx == "idle" or
-           cmd_rx == "exit" then
+           cmd_rx == "quit" then
 
             state = cmd_rx
 
