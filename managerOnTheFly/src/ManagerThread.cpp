@@ -260,7 +260,7 @@ bool ManagerThread::threadInit()
 
     mutex.wait();
 
-    human_time_training = rf.check("human_time_training", Value(15.0)).asDouble();
+    human_time_training = rf.check("human_time_training", Value(10.0)).asDouble();
     recognition_started = false;
 
     set_mode(MODE_HUMAN);
@@ -509,6 +509,8 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         reply.addString("set human_time_training <value>    [ int>0  ]: sets the time interval of training (tracking) in human mode");
         reply.addString(" ");
         reply.addString("get classes                        : provides the list of known classes");
+        reply.addString("get skip_frames                    : provides the skipped frames in training");
+        reply.addString("get human_time_training            : provides the time interval of training");
 
         ok = true;
 
