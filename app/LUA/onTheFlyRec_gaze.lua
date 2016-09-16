@@ -50,11 +50,11 @@ end
 
 interrupting = false
 signal.signal(signal.SIGINT, function(signum)
-  interrupting = true
+    interrupting = true
 end)
 
 signal.signal(signal.SIGTERM, function(signum)
-  interrupting = true
+    interrupting = true
 end)
 
 yarp.Network()
@@ -140,71 +140,49 @@ while state ~= "quit" and not interrupting do
             state = cmd_rx
 
             if state == "look" then
-
                 azi = cmd:get(1):asDouble()
                 ele = cmd:get(2):asDouble()
                 print("received: look ", azi,ele)
-
             elseif state == "look-around" then
-
                 if cmd:size()>1 then
-
                     azi = cmd:get(1):asDouble()
                     ele = cmd:get(2):asDouble()
-
                 else
-
                     local fp = port_gaze_rx:read(true)
                     local ang = fp:find("angular"):asList()
                     azi = ang:get(0):asDouble()
                     ele = ang:get(1):asDouble()
-
                 end
                 print("received: look around ", azi,ele)
-
             end
-
         elseif cmd_rx == "set-delta" then
-
             azi_delta = cmd:get(1):asDouble()
             ele_delta = cmd:get(2):asDouble()
             print("received: set delta ", azi_delta,ele_delta)
-
         else
-
             print("warning: unrecognized command")
-
         end
     end
 
     if state == "init" then
-
         local fp = port_gaze_rx:read(true)
         local ang = fp:find("angular"):asList()
         azi = ang:get(0):asDouble()
         ele = ang:get(1):asDouble()
         state = "look-around"
-
     elseif state == "look" then
-
         look_at_angle(azi,ele)
         state = "idle"
-
     elseif state == "look-around" then
-
         local t1 = yarp.Time_now()
         if t1-t0 > math.random(2,4) then
             local azi_new = azi + math.random(-azi_delta,azi_delta)
             local ele_new = ele + math.random(-ele_delta,ele_delta)
-
             look_at_angle(azi_new,ele_new)
             t0 = t1
         end
-
     elseif state == "track-blob" then
-
         local t1 = yarp.Time_now()
-
         local blobs = port_blob:read(false)
         if blobs ~= nil then
            local blob = blobs:get(0):asList()
@@ -228,11 +206,8 @@ while state ~= "quit" and not interrupting do
         end
 
         yarp.Time_delay(0.1)
-
     elseif state == "track-face" then
-
         local t1 = yarp.Time_now()
-
         local faces = port_face:read(false)
         if faces ~= nil then
            local max_area = 0
@@ -265,9 +240,7 @@ while state ~= "quit" and not interrupting do
         end
 
         yarp.Time_delay(0.1)
-
     elseif state == "stop" then
-
         local cmd = yarp.Bottle()
         local rep = yarp.Bottle()
 
@@ -276,15 +249,14 @@ while state ~= "quit" and not interrupting do
 
         print("just stopped!")
         state = "idle"
-
     elseif state == "idle" then
-
         yarp.Time_delay(0.1)
-
     end
 end
 
-look_at_angle(0,0)
+if port_gaze_rx:getInputCount() == 0 then
+    look_at_angle(0,0)
+end
 
 port_cmd:close()
 port_blob:close()
