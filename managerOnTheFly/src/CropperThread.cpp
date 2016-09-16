@@ -241,7 +241,7 @@ void CropperThread::run()
 			else if (state==STATE_CLASSIFYING || state==STATE_WHATISTHIS)
 			{
 				text_string = displayed_class;
-				text_color = cv::Scalar(0,0,255);
+				text_color = cv::Scalar(0,255,0);
 			}
 
 			cv::rectangle(img_mat,cv::Point(tlx,tly),cv::Point(brx,bry),cv::Scalar(0,255,0),2);

@@ -521,6 +521,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         {
             ok = false;
             reply.addString("You need to specify a class!");
+            speak("Sorry, I missed the name of the object. Can you repeat?");
             break;
         }
 
@@ -620,6 +621,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
                         ok = false;
                         empty_classes = true;
                         reply.addString("There are no known classes.");
+                        speak("Sorry, but I do not have classes to forget.");
                     }
                     else
                     {
@@ -656,6 +658,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
                 {
                     ok = false;
                     reply.addString("Class is unknown.");
+                    speak("Sorry, but I do not know this class.");
                 }
             }
             
@@ -666,6 +669,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         {
             ok = false;
             reply.addString("Syntax must be: forget <classname> or forget all");
+            speak("Please, tell me what to forget.");
             break;
         }
     }
