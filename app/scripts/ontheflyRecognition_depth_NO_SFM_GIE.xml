@@ -11,6 +11,24 @@
     </module>
 
     <module>
+        <name>yarpdev</name>
+        <parameters>--device faceDispalyServer</parameters>
+        <node>cer-face</node>
+    </module>
+
+    <module>
+        <name>yarpdev</name>
+        <parameters>--device OpenNI2DeviceServer</parameters>
+        <node>cer-torso</node>
+    </module>
+
+    <module>
+        <name>textImage</name>
+        <parameters>--scroll_speed 80</parameters>
+        <node>cer-console-linux</node>
+    </module>
+
+    <module>
         <name>iSpeak</name>
         <parameters>--package speech-dev</parameters>
         <node>cer-face</node>
@@ -20,12 +38,6 @@
         <name>speechRecognizer</name>
         <parameters></parameters>
         <node>cer-console-windows</node>
-    </module>
-
-    <module>
-        <name>yarpdev</name>
-        <parameters>--device OpenNI2DeviceServer</parameters>
-        <node>cer-torso</node>
     </module>
 
     <module>
@@ -168,6 +180,12 @@
         <from>/dispBlobber/opt:o</from>
         <to>/dispBlobber/optViewer</to>
         <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/speech:o</from>
+        <to>/textImage/txt:i</to>
+        <protocol>tcp</protocol>
     </connection>
 
     <connection>
