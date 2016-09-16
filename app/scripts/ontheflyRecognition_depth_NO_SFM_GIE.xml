@@ -52,7 +52,8 @@
     </module>
 
     <module>
-        <name>GIECoder --from GIECoder_googlenet.ini</name>
+        <name>GIECoder</name>
+        <parameters>--from GIECoder_googlenet.ini</parameters>
         <node>cer-torso</node>
     </module>
 
