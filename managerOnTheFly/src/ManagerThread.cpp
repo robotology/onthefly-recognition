@@ -812,11 +812,13 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
             {
                     reply.addInt(thr_cropper->get_skip_frames());
                     ok = true;
+                    break;
             }
             else if (property=="human_time_training")
             {
                     reply.addDouble(human_time_training);
                     ok =true;
+                    break;
             }
             else
             {
