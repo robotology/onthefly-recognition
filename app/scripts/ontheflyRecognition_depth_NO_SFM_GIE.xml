@@ -12,7 +12,7 @@
 
     <module>
         <name>yarpdev</name>
-        <parameters>--device faceDispalyServer</parameters>
+        <parameters>--device faceDisplayServer</parameters>
         <node>cer-face</node>
     </module>
 
