@@ -254,7 +254,7 @@ while state ~= "quit" and not interrupting do
     end
 end
 
-if port_gaze_rx:getInputCount() == 0 then
+if port_gaze_rx:getInputCount() > 0 then
     look_at_angle(0,0)
 end
 
