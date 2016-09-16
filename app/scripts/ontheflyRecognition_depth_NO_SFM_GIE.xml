@@ -23,7 +23,7 @@
     </module>
 
     <module>
-        <name>textImage</name>
+        <name>textimage</name>
         <parameters>--scroll_speed 80</parameters>
         <node>cer-console-linux</node>
     </module>
@@ -184,7 +184,7 @@
 
     <connection>
         <from>/onTheFlyRecognition/speech:o</from>
-        <to>/textImage/txt:i</to>
+        <to>/textimage/txt:i</to>
         <protocol>tcp</protocol>
     </connection>
 
