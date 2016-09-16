@@ -47,7 +47,7 @@
     </module>
 
     <module>
-        <name>managerOnTheFly --human_time_training 15 --skip_frames 5</name>
+        <name>managerOnTheFly</name>
         <node>cer-torso</node>
     </module>
 
