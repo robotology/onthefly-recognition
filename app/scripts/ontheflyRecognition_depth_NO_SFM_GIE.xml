@@ -7,72 +7,72 @@
     <module>
         <name>yarpdev</name>
         <parameters>--device speech --lingware--context speech --default-language en-GB --pitch 80 --speed 100</parameters>
-        <node>cer-face</node>
+        <node>r1-face</node>
     </module>
 
     <module>
         <name>yarpdev</name>
         <parameters>--device faceDisplayServer</parameters>
-        <node>cer-face</node>
+        <node>r1-face</node>
     </module>
 
     <module>
         <name>yarpdev</name>
         <parameters>--device OpenNI2DeviceServer</parameters>
-        <node>cer-torso</node>
+        <node>r1-torso</node>
     </module>
 
     <module>
         <name>textimage</name>
         <parameters>--scroll_speed 80</parameters>
-        <node>cer-console-linux</node>
+        <node>iiticublap70</node>
     </module>
 
     <module>
         <name>iSpeak</name>
         <parameters>--package speech-dev</parameters>
-        <node>cer-face</node>
+        <node>r1-face</node>
     </module>
 
     <module>
         <name>speechRecognizer</name>
         <parameters></parameters>
-        <node>cer-console-windows</node>
+        <node>iiticublap57</node>
     </module>
 
     <module>
         <name>dispBlobber</name>
         <parameters>--imW 320 --imH 240 --bufferSize 1 --minBlobSize 300 --backgroundThresh 100  --imageThreshRatioLow 100 --imageThreshRatioHigh  100 </parameters>
-        <node>cer-torso</node>
+        <node>r1-torso</node>
     </module>
 
     <module>
         <name>managerOnTheFly</name>
-        <node>cer-torso</node>
+        <node>r1-torso</node>
     </module>
 
     <module>
         <name>GIECoder</name>
         <parameters>--from GIECoder_googlenet.ini</parameters>
-        <node>cer-torso</node>
+        <node>r1-torso</node>
     </module>
 
     <module>
         <name>linearClassifierModule</name>
-        <node>cer-torso</node>
+        <node>r1-torso</node>
     </module>
 
     <module>
         <name>cer_gaze-controller</name>
-        <parameters>--cameras::context cameraCalibration --cameras::file cerEyes_320x240.ini</parameters>
-        <node>cer-base</node>
+        <parameters>--cameras::context cameraCalibration --cameras::file cerEyes_320x240.ini --joints-limits::pitch "(-10.0 30.0)" --joints-limits::yaw "(-40.0 40.0)"</parameters>
+        <node>r1-base</node>
     </module>
 
     <module>
         <name>onTheFlyRec_gaze.lua</name>
         <parameters>--track-blob --flip --w 320 --h 240</parameters>
         <deployer>lua</deployer>
-        <node>cer-console-linux</node>
+        <node>iiticublap70</node>
         <dependencies>
             <port timeout="10">/cer_gaze-controller/state:o</port>
             <port timeout="10">/cer_gaze-controller/target:i</port>
@@ -84,31 +84,31 @@
         <name>onTheFlyRec_main.lua</name>
         <parameters></parameters>
         <deployer>lua</deployer>
-        <node>cer-torso</node>
+        <node>r1-torso</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /onTheFlyRecognition/view --x 1300</parameters>
-        <node>cer-console-windows</node>
+        <node>iiticublap70</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /onTheFlyRecognition/confidence --x 900</parameters>
-        <node>cer-console-windows</node>
+        <node>iiticublap70</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /dispBlobber/optViewer --x 500 </parameters>
-        <node>cer-console-windows</node>
+        <node>iiticublap70</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /dispViewer --x 100 </parameters>
-        <node>cer-console-windows</node>
+        <node>iiticublap70</node>
     </module>
 
     <connection>
