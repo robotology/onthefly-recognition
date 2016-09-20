@@ -26,7 +26,6 @@ return rfsm.state {
     ST_CONNECTPORTS = rfsm.state{
         entry=function()
                 ret = yarp.NetworkBase_connect(ispeak_port:getName(), "/iSpeak")
-                ret = yarp.NetworkBase_connect("/iSpeak/speech-dev/rpc", "/icub/speech:rpc")               
                 ret =  ret and yarp.NetworkBase_connect("/interpretSTART/start:o" , "/onTheFlyRec/speechRecog") 
                 ret = ret and yarp.NetworkBase_connect("/onTheFlyRec/manager" , "/onTheFlyRecognition/laptop:io")
                 --[[ret = false
@@ -75,7 +74,7 @@ return rfsm.state {
             print("everything is fine, going home!")
             speak(ispeak_port, "Ready")
             print("starting with USER = ROBOT!")
-            onTheFlyRec_mode(onTheFlyRec_port, "robot") 
+            onTheFlyRec_mode(onTheFlyRec_port, "robot")
         end
     },
 
