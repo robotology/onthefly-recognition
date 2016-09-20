@@ -32,9 +32,6 @@
         <name>iSpeak</name>
         <parameters>--package speech-dev</parameters>
         <node>r1-face</node>
-        <dependencies>
-            <port timeout="10">/icub/speech:rpc</port>
-        </dependencies>
     </module>
 
     <module>
