@@ -19,7 +19,7 @@
 -- --h <int> to specify image height (240 by default)
 -- --max-track-area to specify the max blob area to track (10000 by default)
 
--- Available commands to be sent to /lua/gaze
+-- Available commands to be sent to /onTheFlyRec/gaze
 --
 -- #1: look azi ele
 -- #2: look-around
@@ -201,7 +201,7 @@ while state ~= "quit" and not interrupting do
         end
 
         if t1-t0 > 5 then
-           look_at_angle(0,0)
+           look_at_angle(math.random(-10,10),0)
            t0 = t1
         end
 
@@ -210,32 +210,20 @@ while state ~= "quit" and not interrupting do
         local t1 = yarp.Time_now()
         local faces = port_face:read(false)
         if faces ~= nil then
-           local max_area = 0
-           local px = 0
-           local py = 0
-           for i=0,faces:size()-1,1 do
-              local face = faces:get(i):asList()
-              local area = (face:get(2):asInt()-face:get(0):asInt())*
-                           (face:get(3):asInt()-face:get(1):asInt())
-              if area > max_area then
-                 px = (face:get(0):asInt()+face:get(2):asInt())/2
-                 py = (face:get(1):asInt()+face:get(3):asInt())/2
-                 max_area = area
-              end
-           end
+           local face = faces:get(0):asList()
+           local px = (face:get(0):asInt()+face:get(2):asInt())/2
+           local py = (face:get(1):asInt()+face:get(3):asInt())/2
 
            if flip == true then
                px = w-px
            end
 
-           if max_area > 0 and max_area < max_track_area then
-              look_at_pixel(px,py)
-              t0 = t1
-           end
+           look_at_pixel(px,py)
+           t0 = t1
         end
 
         if t1-t0 > 5 then
-           look_at_angle(0,0)
+           look_at_angle(math.random(-10,10),0)
            t0 = t1
         end
 

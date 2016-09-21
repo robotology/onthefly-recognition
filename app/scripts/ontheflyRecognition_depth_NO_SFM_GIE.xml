@@ -63,6 +63,12 @@
     </module>
 
     <module>
+        <name>faceLandmarks</name>
+        <parameters></parameters>
+        <node>r1-base</node>
+    </module>
+
+    <module>
         <name>cer_gaze-controller</name>
         <parameters>--cameras::context cameraCalibration --cameras::file cerEyes_320x240.ini --joints-limits::pitch "(-20.0 20.0)" --joints-limits::yaw "(-40.0 40.0)"</parameters>
         <node>r1-base</node>
@@ -89,26 +95,32 @@
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /onTheFlyRecognition/view --x 1300</parameters>
-        <node>r1-console-linux</node>
+        <parameters>--name /dispViewer --x 0 --y 0</parameters>
+        <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /onTheFlyRecognition/confidence --x 900</parameters>
-        <node>r1-console-linux</node>
+        <parameters>--name /dispBlobber/optViewer --x 370 --y 0</parameters>
+        <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /dispBlobber/optViewer --x 500 </parameters>
-        <node>r1-console-linux</node>
+        <parameters>--name /onTheFlyRecognition/confidence --x 740 --y 0</parameters>
+        <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /dispViewer --x 100 </parameters>
-        <node>r1-console-linux</node>
+        <parameters>--name /onTheFlyRecognition/view --x 1110 --y 0</parameters>
+        <node>r1-console-windows</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /faceViewer --x 1110 --y 370</parameters>
+        <node>r1-console-windows</node>
     </module>
 
     <connection>
@@ -210,6 +222,24 @@
     <connection>
         <from>/dispBlobber/blobs/left:o</from>
         <to>/onTheFlyRec/gaze/blob</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/OpenNI2/imageFrame:o</from>
+        <to>/faceLandmarks/image:i</to>
+        <protocol>mjpeg</protocol>
+    </connection>
+
+    <connection>
+        <from>/faceLandmarks/target:o</from>
+        <to>/onTheFlyRec/gaze/face</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/faceLandmarks/image:o</from>
+        <to>/faceViewer</to>
         <protocol>udp</protocol>
     </connection>
 
