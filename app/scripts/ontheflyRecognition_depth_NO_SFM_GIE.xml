@@ -136,13 +136,13 @@
     </connection>
 
     <connection>
-        <from>/dispBlobber/blobs/left:o</from>
+        <from>/onTheFlyRec/gaze/train/blob</from>
         <to>/onTheFlyRecognition/blobs:i</to>
         <protocol>udp</protocol>
     </connection>
 
     <connection>
-        <from>/dispBlobber/roi/left:o</from>
+        <from>/onTheFlyRec/gaze/train/roi</from>
         <to>/onTheFlyRecognition/roi:i</to>
         <protocol>udp</protocol>
     </connection>
@@ -220,7 +220,7 @@
     </connection>
 
     <connection>
-        <from>/dispBlobber/blobs/left:o</from>
+        <from>/dispBlobber/roi/left:o</from>
         <to>/onTheFlyRec/gaze/blob</to>
         <protocol>udp</protocol>
     </connection>

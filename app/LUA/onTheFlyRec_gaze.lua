@@ -65,6 +65,8 @@ port_face = yarp.BufferedPortBottle()
 port_gaze_tx = yarp.BufferedPortProperty()
 port_gaze_rx = yarp.BufferedPortProperty()
 port_gaze_rpc = yarp.RpcClient()
+port_gaze_train_blob = yarp.BufferedPortBottle()
+port_gaze_train_roi = yarp.BufferedPortBottle()
 
 port_cmd:open("/onTheFlyRec/gaze")
 port_blob:open("/onTheFlyRec/gaze/blob")
@@ -72,7 +74,27 @@ port_face:open("/onTheFlyRec/gaze/face")
 port_gaze_tx:open("/onTheFlyRec/gaze/tx")
 port_gaze_rx:open("/onTheFlyRec/gaze/rx")
 port_gaze_rpc:open("/onTheFlyRec/gaze/rpc")
+port_gaze_train_blob:open("/onTheFlyRec/gaze/train/blob")
+port_gaze_train_roi:open("/onTheFlyRec/gaze/train/roi")
 
+function train(tl_x,tl_y,br_x,br_y)
+    local blob = port_gaze_train_blob:prepare()
+    blob:clear()
+    local val1 = blob:addList()
+    val1:addDouble((tl_x+br_x)/2)
+    val1:addDouble((tl_y+br_y)/2)
+    val1:addDouble((br_x-tl_x)*(br_y-tl_y))
+    port_gaze_train_blob:write()
+
+    local roi = port_gaze_train_roi:prepare()
+    roi:clear()
+    local val2 = roi:addList()
+    val2:addDouble(tl_x)
+    val2:addDouble(tl_y)
+    val2:addDouble(br_x)
+    val2:addDouble(br_y)
+    port_gaze_train_roi:write()
+end
 
 function look_at_angle(azi,ele)
     local tx = port_gaze_tx:prepare()
@@ -186,16 +208,22 @@ while state ~= "quit" and not interrupting do
         local blobs = port_blob:read(false)
         if blobs ~= nil then
            local blob = blobs:get(0):asList()
-           local px = blob:get(0):asInt()
-           local py = blob:get(1):asInt()
-           local area = blob:get(2):asInt()
+           local tl_x = blob:get(0):asInt()
+           local tl_y = blob:get(1):asInt()
+           local br_x = blob:get(2):asInt()
+           local br_y = blob:get(3):asInt()
+           local cx = (tl_x+br_x)/2
+           local cy = (tl_y+br_y)/2
+           local area = (br_x-tl_x)*(br_y-tl_y)
+
+           train(tl_x,tl_y,br_x,br_y)
 
            if flip == true then
-              px = w-px
+              cx = w-cx
            end
 
            if area < max_track_area then
-              look_at_pixel(px,py)
+              look_at_pixel(cx,cy)
               t0 = t1
            end
         end
@@ -205,20 +233,26 @@ while state ~= "quit" and not interrupting do
            t0 = t1
         end
 
-        yarp.Time_delay(0.1)
+        yarp.Time_delay(0.01)
     elseif state == "track-face" then
         local t1 = yarp.Time_now()
         local faces = port_face:read(false)
         if faces ~= nil then
            local face = faces:get(0):asList()
-           local px = (face:get(0):asInt()+face:get(2):asInt())/2
-           local py = (face:get(1):asInt()+face:get(3):asInt())/2
+           local tl_x = face:get(0):asInt()
+           local tl_y = face:get(1):asInt()
+           local br_x = face:get(2):asInt()
+           local br_y = face:get(3):asInt()
+           local cx = (tl_x+br_x)/2
+           local cy = (tl_y+br_y)/2
+
+           train(tl_x,tl_y,br_x,br_y)
 
            if flip == true then
-               px = w-px
+               cx = w-cx
            end
 
-           look_at_pixel(px,py)
+           look_at_pixel(cx,cy)
            t0 = t1
         end
 
@@ -227,7 +261,7 @@ while state ~= "quit" and not interrupting do
            t0 = t1
         end
 
-        yarp.Time_delay(0.1)
+        yarp.Time_delay(0.01)
     elseif state == "stop" then
         local cmd = yarp.Bottle()
         local rep = yarp.Bottle()
@@ -252,5 +286,7 @@ port_face:close()
 port_gaze_tx:close()
 port_gaze_rx:close()
 port_gaze_rpc:close()
+port_gaze_train_blob:close()
+port_gaze_train_roi:close()
 
 yarp.Network_fini()
