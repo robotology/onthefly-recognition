@@ -174,13 +174,13 @@
     <connection>
         <from>/onTheFlyRecognition/show:o</from>
         <to>/onTheFlyRecognition/view</to>
-        <protocol>mjpeg</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/onTheFlyRecognition/confidence:o</from>
         <to>/onTheFlyRecognition/confidence</to>
-        <protocol>mjpeg</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
@@ -240,7 +240,7 @@
     <connection>
         <from>/faceLandmarks/image:o</from>
         <to>/faceViewer</to>
-        <protocol>mjpeg</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
