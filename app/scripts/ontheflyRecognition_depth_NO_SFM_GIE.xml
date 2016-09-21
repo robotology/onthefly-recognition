@@ -95,31 +95,31 @@
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /dispViewer --x 0 --y 30</parameters>
+        <parameters>--name /dispViewer --x 30 --y 30</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /dispBlobber/optViewer --x 370 --y 30</parameters>
+        <parameters>--name /dispBlobber/optViewer --x 400 --y 30</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /onTheFlyRecognition/confidence --x 740 --y 30</parameters>
+        <parameters>--name /onTheFlyRecognition/confidence --x 770 --y 30</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /onTheFlyRecognition/view --x 1110 --y 30</parameters>
+        <parameters>--name /onTheFlyRecognition/view --x 1140 --y 30</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /faceViewer --x 1110 --y 400</parameters>
+        <parameters>--name /faceViewer --x 1140 --y 400</parameters>
         <node>r1-console-windows</node>
     </module>
 
