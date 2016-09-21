@@ -240,7 +240,7 @@
     <connection>
         <from>/faceLandmarks/image:o</from>
         <to>/faceViewer</to>
-        <protocol>udp</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
