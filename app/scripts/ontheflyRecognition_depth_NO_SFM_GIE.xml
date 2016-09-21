@@ -78,7 +78,7 @@
         <name>onTheFlyRec_gaze.lua</name>
         <parameters>--track-blob --flip --w 320 --h 240</parameters>
         <deployer>lua</deployer>
-        <node>r1-console-linux</node>
+        <node>r1-torso</node>
         <dependencies>
             <port timeout="10">/cer_gaze-controller/state:o</port>
             <port timeout="10">/cer_gaze-controller/target:i</port>
