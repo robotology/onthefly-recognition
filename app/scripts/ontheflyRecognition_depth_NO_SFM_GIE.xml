@@ -25,7 +25,7 @@
     <module>
         <name>textimage</name>
         <parameters>--scroll_speed 80</parameters>
-        <node>iiticublap070</node>
+        <node>r1-console-linux</node>
     </module>
 
     <module>
@@ -37,7 +37,7 @@
     <module>
         <name>speechRecognizer</name>
         <parameters></parameters>
-        <node>iiticublap057</node>
+        <node>r1-console-windows</node>
     </module>
 
     <module>
@@ -72,7 +72,7 @@
         <name>onTheFlyRec_gaze.lua</name>
         <parameters>--track-blob --flip --w 320 --h 240</parameters>
         <deployer>lua</deployer>
-        <node>iiticublap070</node>
+        <node>r1-console-linux</node>
         <dependencies>
             <port timeout="10">/cer_gaze-controller/state:o</port>
             <port timeout="10">/cer_gaze-controller/target:i</port>
@@ -90,25 +90,25 @@
     <module>
         <name>yarpview</name>
         <parameters>--name /onTheFlyRecognition/view --x 1300</parameters>
-        <node>iiticublap070</node>
+        <node>r1-console-linux</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /onTheFlyRecognition/confidence --x 900</parameters>
-        <node>iiticublap070</node>
+        <node>r1-console-linux</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /dispBlobber/optViewer --x 500 </parameters>
-        <node>iiticublap070</node>
+        <node>r1-console-linux</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /dispViewer --x 100 </parameters>
-        <node>iiticublap070</node>
+        <node>r1-console-linux</node>
     </module>
 
     <connection>
