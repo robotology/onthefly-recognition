@@ -87,13 +87,6 @@
     </module>
 
     <module>
-        <name>onTheFlyRec_main.lua</name>
-        <parameters></parameters>
-        <deployer>lua</deployer>
-        <node>r1-torso</node>
-    </module>
-
-    <module>
         <name>yarpview</name>
         <parameters>--name /dispViewer --x 30 --y 30</parameters>
         <node>r1-console-windows</node>
@@ -121,6 +114,13 @@
         <name>yarpview</name>
         <parameters>--name /faceViewer --x 1140 --y 400</parameters>
         <node>r1-console-windows</node>
+    </module>
+
+    <module>
+        <name>onTheFlyRec_main.lua</name>
+        <parameters></parameters>
+        <deployer>lua</deployer>
+        <node>r1-torso</node>
     </module>
 
     <connection>
