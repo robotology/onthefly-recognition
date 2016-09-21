@@ -61,9 +61,13 @@ interact_fsm = rfsm.state{
             onTheFlyRec_gazeTrackFace(onTheFlyRec_track)
             local obj = result:get(11):asString()
             print ("in introduction mode ")
-            print ("person is ")
-            local b = onTheFlyRec_recognize(onTheFlyRec_port)
-
+            yarp.Time_delay(2)
+            print ("person is ", obj)
+            local b = onTheFlyRec_train(onTheFlyRec_port, obj)
+            print ("done onTheFlyRec_train ",  b)
+            print ("delaying to continue tracking faces.... ")
+            yarp.Time_delay(15)
+            print ("returning to blob tracking.... ")
             onTheFlyRec_gazeTrackBlob(onTheFlyRec_track)
         end
     },
@@ -72,8 +76,12 @@ interact_fsm = rfsm.state{
         entry=function()
             onTheFlyRec_gazeTrackFace(onTheFlyRec_track)
             print ("in person request mode ")
+            yarp.Time_delay(2)
             local b = onTheFlyRec_recognize(onTheFlyRec_port)
-        
+            print ("done onTheFlyRec_recognize ",  b)
+            print ("delaying to continue tracking faces.... ")
+            yarp.Time_delay(5)
+            print ("returning to blob tracking.... ")
             onTheFlyRec_gazeTrackBlob(onTheFlyRec_track)
         end
     },

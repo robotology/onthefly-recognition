@@ -93,9 +93,11 @@ return rfsm.state {
             yarp.NetworkBase_disconnect(ispeak_port:getName(), "/iSpeak")
             yarp.NetworkBase_disconnect(speechRecog_port:getName(), "/speechRecognizer/rpc")
             yarp.NetworkBase_disconnect(onTheFlyRec_port:getName(), "/onTheFlyRecognition/human:io")
+            yarp.NetworkBase_disconnect(onTheFlyRec_track:getName(), "/onTheFlyRec/gaze")
             ispeak_port:close()
             speechRecog_port:close()
             onTheFlyRec_port:close()
+            onTheFlyRec_track:close()
             shouldExit = true;
         end
     },

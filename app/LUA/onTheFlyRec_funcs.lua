@@ -15,8 +15,8 @@ function onTheFlyRec_gazeTrackBlob(port)
 	local reply = yarp.Bottle()
 	wb:clear()
     wb:addString("track-blob")
-    port:write(wb,reply)
-	return reply:get(0):asString()
+    port:write(wb)
+	--return reply:get(0):asString()
 end
 
 function onTheFlyRec_gazeTrackFace(port)
@@ -24,8 +24,8 @@ function onTheFlyRec_gazeTrackFace(port)
 	local reply = yarp.Bottle()
 	wb:clear()
     wb:addString("track-face")
-    port:write(wb,reply)
-	return reply:get(0):asString()
+    port:write(wb)
+	--return reply:get(0):asString()
 end
 
 function onTheFlyRec_train(port, objName)
