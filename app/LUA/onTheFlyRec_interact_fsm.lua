@@ -4,6 +4,8 @@ event_table = {
     This        = "e_train",
     What        = "e_recog",
     Forget      = "e_forget",
+    Let         = "e_introduce",
+    Who         = "e_who",
 }
 
 interact_fsm = rfsm.state{
@@ -54,6 +56,28 @@ interact_fsm = rfsm.state{
         end
     },
 
+    SUB_LET = rfsm.state{
+        entry=function()
+            onTheFlyRec_gazeTrackFace(onTheFlyRec_track)
+            local obj = result:get(11):asString()
+            print ("in introduction mode ")
+            print ("person is ")
+            local b = onTheFlyRec_recognize(onTheFlyRec_port)
+
+            onTheFlyRec_gazeTrackBlob(onTheFlyRec_track)
+        end
+    },
+    
+    SUB_WHO = rfsm.state{
+        entry=function()
+            onTheFlyRec_gazeTrackFace(onTheFlyRec_track)
+            print ("in person request mode ")
+            local b = onTheFlyRec_recognize(onTheFlyRec_port)
+        
+            onTheFlyRec_gazeTrackBlob(onTheFlyRec_track)
+        end
+    },
+
     SUB_FORGET = rfsm.state{
         entry=function()
             local obj = result:get(5):asString()
@@ -84,4 +108,10 @@ interact_fsm = rfsm.state{
 
     rfsm.transition { src='SUB_MENU', tgt='SUB_FORGET', events={ 'e_forget' } },
     rfsm.transition { src='SUB_FORGET', tgt='SUB_MENU', events={ 'e_done' } },
+
+    rfsm.transition { src='SUB_MENU', tgt='SUB_LET', events={ 'e_introduce' } },
+    rfsm.transition { src='SUB_LET', tgt='SUB_MENU', events={ 'e_done' } },
+
+    rfsm.transition { src='SUB_MENU', tgt='SUB_WHO', events={ 'e_who' } },
+    rfsm.transition { src='SUB_WHO', tgt='SUB_MENU', events={ 'e_done' } },
 }

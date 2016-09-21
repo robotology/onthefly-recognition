@@ -11,6 +11,7 @@ return rfsm.state {
             ret = ispeak_port:open("/onTheFlyRec/speak")
             ret = ret and speechRecog_port:open("/onTheFlyRec/speechRecog")
             ret = ret and onTheFlyRec_port:open("/onTheFlyRec/manager")
+            ret = ret and onTheFlyRec_track:open("/onTheFlyRec/track")
 
             if ret == false then
                 rfsm.send_events(fsm, 'e_error')
@@ -29,6 +30,8 @@ return rfsm.state {
                     ret = yarp.NetworkBase_connect("/onTheFlyRecognition/speech:o", "/iSpeak")
                     ret = yarp.NetworkBase_connect(speechRecog_port:getName(), "/speechRecognizer/rpc")
                     ret = yarp.NetworkBase_connect(onTheFlyRec_port:getName(), "/onTheFlyRecognition/human:io")
+                    ret = yarp.NetworkBase_connect(onTheFlyRec_track:getName(), "/onTheFlyRec/gaze")
+
                     if ret == false then
                         print("\n\n ERROR WITH CONNECTIONS, PLEASE CHECK \n\n")
                         rfsm.send_events(fsm, 'e_error')
