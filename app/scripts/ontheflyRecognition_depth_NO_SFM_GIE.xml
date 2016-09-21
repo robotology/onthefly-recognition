@@ -174,13 +174,13 @@
     <connection>
         <from>/onTheFlyRecognition/show:o</from>
         <to>/onTheFlyRecognition/view</to>
-        <protocol>udp</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
         <from>/onTheFlyRecognition/confidence:o</from>
         <to>/onTheFlyRecognition/confidence</to>
-        <protocol>udp</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
@@ -240,12 +240,24 @@
     <connection>
         <from>/faceLandmarks/image:o</from>
         <to>/faceViewer</to>
-        <protocol>udp</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
         <from>/iSpeak/speech-dev/rpc</from>
         <to>/r1/speech:rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/textimage/img:o</from>
+        <to>/robot/faceDisplay/image:i</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/textimage/cmd:o</from>
+        <to>/robot/faceDisplay/rpc</to>
         <protocol>tcp</protocol>
     </connection>
 
