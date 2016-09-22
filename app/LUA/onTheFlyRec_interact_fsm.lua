@@ -5,8 +5,7 @@ event_table = {
     What        = "e_recog",
     Forget      = "e_forget",
     Let         = "e_introduce",
-    Who         = "e_who",  
-    Test        = "e_test",
+    Who         = "e_who",
 }
 
 interact_fsm = rfsm.state{
@@ -42,13 +41,6 @@ interact_fsm = rfsm.state{
         end
     },
 
-    SUB_TEST = rfsm.state{
-        entry=function()
-            local is_face = false
-            print ("bool is ", is_face)
-        end
-    },
-
     SUB_TRAIN = rfsm.state{
         entry=function()
             local is_face = false
@@ -71,11 +63,11 @@ interact_fsm = rfsm.state{
     SUB_LET = rfsm.state{
         entry=function()
             onTheFlyRec_gazeLook(onTheFlyRec_track)
-            yarp.Time_delay(1.5)
+            yarp.Time_delay(1)
             onTheFlyRec_gazeTrackFace(onTheFlyRec_track)
             local obj = result:get(11):asString()
             print ("in introduction mode ")
-            yarp.Time_delay(1)
+            yarp.Time_delay(2)
             print ("person is ", obj)
             local  is_face = true
             print ("bool is ", is_face)
@@ -91,7 +83,7 @@ interact_fsm = rfsm.state{
     SUB_WHO = rfsm.state{
         entry=function()
             onTheFlyRec_gazeLook(onTheFlyRec_track)
-            yarp.Time_delay(1.5)
+            yarp.Time_delay(1)
             onTheFlyRec_gazeTrackFace(onTheFlyRec_track)
             print ("in person request mode ")
             yarp.Time_delay(2)
@@ -100,7 +92,7 @@ interact_fsm = rfsm.state{
             local b = onTheFlyRec_recognize(onTheFlyRec_port, is_face)
             print ("done onTheFlyRec_recognize ",  b)
             print ("delaying to continue tracking faces.... ")
-            yarp.Time_delay(5)
+            yarp.Time_delay(4)
             print ("returning to blob tracking.... ")
             onTheFlyRec_gazeTrackBlob(onTheFlyRec_track)
         end
@@ -141,7 +133,4 @@ interact_fsm = rfsm.state{
 
     rfsm.transition { src='SUB_MENU', tgt='SUB_WHO', events={ 'e_who' } },
     rfsm.transition { src='SUB_WHO', tgt='SUB_MENU', events={ 'e_done' } },
-
-    rfsm.transition { src='SUB_MENU', tgt='SUB_TEST', events={ 'e_test' } },
-    rfsm.transition { src='SUB_TEST', tgt='SUB_MENU', events={ 'e_done' } },
 }
