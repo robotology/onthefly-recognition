@@ -88,31 +88,31 @@
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /dispViewer --x 30 --y 30</parameters>
+        <parameters>--name /view/disparity --x 30 --y 30</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /dispBlobber/optViewer --x 400 --y 30</parameters>
+        <parameters>--name /view/dispBlobber --x 400 --y 30</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /onTheFlyRecognition/confidence --x 770 --y 30</parameters>
+        <parameters>--name /view/confidence --x 770 --y 30</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /onTheFlyRecognition/view --x 1140 --y 30</parameters>
+        <parameters>--name /view/recognition --x 1140 --y 30</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /faceViewer --x 1140 --y 400</parameters>
+        <parameters>--name /view/face --x 1140 --y 400</parameters>
         <node>r1-console-windows</node>
     </module>
 
@@ -173,25 +173,25 @@
 
     <connection>
         <from>/onTheFlyRecognition/show:o</from>
-        <to>/onTheFlyRecognition/view</to>
+        <to>/view/recognition</to>
         <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
         <from>/onTheFlyRecognition/confidence:o</from>
-        <to>/onTheFlyRecognition/confidence</to>
+        <to>/view/confidence</to>
         <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
         <from>/OpenNI2/depthFrame_char:o</from>
-        <to>/dispViewer</to>
+        <to>/view/disparity</to>
         <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/dispBlobber/opt:o</from>
-        <to>/dispBlobber/optViewer</to>
+        <to>/view/dispBlobber</to>
         <protocol>udp</protocol>
     </connection>
 
@@ -239,7 +239,7 @@
 
     <connection>
         <from>/faceLandmarks/image:o</from>
-        <to>/faceViewer</to>
+        <to>/view/face</to>
         <protocol>mjpeg</protocol>
     </connection>
 
