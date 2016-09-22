@@ -341,15 +341,19 @@ void ManagerThread::run()
         }
 
         if (current_class!="?")
+        {
             if (is_face)
                 speak("I think this is " + current_class);
             else
                 speak("I think this is a " + current_class);
+        }
         else
+        {
             if (is_face)
                 speak("Sorry, I cannot recognize this person.");
             else
                 speak("Sorry, I cannot recognize this object.");
+        }
             
         if (mode==MODE_ROBOT)
         {
@@ -713,6 +717,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
                 }
                 else
                 {
+                    is_face = command.get(1).asBool();
                     set_state(STATE_WHATISTHIS);
                     reply.addVocab(ACK);
 

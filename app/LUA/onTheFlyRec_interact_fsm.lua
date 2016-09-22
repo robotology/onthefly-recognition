@@ -5,7 +5,8 @@ event_table = {
     What        = "e_recog",
     Forget      = "e_forget",
     Let         = "e_introduce",
-    Who         = "e_who",
+    Who         = "e_who",  
+    Test        = "e_test",
 }
 
 interact_fsm = rfsm.state{
@@ -41,11 +42,19 @@ interact_fsm = rfsm.state{
         end
     },
 
+    SUB_TEST = rfsm.state{
+        entry=function()
+            local is_face = false
+            print ("bool is ", is_face)
+        end
+    },
+
     SUB_TRAIN = rfsm.state{
         entry=function()
             local is_face = false
             local obj = result:get(7):asString()
             print ("object is ", obj)
+            print ("bool is ", is_face)
             local b = onTheFlyRec_train(onTheFlyRec_port, obj, is_face)
         end
     },
@@ -54,6 +63,7 @@ interact_fsm = rfsm.state{
         entry=function()
             print ("in recognition mode ")
             local is_face = false
+            print ("bool is ", is_face)
             local b = onTheFlyRec_recognize(onTheFlyRec_port, is_face)
         end
     },
@@ -68,6 +78,7 @@ interact_fsm = rfsm.state{
             yarp.Time_delay(1)
             print ("person is ", obj)
             local  is_face = true
+            print ("bool is ", is_face)
             local b = onTheFlyRec_train(onTheFlyRec_port, obj, is_face)
             print ("done onTheFlyRec_train ",  b)
             print ("delaying to continue tracking faces.... ")
@@ -85,6 +96,7 @@ interact_fsm = rfsm.state{
             print ("in person request mode ")
             yarp.Time_delay(2)
             local  is_face = true
+            print ("bool is ", is_face)
             local b = onTheFlyRec_recognize(onTheFlyRec_port, is_face)
             print ("done onTheFlyRec_recognize ",  b)
             print ("delaying to continue tracking faces.... ")
@@ -129,4 +141,7 @@ interact_fsm = rfsm.state{
 
     rfsm.transition { src='SUB_MENU', tgt='SUB_WHO', events={ 'e_who' } },
     rfsm.transition { src='SUB_WHO', tgt='SUB_MENU', events={ 'e_done' } },
+
+    rfsm.transition { src='SUB_MENU', tgt='SUB_TEST', events={ 'e_test' } },
+    rfsm.transition { src='SUB_TEST', tgt='SUB_MENU', events={ 'e_done' } },
 }

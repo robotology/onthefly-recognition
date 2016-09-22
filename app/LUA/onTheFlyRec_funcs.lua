@@ -36,10 +36,19 @@ end
 function onTheFlyRec_train(port, objName, is_face)
 	local wb = yarp.Bottle()
 	local reply = yarp.Bottle()
+
+    print ("bool is ", is_face)
+
 	wb:clear()
     wb:addString("train")
 	wb:addString(objName)
-    wb:addBool(is_face)
+
+    if is_face==true then
+        wb:addInt(1)
+    else
+        wb:addInt(0)
+    end
+
     port:write(wb,reply)
 	return reply:get(0):asString()
 end
@@ -49,7 +58,12 @@ function onTheFlyRec_recognize(port, is_face)
 	local reply = yarp.Bottle()
 	wb:clear()
     wb:addString("what")
-    wb:addBool(is_face)
+
+    if is_face==true then
+        wb:addInt(1)
+    else
+        wb:addInt(0)
+    end
     port:write(wb,reply)
 	return reply:get(0):asString()
 end
