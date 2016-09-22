@@ -91,6 +91,7 @@ private:
 	int                                 mode;
 	int                                 state;
 	int				                    crop_mode;
+    bool                                is_face;
 
 private:
 

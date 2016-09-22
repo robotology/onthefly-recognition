@@ -33,21 +33,23 @@ function onTheFlyRec_gazeTrackFace(port)
     port:write(wb)
 end
 
-function onTheFlyRec_train(port, objName)
+function onTheFlyRec_train(port, objName, is_face)
 	local wb = yarp.Bottle()
 	local reply = yarp.Bottle()
 	wb:clear()
     wb:addString("train")
 	wb:addString(objName)
+    wb:addBool(is_face)
     port:write(wb,reply)
 	return reply:get(0):asString()
 end
 
-function onTheFlyRec_recognize(port)
+function onTheFlyRec_recognize(port, is_face)
 	local wb = yarp.Bottle()
 	local reply = yarp.Bottle()
 	wb:clear()
     wb:addString("what")
+    wb:addBool(is_face)
     port:write(wb,reply)
 	return reply:get(0):asString()
 end

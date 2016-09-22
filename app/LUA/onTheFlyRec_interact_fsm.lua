@@ -43,16 +43,18 @@ interact_fsm = rfsm.state{
 
     SUB_TRAIN = rfsm.state{
         entry=function()
+            local is_face = false
             local obj = result:get(7):asString()
             print ("object is ", obj)
-            local b = onTheFlyRec_train(onTheFlyRec_port, obj)
+            local b = onTheFlyRec_train(onTheFlyRec_port, obj, is_face)
         end
     },
 
     SUB_RECOG = rfsm.state{
         entry=function()
             print ("in recognition mode ")
-            local b = onTheFlyRec_recognize(onTheFlyRec_port)
+            local is_face = false
+            local b = onTheFlyRec_recognize(onTheFlyRec_port, is_face)
         end
     },
 
@@ -65,7 +67,8 @@ interact_fsm = rfsm.state{
             print ("in introduction mode ")
             yarp.Time_delay(1)
             print ("person is ", obj)
-            local b = onTheFlyRec_train(onTheFlyRec_port, obj)
+            local  is_face = true
+            local b = onTheFlyRec_train(onTheFlyRec_port, obj, is_face)
             print ("done onTheFlyRec_train ",  b)
             print ("delaying to continue tracking faces.... ")
             yarp.Time_delay(15)
@@ -81,7 +84,8 @@ interact_fsm = rfsm.state{
             onTheFlyRec_gazeTrackFace(onTheFlyRec_track)
             print ("in person request mode ")
             yarp.Time_delay(2)
-            local b = onTheFlyRec_recognize(onTheFlyRec_port)
+            local  is_face = true
+            local b = onTheFlyRec_recognize(onTheFlyRec_port, is_face)
             print ("done onTheFlyRec_recognize ",  b)
             print ("delaying to continue tracking faces.... ")
             yarp.Time_delay(5)
@@ -96,7 +100,6 @@ interact_fsm = rfsm.state{
             if  obj == "objects" then
                 print ("forgetting all objects")
                 obj="all"
-                
             else
                 print ("forgetting single object", obj)
             end

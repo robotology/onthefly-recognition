@@ -266,6 +266,8 @@ bool ManagerThread::threadInit()
     set_mode(MODE_HUMAN);
     set_state(STATE_CLASSIFYING);
     set_crop_mode(CROP_MODE_RADIUS);
+    
+    is_face = false;
 
     mutex.post();
 
@@ -339,10 +341,16 @@ void ManagerThread::run()
         }
 
         if (current_class!="?")
-            speak("I think this is a " + current_class);
+            if (is_face)
+                speak("I think this is " + current_class);
+            else
+                speak("I think this is a " + current_class);
         else
-            speak("Sorry, I cannot recognize this object.");
-
+            if (is_face)
+                speak("Sorry, I cannot recognize this person.");
+            else
+                speak("Sorry, I cannot recognize this object.");
+            
         if (mode==MODE_ROBOT)
         {
 
@@ -357,7 +365,6 @@ void ManagerThread::run()
         }
 
         set_state(STATE_CLASSIFYING);
-
     }
 
     if (state==STATE_TRAINING)
@@ -365,7 +372,10 @@ void ManagerThread::run()
 
         thr_cropper->get_displayed_class(current_class);
 
-        speak("Ok, show me this wonderful " + current_class);
+        if (is_face)
+            speak("Ok, let me have a look at " + current_class);
+        else
+            speak("Ok, show me this wonderful " + current_class);
 
         bool ok = false;;
         switch (mode)
@@ -417,7 +427,10 @@ void ManagerThread::run()
             return;
         }
 
-        speak("Ok, now I know the " + current_class);
+        if (is_face)
+           speak("Hello " + current_class + " nice to meet you ");
+        else
+            speak("Ok, now I know the " + current_class);
 
         if (!send_cmd2rpc_classifier("recognize", 10))
         {
@@ -490,10 +503,10 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
     {
         reply.addVocab(Vocab::encode("many"));
         reply.addString(" ");
-        reply.addString("train <classname>                  : observes the class and retrain");
+        reply.addString("train <classname> <is_face>        : observes the class and retrain");
         reply.addString("forget all                         : forgets all classes");
         reply.addString("forget <classname>                 : forgets the specified class and retrain");
-        reply.addString("what                               : in human mode provides current label,");
+        reply.addString("what  <is_face>                    : in human mode provides current label,");
         reply.addString("                                     in robot mode takes the object and explores it");
         reply.addString(" ");
         reply.addString("robot                              : sets the robot mode");
@@ -528,6 +541,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         }
 
         string class_name = command.get(1).asString().c_str();
+        is_face = command.get(2).asBool();
         thr_cropper->set_displayed_class(class_name);
 
         set_state(STATE_TRAINING);
