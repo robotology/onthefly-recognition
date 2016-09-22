@@ -1,28 +1,9 @@
 
-### Standard objects:
-- octopus
-- box
-- toy
-- turrle
-
-### Standard user:
-- robot
-- human
-
 ### Commands:
-- Mode $user 
-- Train $obj
-- Let's recognize
+- This is $object
+- What is this?
+- Let me introduce you to $person
+- Who is this?
+- Forget [$object | $person]
 - Forget all objects
 - See you soon (required to quit LUA smoothly)
-
-
-objects = {"octopus", "box", "toy", "turtle"}
-user = {"robot", "human"}
-
--- defining speech grammar for Menu
-
-grammar = "Mode #User | Train #Object | Let's recognize | Forget all objects  | See you soon "
-
-
-
