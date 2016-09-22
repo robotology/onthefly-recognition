@@ -112,7 +112,7 @@ function look_at_angle(azi,ele)
     print("look_at_angle:", tx:toString())
 end
 
-function look_at_pixel(px,py)
+function look_at_pixel(mode,px,py)
     local tx = port_gaze_tx:prepare()
     tx:clear()
     tx:put("control-frame","depth")
@@ -126,7 +126,7 @@ function look_at_pixel(px,py)
     tx:put("target-location",location:get(0))
     port_gaze_tx:write()
 
-    print("look_at_pixel:", tx:toString())
+    print("look_at_pixel:", mode, tx:toString())
 end
 
 
@@ -223,7 +223,7 @@ while state ~= "quit" and not interrupting do
            end
 
            if area < max_track_area then
-              look_at_pixel(cx,cy)
+              look_at_pixel(state,cx,cy)
               t0 = t1
            end
         end
@@ -252,7 +252,7 @@ while state ~= "quit" and not interrupting do
                cx = w-cx
            end
 
-           look_at_pixel(cx,cy)
+           look_at_pixel(state,cx,cy)
            t0 = t1
         end
 
