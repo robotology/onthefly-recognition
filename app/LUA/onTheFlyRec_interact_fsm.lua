@@ -58,10 +58,12 @@ interact_fsm = rfsm.state{
 
     SUB_LET = rfsm.state{
         entry=function()
+            onTheFlyRec_gazeLook(onTheFlyRec_track)
+            yarp.Time_delay(1.5)
             onTheFlyRec_gazeTrackFace(onTheFlyRec_track)
             local obj = result:get(11):asString()
             print ("in introduction mode ")
-            yarp.Time_delay(2)
+            yarp.Time_delay(1)
             print ("person is ", obj)
             local b = onTheFlyRec_train(onTheFlyRec_port, obj)
             print ("done onTheFlyRec_train ",  b)
@@ -74,6 +76,8 @@ interact_fsm = rfsm.state{
     
     SUB_WHO = rfsm.state{
         entry=function()
+            onTheFlyRec_gazeLook(onTheFlyRec_track)
+            yarp.Time_delay(1.5)
             onTheFlyRec_gazeTrackFace(onTheFlyRec_track)
             print ("in person request mode ")
             yarp.Time_delay(2)
