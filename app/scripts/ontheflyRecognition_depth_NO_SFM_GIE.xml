@@ -88,31 +88,31 @@
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /view/disparity --x 30 --y 30</parameters>
+        <parameters>--name /view/disparity --x 530 --y 80 --compact</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /view/dispBlobber --x 400 --y 30</parameters>
+        <parameters>--name /view/dispBlobber --x 900 --y 80 --compact</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /view/confidence --x 770 --y 30</parameters>
+        <parameters>--name /view/confidence --x 150 --y 450 --w 500 --h 480 --compact</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /view/recognition --x 1140 --y 30</parameters>
+        <parameters>--name /view/recognition --x 700 --y 450 --w 500 --h 480 --compact</parameters>
         <node>r1-console-windows</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /view/face --x 1140 --y 400</parameters>
+        <parameters>--name /view/face --x 1250 --y 450 --w 500 --h 480 --compact</parameters>
         <node>r1-console-windows</node>
     </module>
 
