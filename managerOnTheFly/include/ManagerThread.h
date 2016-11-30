@@ -78,6 +78,9 @@ private:
 	// rpc linearClassifier
 	RpcClient                           port_rpc_classifier;
 
+    // rpc object3Dexplorer (for tool use)
+    RpcClient                           port_rpc_o3de;
+
 	bool			                    recognition_started;
 
 	// rpc human commands
@@ -91,6 +94,7 @@ private:
 	int                                 mode;
 	int                                 state;
 	int				                    crop_mode;
+    bool                                tool_mode;
 
 private:
 
@@ -107,6 +111,8 @@ private:
 	bool store_human(string class_name);
 
 	bool store_robot(string class_name);
+
+    bool store_robot_tool(string class_name);
 
 	bool observe_robot(string &predicted_class);
 

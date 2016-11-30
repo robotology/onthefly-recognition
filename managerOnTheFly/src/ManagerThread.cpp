@@ -78,7 +78,7 @@ bool ManagerThread::store_human(string class_name)
 
     if (!send_cmd2rpc_classifier("stop", 10))
     {
-        std::cout << "Classifier busy for stopping to save scores: please make it stops somehow!" << std::endl;
+        std::cout << "Classifier busy for stopping to save scores: please make it stop somehow!" << std::endl;
         return false;
     }
 
@@ -134,7 +134,7 @@ bool ManagerThread::store_robot(string class_name)
 
         if (!send_cmd2rpc_classifier("stop", 10))
         {
-            std::cout << "Classifier busy for stopping to save scores: please make it stops somehow!" << std::endl;
+            std::cout << "Classifier busy for stopping to save scores: please make it stop somehow!" << std::endl;
         }
 
         complete_robot();
@@ -143,13 +143,86 @@ bool ManagerThread::store_robot(string class_name)
 
     if (!send_cmd2rpc_classifier("stop", 10))
     {
-        std::cout << "Classifier busy for stopping to save scores: please make it stops somehow!" << std::endl;
+        std::cout << "Classifier busy for stopping to save scores: please make it stop somehow!" << std::endl;
         complete_robot();
         return false;
     }
 
     return true;
 }
+
+
+bool ManagerThread::store_robot_tool(string class_name)
+{
+    // check if the robot is already holding an object
+    Bottle command,reply;
+    command.addString("get");
+    command.addString("hold");
+    port_rpc_are_get.write(command,reply);
+    if (reply.size()==0 || reply.get(0).asVocab()!=ACK)
+    {
+        std::cout << "Cannot set ARE to get hold!" << std::endl;
+        return false;
+    }
+
+    // if the robot is not holding an object then ask the human to give one
+    if(reply.get(0).asVocab()!=ACK)
+    {
+        reply.clear();
+        command.clear();
+        command.addString("clto");
+        command.addString("right");
+        port_rpc_are_cmd.write(command,reply);
+        if(reply.size()==0 || reply.get(0).asVocab()!=ACK)
+        {
+            std::cout << "Cannot set ARE to expect a tool!" << std::endl;
+            return false;
+        }
+    }
+
+    // perform the exploration of the hand
+    reply.clear();
+    command.clear();
+    command.addString("lookAtTool");
+    port_rpc_o3de.write(command,reply);
+
+    if (!send_doublecmd2rpc_classifier("save", class_name.c_str(), 10))
+    {
+        std::cout << "Classifier busy for saving!" << std::endl;
+        complete_robot();
+        return false;
+    }
+
+    for (int i =1; i < 5 ; i++){
+        reply.clear();
+        command.clear();
+        command.addString("lookAround");
+        port_rpc_o3de.write(command,reply);
+    }
+
+    if (reply.size()==0 || reply.get(0).asVocab()!=ACK)
+    {
+        std::cout << "Cannot set are to explore hand no_sacc!" << std::endl;
+
+        if (!send_cmd2rpc_classifier("stop", 10))
+        {
+            std::cout << "Classifier busy for stopping to save scores: please make it stop somehow!" << std::endl;
+        }
+
+        complete_robot();
+        return false;
+    }
+
+    if (!send_cmd2rpc_classifier("stop", 10))
+    {
+        std::cout << "Classifier busy for stopping to save scores: please make it stop somehow!" << std::endl;
+        complete_robot();
+        return false;
+    }
+
+    return true;
+}
+
 
 bool ManagerThread::observe_robot(string &predicted_class)
 {
@@ -249,6 +322,10 @@ bool ManagerThread::threadInit()
     // rpc linearClassifier
     port_rpc_classifier.open(("/"+name+"/classifier:io").c_str());
 
+    // rpc linearClassifier
+    port_rpc_o3de.open(("/"+name+"/o3de:io").c_str());
+
+
     // out speech
     port_out_speech.open(("/"+name+"/speech:o").c_str());
 
@@ -262,6 +339,7 @@ bool ManagerThread::threadInit()
 
     human_time_training = rf.check("human_time_training", Value(15.0)).asDouble();
     recognition_started = false;
+    tool_mode = rf.check("tool", Value(false)).asBool();
 
     set_mode(MODE_HUMAN);
     set_state(STATE_CLASSIFYING);
@@ -372,7 +450,12 @@ void ManagerThread::run()
         {
         case MODE_ROBOT:
         {
-            ok = store_robot(current_class.c_str());
+            if (tool_mode){
+                ok = store_robot_tool(current_class.c_str());
+            }else{
+                ok = store_robot(current_class.c_str());
+            }
+
             if (!ok)
             {
                 std::cout << "observe_robot() failed!" << std::endl;
@@ -496,7 +579,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         reply.addString("what                               : in human mode provides current label,");
         reply.addString("                                     in robot mode takes the object and explores it");
         reply.addString(" ");
-        reply.addString("robot                              : sets the robot mode");
+        reply.addString("robot <bool>                       : sets the robot mode and tool presence (default false)");
         reply.addString("human                              : sets the human mode");
         reply.addString(" ");
         reply.addString("radius                             : active only in human mode, sets the square ROI");
@@ -558,6 +641,11 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         }
 
         set_mode(MODE_ROBOT);
+
+        tool_mode = false;
+        if (command.size()==2){
+            tool_mode = command.get(1).asBool();
+        }
 
         ok = true;
         reply.addVocab(ACK);

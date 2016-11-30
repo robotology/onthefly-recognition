@@ -16,6 +16,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(folder_header ${folder_header}    include/ManagerThread.h
                                       include/ScorerThread.h
+                                      include/definitions.h
                                       include/CropperThread.h )
 
 set(folder_source ${folder_source}    src/ManagerThread.cpp
