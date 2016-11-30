@@ -53,6 +53,28 @@ bool CropperThread::threadInit()
 	//rpc
 	port_rpc_are_get_hand.open(("/"+name+"/are/hand:io").c_str());
 
+
+    printf("\n Opening controllers...\n");
+    //Gaze controllers
+    Property optionG("(device gazecontrollerclient)");
+    optionG.put("remote","/iKinGazeCtrl");
+    optionG.put("local",("/"+name+"/gaze_ctrl").c_str());
+    if (!driverG.open(optionG))
+        return false;
+    driverG.view(iGaze);
+    iGaze->blockEyes(5.0);
+
+    //Cartesian controllers
+    Property optionR("(device cartesiancontrollerclient)");
+    optionR.put("remote",("/icub/cartesianController/right_arm"));
+    optionR.put("local",("/"+name+"/cart_ctrl/right_arm").c_str());
+    if (!driverR.open(optionR))
+    {
+        driverG.close();
+        return false;
+    }
+    driverR.view(iCart);
+
 	return true;
 }
 
@@ -114,25 +136,44 @@ void CropperThread::run()
 	}
 	else if (mode==MODE_ROBOT)
 	{
-		Bottle cmd_are_hand,reply_are_hand;
+        Vector xa,oa;
+        iCart->getPose(xa,oa);
 
-		cmd_are_hand.addString("get");
-		cmd_are_hand.addString("hand");
-		cmd_are_hand.addString("image");
+        Matrix Ha=axis2dcm(oa);
+        xa.push_back(1.0);
+        Ha.setCol(3,xa);
 
-		port_rpc_are_get_hand.write(cmd_are_hand,reply_are_hand);
+        Vector v(4,0.0); v[3]=1.0;
+        Vector c=Ha*v;
 
-		if(reply_are_hand.size()>0 && reply_are_hand.get(0).asVocab()!=NACK)
-		{
-			x = reply_are_hand.get(2).asInt();
-			y = reply_are_hand.get(3).asInt();
+        Vector pc;
+        iGaze->get2DPixel(0,c,pc);          // Get pixel of hand reference frame from left camera (0).
 
-			radius = radius_robot;
+        x = pc[0];
+        y = pc[1];
 
-			if (0<x && x<img_mat.cols && 0<y && y<img_mat.rows)
-				crop_found=true;
-		}
+        radius = radius_robot;
+
+        if (0<x && x<img_mat.cols && 0<y && y<img_mat.rows)
+            crop_found=true;
+
 	}
+
+    else if (mode==MODE_ROBOT_TOOL)
+    {
+        crop_mode=CROP_MODE_BBDISP;
+        // Get the tool contour from disparity.
+        Bottle *roi = port_in_roi.read(false);
+        if (roi!=NULL)
+        {
+            Bottle *window = roi->get(0).asList();
+            tlx = window->get(0).asInt()-10;
+            tly = window->get(1).asInt()-10;
+            brx = window->get(2).asInt()+10;
+            bry = window->get(3).asInt()+10;
+            crop_found = true;
+        }
+    }
 
 	if (crop_found)
 	{
@@ -168,7 +209,8 @@ void CropperThread::run()
 
 		if (crop_valid)
 		{
-			cv::Rect img_ROI = cv::Rect(cv::Point( tlx, tly ), cv::Point( brx, bry ));
+
+            cv::Rect img_ROI = cv::Rect(cv::Point( tlx, tly ), cv::Point( brx, bry ));
 			ImageOf<PixelRgb> img_crop;
 			img_crop.resize(img_ROI.width, img_ROI.height);
 			cv::Mat img_crop_mat = cv::cvarrToMat((IplImage*)img_crop.getIplImage());
@@ -329,7 +371,7 @@ int CropperThread::get_skip_frames()
 
 bool CropperThread::set_mode(int _mode)
 {
-	if (_mode!=MODE_HUMAN && _mode!=MODE_ROBOT)
+    if (_mode!=MODE_HUMAN && _mode!=MODE_ROBOT && _mode!=MODE_ROBOT_TOOL)
 		return false;
 
 	mutex.wait();

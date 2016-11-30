@@ -116,6 +116,8 @@ private:
 
 	bool observe_robot(string &predicted_class);
 
+    bool observe_robot_tool(string &predicted_class);
+
 	bool complete_robot();
 
 public:

@@ -27,6 +27,7 @@
 #include <yarp/os/RpcClient.h>
 #include <yarp/os/PortReport.h>
 #include <yarp/os/Stamp.h>
+#include <yarp/dev/all.h>
 
 #include <yarp/sig/Vector.h>
 #include <yarp/sig/Image.h>
@@ -35,6 +36,7 @@
 #include <yarp/math/Rand.h>
 
 #include <highgui.h>
+#include <opencv2/opencv.hpp>
 #include <cv.h>
 
 #include <stdio.h>
@@ -49,6 +51,7 @@
 using namespace std;
 using namespace yarp;
 using namespace yarp::os;
+using namespace yarp::dev;
 using namespace yarp::sig;
 using namespace yarp::math;
 
@@ -58,6 +61,13 @@ class CropperThread: public RateThread
 {
 
 private:
+
+    PolyDriver                          driverR;
+    PolyDriver                          driverG;
+
+    ICartesianControl                   *iCart;
+    IGazeControl                        *iGaze;
+
 
 	ResourceFinder                      &rf;
 	Semaphore                           mutex;

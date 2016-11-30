@@ -13,73 +13,74 @@
     <module>
         <name>SFM</name>
         <parameters>--elas_setting MIDDLEBURY --elas_ipol_gap_width 20</parameters>
-        <node>node1</node>
+        <node>icub-cuda</node>
     </module>
 
     <module>
         <name>dispBlobber</name>
         <parameters>--imW 320 --imH 240 --bufferSize 3 --minBlobSize 300 </parameters>
-        <node>node1</node>
+        <node>icub22</node>
     </module>
           
     <module>
         <name>managerOnTheFly</name>               
-        <node>node1</node>
+        <node>icub21</node>
     </module>
 
     <module>
         <name>actionsRenderingEngine</name>
-        <node>node2</node>
+        <node>icub21</node>
     </module>
     
     <module>
         <name>caffeCoder</name>
-        <node>gpu_node</node>
+        <node>icub-cuda</node>
     </module>
 
     <module>
         <name>linearClassifierModule</name>
-        <node>gpu_node</node>
+        <parameters>--BufferSize 1 --CSVM 1.0 --databaseFolder ToolDatabaseOTFR --WeightedSVM 1</parameters>
+        <node>icub-cuda</node>
     </module>
 
     <module>
         <name>iSpeak</name>
-        <node>node3</node>
+        <node>icub-win1</node>
     </module>
 
     <module>
         <name>speechRecognizer</name>
-        <node>win_node</node>
+        <node>icub-win1</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /onTheFlyRecognition/view</parameters>
-        <node>node4</node>
+        <node>icub22</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /onTheFlyRecognition/confidence</parameters>
-        <node>node4</node>
+        <node>icub22</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /SFM/matchViewer</parameters>
-        <node>node4</node>
+        <node>icub22</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /SFM/dispViewer</parameters>
-        <node>node4</node>
+        <node>icub22</node>
     </module>
 
     <module>
         <name>yarpview</name>
         <parameters>--name /dispBlobber/optViewer</parameters>
-        <node>node4</node>
+        <node>icub22</node>
     </module>
     
 
@@ -128,8 +129,14 @@
     </connection>
 
     <connection>
-        <from>/dispBlobber/blobs:o</from>
+        <from>/dispBlobber/blobs/left:o</from>
         <to>/onTheFlyRecognition/blobs:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/roi/left:o</from>
+        <to>/onTheFlyRecognition/roi:i</to>
         <protocol>mcast</protocol>
     </connection>
 
@@ -242,5 +249,6 @@
     </connection>
    
 </application>
+
 
 

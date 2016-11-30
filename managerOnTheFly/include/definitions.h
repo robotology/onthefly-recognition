@@ -16,6 +16,7 @@
 #define					STATE_WHATISTHIS	2
 
 #define                 MODE_ROBOT          0
+#define                 MODE_ROBOT_TOOL     2
 #define                 MODE_HUMAN          1
 #define                 CMD_ROBOT           VOCAB4('r','o','b','o')
 #define                 CMD_HUMAN           VOCAB4('h','u','m','a')
