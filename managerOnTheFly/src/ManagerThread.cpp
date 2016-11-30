@@ -579,7 +579,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         reply.addString("what                               : in human mode provides current label,");
         reply.addString("                                     in robot mode takes the object and explores it");
         reply.addString(" ");
-        reply.addString("robot <bool>                       : sets the robot mode and tool presence (default false)");
+        reply.addString("robot <bool>                       : sets the robot mode. Bool sets tool mode (default false)");
         reply.addString("human                              : sets the human mode");
         reply.addString(" ");
         reply.addString("radius                             : active only in human mode, sets the square ROI");
