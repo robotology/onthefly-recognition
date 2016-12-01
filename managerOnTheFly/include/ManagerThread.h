@@ -119,6 +119,7 @@ private:
     bool observe_robot_tool(string &predicted_class);
 
 	bool complete_robot();
+    bool complete_robot_tool(bool drop);
 
 public:
 

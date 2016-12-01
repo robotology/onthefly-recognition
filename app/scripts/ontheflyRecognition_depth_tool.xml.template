@@ -55,31 +55,31 @@
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /onTheFlyRecognition/view</parameters>
+        <parameters>--x 100 --y 0 --name /onTheFlyRecognition/view</parameters>
         <node>icub22</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /onTheFlyRecognition/confidence</parameters>
+        <parameters>--x 420 --y 0   --name /onTheFlyRecognition/confidence</parameters>
         <node>icub22</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /SFM/matchViewer</parameters>
+        <parameters>--name --x 420 --y 320 /SFM/dispViewer</parameters>
         <node>icub22</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /SFM/dispViewer</parameters>
+        <parameters>--x 740 --y 0 --name /dispBlobber/optViewer</parameters>
         <node>icub22</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /dispBlobber/optViewer</parameters>
+        <parameters>--name /crop --x 100 --y 320</parameters>
         <node>icub22</node>
     </module>
     
@@ -247,8 +247,12 @@
         <to>/dispBlobber/optViewer</to>
         <protocol>tcp</protocol>
     </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/crop:o</from>
+        <to>/crop</to>
+        <protocol>tcp</protocol>
+    </connection>
    
 </application>
-
-
 

@@ -179,7 +179,7 @@ bool ManagerThread::store_robot_tool(string class_name)
     port_rpc_o3de.write(command,reply);
 
     cout << "Waiting till looking at tool" << endl;
-    Time::delay(3.0);
+    Time::delay(1.0);
 
 
     cout << "Saving image in classifier" << endl;
@@ -204,7 +204,7 @@ bool ManagerThread::store_robot_tool(string class_name)
     if (!send_cmd2rpc_classifier("stop", 10))
     {
         std::cout << "Classifier busy for stopping to save scores: please make it stop somehow!" << std::endl;
-        complete_robot();
+        complete_robot_tool(true);
         return false;
     }
 
@@ -305,7 +305,7 @@ bool ManagerThread::observe_robot_tool(string &predicted_class)
     port_rpc_o3de.write(command,reply);
 
     cout << "Waiting till looking at tool" << endl;
-    Time::delay(3.0);
+    Time::delay(1.0);
 
 
     thr_scorer->get_predicted_class(predicted_class);
@@ -328,6 +328,29 @@ bool ManagerThread::complete_robot()
     command.clear();
     command.addString("home");
     port_rpc_are_cmd.write(command,reply);
+    if (reply.size()==0 || reply.get(0).asVocab()!=ACK)
+    {
+        std::cout << "Cannot set ARE to home!" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool ManagerThread::complete_robot_tool(bool drop)
+{
+    // Go home keeping the tool in the hand or not
+    Bottle command,reply;
+    command.clear();  reply.clear();
+    if (drop){
+        command.addString("home");
+    }else{
+        command.addString("home");
+        command.addString("head");
+        command.addString("arms");
+    }
+    port_rpc_are_cmd.write(command,reply);
+
     if (reply.size()==0 || reply.get(0).asVocab()!=ACK)
     {
         std::cout << "Cannot set ARE to home!" << std::endl;
@@ -461,7 +484,7 @@ void ManagerThread::run()
         else
             speak("Sorry, I cannot recognize this object.");
 
-        if ((mode==MODE_ROBOT)|| (mode==MODE_ROBOT_TOOL))
+        if (mode==MODE_ROBOT)
         {
 
             bool ok = complete_robot();
@@ -473,6 +496,19 @@ void ManagerThread::run()
                 return;
             }
         }
+        if  (mode==MODE_ROBOT_TOOL)
+        {
+
+            bool ok = complete_robot_tool(false);
+            if (!ok)
+            {
+                std::cout << "complete_robot_tool() failed!" << std::endl;
+                set_state(STATE_CLASSIFYING);
+                mutex.post();
+                return;
+            }
+        }
+
 
         set_state(STATE_CLASSIFYING);
 
@@ -829,7 +865,9 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
                 {
                     set_state(STATE_WHATISTHIS);
                     reply.addVocab(ACK);
-
+                    string pred_clas;
+                    thr_scorer->get_predicted_class(pred_clas);
+                    reply.addString(pred_clas);
                 }
             }
         }
