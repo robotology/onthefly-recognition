@@ -161,7 +161,6 @@ void CropperThread::run()
 
     else if (mode==MODE_ROBOT_TOOL)
     {
-        crop_mode=CROP_MODE_BBDISP;
         // Get the tool contour from disparity.
         Bottle *roi = port_in_roi.read(false);
         if (roi!=NULL)

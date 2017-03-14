@@ -149,15 +149,18 @@ bool ManagerThread::store_robot(string class_name)
 
 bool ManagerThread::store_robot_tool(string class_name)
 {
-    // check if the robot is already holding an object
+    // check if the robot is already holding a tool
+    cout << "Checking that tool is in hand" << endl;
     Bottle command,reply;
     command.addString("get");
     command.addString("holding");
     port_rpc_are_get.write(command,reply);
 
-    // if the robot is not holding an object then ask the human to give one
+    // if the robot is not holding a tool then ask the human to give one
     if(reply.get(0).asVocab()!=ACK)
     {
+        cout << "Gimme the tool " << class_name << endl;
+
         reply.clear();      command.clear();
         command.addString("tato");
         command.addString("right");
@@ -168,10 +171,13 @@ bool ManagerThread::store_robot_tool(string class_name)
         command.addString("close_hand_tool");
         port_rpc_are_cmd.write(command,reply);
 
-        cout << "Waiting till tool is grasped" << endl;
+        cout << "Waiting until tool is grasped" << endl;
         Time::delay(5.0);
+    } else  {
+        cout << "Tool " << class_name << " is already in hand" << endl;
     }
 
+    cout << "Moving hand and looking at tool" << endl;
     // perform the exploration of the hand
     reply.clear();
     command.clear();
@@ -529,8 +535,10 @@ void ManagerThread::run()
         case MODE_ROBOT_TOOL:
         {
             if (tool_mode){
+                cout << "Training in state MODE_ROBOT_TOOL" << endl;
                 ok = store_robot_tool(current_class.c_str());
             }else{
+                cout << "Training in state MODE_ROBOT" << endl;
                 ok = store_robot(current_class.c_str());
             }
             if (!ok)
@@ -550,6 +558,7 @@ void ManagerThread::run()
 
         case MODE_HUMAN:
         {
+            cout << "Training in state MODE_HUMAN" << endl;
             ok = store_human(current_class.c_str());
             if (!ok)
             {
@@ -659,8 +668,8 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         reply.addString("robot <bool>                       : sets the robot mode. Bool sets tool mode (default false)");
         reply.addString("human                              : sets the human mode");
         reply.addString(" ");
-        reply.addString("radius                             : active only in human mode, sets the square ROI");
-        reply.addString("bbdisp                             : active only in human mode, sets the dispBlobber ROI");
+        reply.addString("radius                             : sets the square ROI");
+        reply.addString("bbdisp                             : sets the dispBlobber ROI");
         reply.addString(" ");
         reply.addString("set radius_human <value>           [ int>0  ]: sets the radius of the square ROI in human mode");
         reply.addString("set radius_robot <value>           [ int>0  ]: sets the radius of the square ROI in robot mode ");
@@ -725,6 +734,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
 
         if (tool_mode){
             set_mode(MODE_ROBOT_TOOL);
+            set_crop_mode(CROP_MODE_BBDISP);
         }else{
             set_mode(MODE_ROBOT);
         }
