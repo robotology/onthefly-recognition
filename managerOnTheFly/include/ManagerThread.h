@@ -114,6 +114,8 @@ private:
 
     bool store_robot_tool(string class_name);
 
+    bool what_is_this(string &predicted_class);
+
 	bool observe_robot(string &predicted_class);
 
     bool observe_robot_tool(string &predicted_class);

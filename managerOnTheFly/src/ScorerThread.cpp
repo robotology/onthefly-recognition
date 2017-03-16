@@ -146,12 +146,12 @@ void ScorerThread::run()
 	predicted_class = scores_buffer.front().get(max_avg_idx).asList()->get(0).asString().c_str();
 	if (max_votes/scores_buffer.size()<0.2)
 		predicted_class = "?";
-
+/*
 	cout << "Scores: " << endl;
 	for (int i=0; i<n_classes; i++)
 		cout << "[" << scores_buffer.front().get(i).asList()->get(0).asString().c_str() << "]: " << class_avg[i] << " "<< class_votes[i] << endl;
 	cout << endl << endl;
-
+*/
 	draw_hist(class_votes);
 
 	mutex.post();

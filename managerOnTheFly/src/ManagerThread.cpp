@@ -296,7 +296,7 @@ bool ManagerThread::observe_robot_tool(string &predicted_class)
         port_rpc_are_cmd.write(command,reply);
 
         cout << "Waiting till tool is grasped" << endl;
-        Time::delay(5.0);
+        Time::delay(2.0);
     }
 
     int old_buffer_size;
@@ -311,8 +311,10 @@ bool ManagerThread::observe_robot_tool(string &predicted_class)
     port_rpc_o3de.write(command,reply);
 
     cout << "Waiting till looking at tool" << endl;
-    Time::delay(1.0);
-
+    for (int i = 1; i< 5 ; i++){
+        Time::delay(1.0);
+        cout << "Stabilizing recognition" << endl;
+    }
 
     thr_scorer->get_predicted_class(predicted_class);
 
@@ -402,7 +404,7 @@ bool ManagerThread::threadInit()
 
     set_mode(MODE_HUMAN);
     set_state(STATE_CLASSIFYING);
-    set_crop_mode(CROP_MODE_RADIUS);
+    set_crop_mode(CROP_MODE_BBDISP);
 
     mutex.post();
 
@@ -454,7 +456,7 @@ void ManagerThread::run()
         thr_cropper->set_displayed_class(current_class);
     }
 
-    if (state==STATE_WHATISTHIS)
+  /*  if (state==STATE_WHATISTHIS)
     {
 
         if (mode==MODE_ROBOT)
@@ -519,7 +521,7 @@ void ManagerThread::run()
         set_state(STATE_CLASSIFYING);
 
     }
-
+*/
     if (state==STATE_TRAINING)
     {
 
@@ -869,15 +871,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
                 {
                     reply.addString("No classes in database.");
                     speak("Sorry, I don't know anything.");
-
-                }
-                else
-                {
-                    set_state(STATE_WHATISTHIS);
-                    reply.addVocab(ACK);
-                    string pred_clas;
-                    thr_scorer->get_predicted_class(pred_clas);
-                    reply.addString(pred_clas);
+                    ok = false;
                 }
             }
         }
@@ -886,6 +880,57 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         {
             ok = false;
             reply.addString("Classifier busy for getting objList!");
+        }
+
+        if (done == true && ok == true)
+        {
+            cout << "Ready to predict!!" << endl;
+
+            //mutex.wait();
+            string pred_clas;
+            if (mode==MODE_ROBOT)
+            {
+                cout << "Predicting object in hand!!" << endl;
+                bool ok = observe_robot(pred_clas);
+                if (!ok)
+                {
+                    std::cout << "observe_robot() failed!" << std::endl;
+                    reply.addString("Couldn't look at object");
+                    mutex.post();
+                }
+                reply.addVocab(ACK);
+                reply.addString(pred_clas);
+                complete_robot();
+            }
+            if  (mode==MODE_ROBOT_TOOL)
+            {
+                cout << "Predicting tool in hand!!" << endl;
+                bool ok = observe_robot_tool(pred_clas);
+                if (!ok)
+                {
+                    std::cout << "observe_robot_tool() failed!" << std::endl;
+                    reply.addString("Couldn't look at tool");
+                    mutex.post();
+                }
+                reply.addVocab(ACK);
+                reply.addString(pred_clas);
+                complete_robot_tool(false);
+            }
+            if (mode==MODE_HUMAN)
+            {
+                //set_state(STATE_WHATISTHIS);
+                cout << "Predicting object in users hand!!" << endl;
+                reply.addVocab(ACK);
+                thr_scorer->get_predicted_class(pred_clas);
+                reply.addString(pred_clas);
+            }
+
+            if (pred_clas != "?")
+                speak("I think this is a " + pred_clas);
+            else
+                speak("Sorry, I cannot recognize this object.");
+
+            //mutex.post();
         }
 
     } break;
