@@ -12,7 +12,7 @@
 
     <module>
         <name>SFM</name>
-        <parameters>--elas_setting MIDDLEBURY --elas_ipol_gap_width 20</parameters>
+        <parameters></parameters>
         <node>icub-cuda</node>
     </module>
 
