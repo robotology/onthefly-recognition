@@ -1,0 +1,264 @@
+<application>
+
+    <name>On The Fly - NO SFM - GIE - New depth device </name>
+    <dependencies>
+    </dependencies>
+
+    <module>
+        <name>yarpdev</name>
+        <parameters>--device speech --lingware-context speech --default-language en-GB --robot r1 --pitch 80 --speed 100</parameters>
+        <node>r1-face</node>
+    </module>
+
+    <module>
+        <name>yarpdev</name>
+        <parameters>--device faceDisplayServer</parameters>
+        <node>r1-face</node>
+    </module>
+
+    <module>
+        <name>yarpdev</name>
+        <parameters> --from sensors/Xtion_depthCamera.ini </parameters>
+        <node>r1-torso</node>
+    </module>
+
+    <module>
+        <name>textimage</name>
+        <parameters>--scroll_speed 80</parameters>
+        <node>r1-console-linux</node>
+    </module>
+
+    <module>
+        <name>iSpeak</name>
+        <parameters>--package speech-dev</parameters>
+        <node>r1-face</node>
+    </module>
+
+    <module>
+        <name>speechRecognizer</name>
+        <parameters></parameters>
+        <node>r1-console-windows</node>
+    </module>
+
+    <module>
+        <name>dispBlobber</name>
+        <parameters>--imW 320 --imH 240 --bufferSize 1 --minBlobSize 300 --backgroundThresh 100  --imageThreshRatioLow 100 --imageThreshRatioHigh  100 </parameters>
+        <node>r1-torso</node>
+    </module>
+
+    <module>
+        <name>managerOnTheFly</name>
+        <node>r1-torso</node>
+    </module>
+
+    <module>
+        <name>GIECoder</name>
+        <parameters>--from GIECoder_googlenet.ini</parameters>
+        <node>r1-torso</node>
+    </module>
+
+    <module>
+        <name>linearClassifierModule</name>
+        <node>r1-torso</node>
+    </module>
+
+    <module>
+        <name>faceLandmarks</name>
+        <parameters></parameters>
+        <node>r1-base</node>
+    </module>
+
+    <module>
+        <name>cer_gaze-controller</name>
+        <parameters>--cameras::context cameraCalibration --cameras::file cerEyes_320x240.ini --joints-limits::pitch "(-20.0 20.0)" --joints-limits::yaw "(-40.0 40.0)"</parameters>
+        <node>r1-base</node>
+    </module>
+
+    <module>
+        <name>onTheFlyRec_gaze.lua</name>
+        <parameters>--track-blob --flip --w 320 --h 240</parameters>
+        <deployer>lua</deployer>
+        <node>r1-torso</node>
+        <dependencies>
+            <port timeout="10">/cer_gaze-controller/state:o</port>
+            <port timeout="10">/cer_gaze-controller/target:i</port>
+            <port timeout="10">/cer_gaze-controller/rpc</port>
+        </dependencies>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /view/disparity --x 530 --y 80 --compact</parameters>
+        <node>r1-console-linux</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /view/dispBlobber --x 900 --y 80 --compact</parameters>
+        <node>r1-console-linux</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /view/confidence --x 150 --y 450 --w 500 --h 480 --compact</parameters>
+        <node>r1-console-linux</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /view/recognition --x 700 --y 450 --w 500 --h 480 --compact</parameters>
+        <node>r1-console-linux</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /view/face --x 1250 --y 450 --w 500 --h 480 --compact</parameters>
+        <node>r1-console-linux</node>
+    </module>
+
+    <module>
+        <name>onTheFlyRec_main.lua</name>
+        <parameters></parameters>
+        <deployer>lua</deployer>
+        <node>r1-torso</node>
+    </module>
+
+    <connection>
+        <from> /depthCamera/depthImage:o </from>
+        <to>   /dispBlobber/img:i </to>
+        <protocol> udp+send.portmonitor+type.dll+file.depthimage </protocol>
+    </connection>
+
+    <connection>
+        <from>/depthCamera/rgbImage:o</from>
+        <to>  /onTheFlyRecognition/img:i</to>
+        <protocol> mjpeg </protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRec/gaze/train/blob</from>
+        <to>/onTheFlyRecognition/blobs:i</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRec/gaze/train/roi</from>
+        <to>/onTheFlyRecognition/roi:i</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/crop:o</from>
+        <to>/GIECoder/img:i</to>
+        <protocol>mjpeg</protocol>
+    </connection>
+
+    <connection>
+        <from>/GIECoder/code:o</from>
+        <to>/linearClassifier/features:i</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/linearClassifier/scores:o</from>
+        <to>/onTheFlyRecognition/scores:i</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/classifier:io</from>
+        <to>/linearClassifier/rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/show:o</from>
+        <to>/view/recognition</to>
+        <protocol>mjpeg</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/confidence:o</from>
+        <to>/view/confidence</to>
+        <protocol>mjpeg</protocol>
+    </connection>
+
+    <connection>
+        <from> /depthCamera/depthImage:o </from>
+        <to>   /view/disparity</to>
+        <protocol> udp+send.portmonitor+type.dll+file.depthimage </protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/opt:o</from>
+        <to>/view/dispBlobber</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/speech:o</from>
+        <to>/textimage/txt:i</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRec/gaze/tx</from>
+        <to>/cer_gaze-controller/target:i</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRec/gaze/rpc</from>
+        <to>/cer_gaze-controller/rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/cer_gaze-controller/state:o</from>
+        <to>/onTheFlyRec/gaze/rx</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/roi/left:o</from>
+        <to>/onTheFlyRec/gaze/blob</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from> /depthCamera/rgbImage:o </from>
+        <to>/faceLandmarks/image:i</to>
+        <protocol>mjpeg</protocol>
+    </connection>
+
+    <connection>
+        <from>/faceLandmarks/target:o</from>
+        <to>/onTheFlyRec/gaze/face</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/faceLandmarks/image:o</from>
+        <to>/view/face</to>
+        <protocol>mjpeg</protocol>
+    </connection>
+
+    <connection>
+        <from>/iSpeak/speech-dev/rpc</from>
+        <to>/r1/speech:rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/textimage/img:o</from>
+        <to>/robot/faceDisplay/image:i</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/textimage/cmd:o</from>
+        <to>/robot/faceDisplay/rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+</application>
