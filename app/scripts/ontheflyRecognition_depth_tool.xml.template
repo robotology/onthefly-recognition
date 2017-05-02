@@ -11,6 +11,11 @@
     <!-- Modules -->
 
     <module>
+        <name>iSpeak</name>
+        <node>icub-win1</node>
+    </module>
+
+    <module>
         <name>SFM</name>
         <parameters></parameters>
         <node>icub-cuda</node>
@@ -21,17 +26,16 @@
         <parameters>--imW 320 --imH 240 --bufferSize 3 --minBlobSize 300 </parameters>
         <node>icub22</node>
     </module>
-          
-    <module>
-        <name>managerOnTheFly</name>               
-        <node>icub21</node>
-    </module>
 
     <module>
         <name>actionsRenderingEngine</name>
         <node>icub21</node>
     </module>
-    
+          
+    <module>
+        <name>managerOnTheFly</name>               
+        <node>icub21</node>
+    </module>    
     <module>
         <name>caffeCoder</name>
         <node>icub-cuda</node>
@@ -44,42 +48,31 @@
     </module>
 
     <module>
-        <name>iSpeak</name>
-        <node>icub-win1</node>
-    </module>
-
-    <module>
         <name>speechRecognizer</name>
         <node>icub-win1</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--x 100 --y 0 --name /onTheFlyRecognition/view</parameters>
+        <parameters>--x 900 --y 320 --name /onTheFlyRecognition/view --compact</parameters>
         <node>icub22</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--x 420 --y 0   --name /onTheFlyRecognition/confidence</parameters>
+        <parameters>--x 1220 --y 700   --name /onTheFlyRecognition/confidence --compact</parameters>
         <node>icub22</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name --x 420 --y 320 /SFM/dispViewer</parameters>
+        <parameters>--x 1220 --y 320 --name /dispBlobber/optViewer --compact</parameters>
         <node>icub22</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--x 740 --y 0 --name /dispBlobber/optViewer</parameters>
-        <node>icub22</node>
-    </module>
-
-    <module>
-        <name>yarpview</name>
-        <parameters>--name /crop --x 100 --y 320</parameters>
+        <parameters>--x 900 --y 700 --name /onTheFlyRecognition/cropView --compact</parameters>
         <node>icub22</node>
     </module>
     
@@ -250,7 +243,7 @@
 
     <connection>
         <from>/onTheFlyRecognition/crop:o</from>
-        <to>/crop</to>
+        <to>/onTheFlyRecognition/cropView</to>
         <protocol>tcp</protocol>
     </connection>
    
