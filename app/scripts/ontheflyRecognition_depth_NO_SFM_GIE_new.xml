@@ -23,8 +23,7 @@
     </module>
 
     <module>
-        <name>textimage</name>
-        <parameters>--scroll_speed 80</parameters>
+        <name>faceExpressionImage</name>
         <node>r1-console-linux</node>
     </module>
 
@@ -52,8 +51,8 @@
     </module>
 
     <module>
-        <name>GIECoder</name>
-        <parameters>--from GIECoder_googlenet.ini</parameters>
+        <name>caffeCoder</name>
+        <parameters>--from caffeCoder_resnet.ini</parameters>
         <node>r1-torso</node>
     </module>
 
@@ -149,12 +148,12 @@
 
     <connection>
         <from>/onTheFlyRecognition/crop:o</from>
-        <to>/GIECoder/img:i</to>
+        <to>/caffeCoder/img:i</to>
         <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
-        <from>/GIECoder/code:o</from>
+        <from>/caffeCoder/code:o</from>
         <to>/linearClassifier/features:i</to>
         <protocol>udp</protocol>
     </connection>
@@ -196,8 +195,8 @@
     </connection>
 
     <connection>
-        <from>/onTheFlyRecognition/speech:o</from>
-        <to>/textimage/txt:i</to>
+        <from>/faceExpressionImage/image:o</from> 
+        <to>/robot/faceDisplay/image:i</to>
         <protocol>tcp</protocol>
     </connection>
 
@@ -246,18 +245,6 @@
     <connection>
         <from>/iSpeak/speech-dev/rpc</from>
         <to>/r1/speech:rpc</to>
-        <protocol>tcp</protocol>
-    </connection>
-
-    <connection>
-        <from>/textimage/img:o</from>
-        <to>/robot/faceDisplay/image:i</to>
-        <protocol>tcp</protocol>
-    </connection>
-
-    <connection>
-        <from>/textimage/cmd:o</from>
-        <to>/robot/faceDisplay/rpc</to>
         <protocol>tcp</protocol>
     </connection>
 
