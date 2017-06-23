@@ -31,11 +31,11 @@
         <name>actionsRenderingEngine</name>
         <node>icub21</node>
     </module>
-          
+
     <module>
-        <name>managerOnTheFly</name>               
+        <name>managerOnTheFly</name>
         <node>icub21</node>
-    </module>    
+    </module>
     <module>
         <name>caffeCoder</name>
         <node>icub-cuda</node>
@@ -75,7 +75,7 @@
         <parameters>--x 1450 --y 350 --name /onTheFlyRecognition/cropView --compact</parameters>
         <node>icub22</node>
     </module>
-    
+
 
     <!-- Connections -->
 
@@ -97,13 +97,13 @@
         <from>/SFM/disp:o</from>
         <to>/dispBlobber/img:i</to>
         <protocol>tcp</protocol>
-    </connection> 
+    </connection>
 
     <connection>
         <from>/dispBlobber/sfm/rpc</from>
         <to>/SFM/rpc</to>
         <protocol>tcp</protocol>
-    </connection> 
+    </connection>
 
     <!-- Coding -->
 
@@ -135,13 +135,13 @@
         <from>/caffeCoder/code:o</from>
         <to>/linearClassifier/features:i</to>
         <protocol>tcp</protocol>
-    </connection> 
+    </connection>
 
     <connection>
         <from>/linearClassifier/scores:o</from>
         <to>/onTheFlyRecognition/scores:i</to>
         <protocol>tcp</protocol>
-    </connection> 
+    </connection>
 
     <!-- Manager -->
 
@@ -150,7 +150,7 @@
         <to>/actionsRenderingEngine/rpc</to>
         <protocol>tcp</protocol>
     </connection>
-    
+
     <connection>
         <from>/onTheFlyRecognition/are/hand:io</from>
         <to>/actionsRenderingEngine/get:io</to>
@@ -176,8 +176,8 @@
     </connection>
 
     <connection>
-        <from>/onTheFlyRecognition/o3de:io</from>
-        <to>/objects3DExplorer/rpc:i</to>
+        <from>/onTheFlyRecognition/tool:io</from>
+        <to>/toolIncorporator/rpc:i</to>
         <protocol>tcp</protocol>
     </connection>
 
@@ -208,7 +208,7 @@
         <to>/onTheFlyRecognition/view</to>
         <protocol>mcast</protocol>
     </connection>
-    
+
     <connection>
         <from>/onTheFlyRecognition/confidence:o</from>
         <to>/onTheFlyRecognition/confidence</to>
@@ -226,6 +226,5 @@
         <to>/onTheFlyRecognition/cropView</to>
         <protocol>tcp</protocol>
     </connection>
-   
-</application>
 
+</application>

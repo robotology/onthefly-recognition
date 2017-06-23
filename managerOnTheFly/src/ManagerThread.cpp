@@ -182,7 +182,7 @@ bool ManagerThread::store_robot_tool(string class_name)
     reply.clear();
     command.clear();
     command.addString("turnHand");
-    port_rpc_o3de.write(command,reply);
+    port_rpc_tool.write(command,reply);
 
     cout << "Waiting till looking at tool" << endl;
     Time::delay(1.0);
@@ -202,7 +202,7 @@ bool ManagerThread::store_robot_tool(string class_name)
         reply.clear();
         command.clear();
         command.addString("lookAround");
-        port_rpc_o3de.write(command,reply);        
+        port_rpc_tool.write(command,reply);
         cout << "Getting perspective " << i << endl;
         Time::delay(1.0);
     }
@@ -308,7 +308,7 @@ bool ManagerThread::observe_robot_tool(string &predicted_class)
     reply.clear();
     command.clear();
     command.addString("turnHand");
-    port_rpc_o3de.write(command,reply);
+    port_rpc_tool.write(command,reply);
 
     cout << "Waiting till looking at tool" << endl;
     for (int i = 1; i< 5 ; i++){
@@ -384,7 +384,7 @@ bool ManagerThread::threadInit()
     port_rpc_classifier.open(("/"+name+"/classifier:io").c_str());
 
     // rpc linearClassifier
-    port_rpc_o3de.open(("/"+name+"/o3de:io").c_str());
+    port_rpc_tool.open(("/"+name+"/tool:io").c_str());
 
 
     // out speech

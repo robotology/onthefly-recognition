@@ -79,7 +79,7 @@ private:
 	RpcClient                           port_rpc_classifier;
 
     // rpc object3Dexplorer (for tool use)
-    RpcClient                           port_rpc_o3de;
+    RpcClient                           port_rpc_tool;
 
 	bool			                    recognition_started;
 
