@@ -29,6 +29,7 @@
 
     <module>
         <name>actionsRenderingEngine</name>
+        <parameters>--motor::block_eyes 5.0</parameters>
         <node>icub21</node>
     </module>
 
