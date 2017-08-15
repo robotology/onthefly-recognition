@@ -35,6 +35,7 @@
 #include <yarp/math/Rand.h>
 
 #include <highgui.h>
+#include <opencv2/imgproc.hpp>
 #include <cv.h>
 
 #include <stdio.h>
