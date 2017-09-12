@@ -1,0 +1,167 @@
+
+<application>
+
+    <name>On The Fly Recognition depth ROS</name>
+
+    <dependencies>
+        <port>/multisense/left/disparity_image</port>
+        <port>/multisense/left/image_rect_color</port>
+    </dependencies>
+
+    <!-- Modules -->
+
+    <module>
+        <name>OTFR_ROS</name>
+        <parameters></parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>dispBlobber</name>
+        <parameters>--from dispBlobberROS.ini</parameters>
+        <node>localhost</node>
+    </module>
+          
+    <module>
+        <name>managerOnTheFly</name>               
+        <node>localhost</node>
+    </module>
+    
+    <module>
+        <name>caffeCoder</name>
+        <parameters>--from caffeCoder_caffenet.ini</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>linearClassifierModule</name>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /onTheFlyRecognition/view</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /onTheFlyRecognition/confidence</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /viewer/ROS_img</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /viewer/ROS_disp</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /viewer/binary_blob</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /viewer/crop_img</parameters>
+        <node>localhost</node>
+    </module>    
+
+    <!-- Connections -->
+
+    <!-- OTFR_ROS and dispBlobber -->
+
+     <connection>
+        <from>/OTFR_ROS/disp:o</from>
+        <to>/dispBlobber/img:i</to>
+        <protocol>tcp</protocol>
+    </connection> 
+
+    <!-- Coding -->
+
+    <connection>
+        <from>/OTFR_ROS/img:o</from>
+        <to>/onTheFlyRecognition/img:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/blobs/left:o</from>
+        <to>/onTheFlyRecognition/blobs:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/crop:o</from>
+        <to>/caffeCoder/img:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/caffeCoder/code:o</from>
+        <to>/linearClassifier/features:i</to>
+        <protocol>tcp</protocol>
+    </connection> 
+
+    <connection>
+        <from>/linearClassifier/scores:o</from>
+        <to>/onTheFlyRecognition/scores:i</to>
+        <protocol>tcp</protocol>
+    </connection> 
+
+    <!-- Manager -->
+
+    <connection>
+        <from>/onTheFlyRecognition/classifier:io</from>
+        <to>/linearClassifier/rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <!-- Visualization -->
+
+    <connection>
+        <from>/onTheFlyRecognition/show:o</from>
+        <to>/onTheFlyRecognition/view</to>
+        <protocol>mcast</protocol>
+    </connection>
+    
+    <connection>
+        <from>/onTheFlyRecognition/confidence:o</from>
+        <to>/onTheFlyRecognition/confidence</to>
+        <protocol>mcast</protocol>
+    </connection>
+    
+    <connection>
+        <from>/OTFR_ROS/img:o </from>
+        <to>/viewer/ROS_img</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/OTFR_ROS/disp:o</from>
+        <to>/viewer/ROS_disp</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/opt:o</from>
+        <to>/viewer/binary_blob</to>
+        <protocol>tcp</protocol>
+    </connection>
+    
+    <connection>
+        <from>/dispBlobber/crop:o</from>
+        <to>/viewer/crop_img</to>
+        <protocol>tcp</protocol>
+    </connection>
+   
+</application>
+
+
