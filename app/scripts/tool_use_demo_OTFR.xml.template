@@ -15,6 +15,7 @@
     </module>
     <module>
         <name>caffeCoder</name>
+        <parameters>--from caffeCoder_resnet.ini</parameters>
         <node>icub-cuda</node>
     </module>
 
