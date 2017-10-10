@@ -1,0 +1,207 @@
+
+<application>
+
+    <name>TOOL USE DEMO OTFR</name>
+
+    <dependencies>
+        <port>/icub/camcalib/left/out</port>
+        <port>/icub/camcalib/right/out</port>
+    </dependencies>
+
+    <!-- Modules -->
+    <module>
+        <name>managerOnTheFly</name>
+        <node>icub21</node>
+    </module>
+    <module>
+        <name>caffeCoder</name>
+        <node>icub-cuda</node>
+    </module>
+
+    <module>
+        <name>linearClassifierModule</name>
+        <parameters>--BufferSize 1 --CSVM 1.0 --databaseFolder ToolDatabaseDemo --WeightedSVM 1</parameters>
+        <node>icub-cuda</node>
+    </module>
+
+    <module>
+        <name>speechRecognizer</name>
+        <node>icub-win1</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--x 1100 --y 0 --name /onTheFlyRecognition/view --compact</parameters>
+        <node>icub22</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--x 1450 --y 0   --name /onTheFlyRecognition/confidence --compact</parameters>
+        <node>icub22</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--x 1100 --y 350 --name /dispBlobber/optViewer --compact</parameters>
+        <node>icub22</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--x 1450 --y 350 --name /onTheFlyRecognition/cropView --compact</parameters>
+        <node>icub22</node>
+    </module>
+
+
+    <!-- Connections -->
+
+    <!-- SFM and dispBlobber -->
+
+    <connection>
+        <from>/icub/camcalib/right/out</from>
+        <to>/SFM/right:i</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/icub/camcalib/left/out</from>
+        <to>/SFM/left:i</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/SFM/disp:o</from>
+        <to>/dispBlobber/img:i</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/sfm/rpc</from>
+        <to>/SFM/rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <!-- Coding -->
+
+    <connection>
+        <from>/icub/camcalib/left/out</from>
+        <to>/onTheFlyRecognition/img:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/blobs/left:o</from>
+        <to>/onTheFlyRecognition/blobs:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/roi/left:o</from>
+        <to>/onTheFlyRecognition/roi:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/crop:o</from>
+        <to>/caffeCoder/img:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/caffeCoder/code:o</from>
+        <to>/linearClassifier/features:i</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/linearClassifier/scores:o</from>
+        <to>/onTheFlyRecognition/scores:i</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <!-- Manager -->
+
+    <connection>
+        <from>/onTheFlyRecognition/are/rpc</from>
+        <to>/actionsRenderingEngine/rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/are/hand:io</from>
+        <to>/actionsRenderingEngine/get:io</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/are/get:io</from>
+        <to>/actionsRenderingEngine/get:io</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/are/cmd:io</from>
+        <to>/actionsRenderingEngine/cmd:io</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/classifier:io</from>
+        <to>/linearClassifier/rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/tool:io</from>
+        <to>/toolIncorporator/rpc:i</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <!-- Speech -->
+
+    <connection>
+        <from>/speechRecognizer/tts/iSpeak:o</from>
+        <to>/iSpeak</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/iSpeak/emotions:o</from>
+        <to>/icub/face/emotions/in</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/speech:o</from>
+        <to>/iSpeak</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <!-- Visualization -->
+
+    <connection>
+        <from>/onTheFlyRecognition/show:o</from>
+        <to>/onTheFlyRecognition/view</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/confidence:o</from>
+        <to>/onTheFlyRecognition/confidence</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/opt:o</from>
+        <to>/dispBlobber/optViewer</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/crop:o</from>
+        <to>/onTheFlyRecognition/cropView</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+</application>
