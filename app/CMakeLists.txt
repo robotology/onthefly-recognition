@@ -10,10 +10,13 @@ set(lua_fsm        ${CMAKE_CURRENT_SOURCE_DIR}/LUA/onTheFlyRec_funcs.lua
                    ${CMAKE_CURRENT_SOURCE_DIR}/LUA/onTheFlyRec_root_fsm.lua
                    ${CMAKE_CURRENT_SOURCE_DIR}/LUA/mobile/onTheFlyRec_funcs_mobile.lua
                    ${CMAKE_CURRENT_SOURCE_DIR}/LUA/mobile/onTheFlyRec_interact_fsm_mobile.lua
-                   ${CMAKE_CURRENT_SOURCE_DIR}/LUA/mobile/onTheFlyRec_root_fsm_mobile.lua)
+                   ${CMAKE_CURRENT_SOURCE_DIR}/LUA/mobile/onTheFlyRec_root_fsm_mobile.lua
+                   ${CMAKE_CURRENT_SOURCE_DIR}/LUA/laptop/onTheFlyRec_root_fsm_laptop.lua
+                   ${CMAKE_CURRENT_SOURCE_DIR}/LUA/laptop/onTheFlyRec_interact_fsm_laptop.lua)    # laptop version: no gaze, no tracking
 set(lua_gaze       ${CMAKE_CURRENT_SOURCE_DIR}/LUA/onTheFlyRec_gaze.lua)
 set(lua_bin        ${CMAKE_CURRENT_SOURCE_DIR}/LUA/onTheFlyRec_main.lua)
 set(lua_bin_mb     ${CMAKE_CURRENT_SOURCE_DIR}/LUA/mobile/onTheFlyRec_main_mobile.lua)
+set(lua_bin_lap    ${CMAKE_CURRENT_SOURCE_DIR}/LUA/laptop/onTheFlyRec_main_laptop.lua)
 
 yarp_install(FILES    ${scripts} DESTINATION ${ICUBCONTRIB_APPLICATIONS_TEMPLATES_INSTALL_DIR})
 yarp_install(PROGRAMS ${lua_fsm} DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME}/LUA)
@@ -39,4 +42,11 @@ add_custom_command(TARGET copy_lua_bin_mb_in_build POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy ${lua_bin_mb} ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}
                    COMMENT "Copying ${lua_bin_mb} to ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/")
 install(PROGRAMS ${lua_bin_mb} DESTINATION bin)
+
+# Laptop version (no gaze, no tracking)
+add_custom_target(copy_lua_bin_lap_in_build ALL)
+add_custom_command(TARGET copy_lua_bin_lap_in_build POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy ${lua_bin_lap} ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}
+                   COMMENT "Copying ${lua_bin_lap} to ${CMAKE_BINARY_DIR}/bin/${CMAKE_CFG_INTDIR}/")
+install(PROGRAMS ${lua_bin_lap} DESTINATION bin)
      
