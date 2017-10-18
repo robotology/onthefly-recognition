@@ -27,7 +27,7 @@ bool ScorerThread::threadInit()
     mutex.wait();
     
 	buffer_size = rf.check("buffer_size", Value(30)).asInt();
-	confidence_width = rf.check("confidence_width",Value(800)).asInt();
+	confidence_width = rf.check("confidence_width",Value(1000)).asInt();
 	confidence_height = rf.check("confidence_height",Value(500)).asInt();
 
     predicted_class = "?";
@@ -64,17 +64,18 @@ void ScorerThread::run()
 	if (bot==NULL)
 	{
 		if (scores_buffer.size()==0)
-        {
-            predicted_class = "?";
-
-            vector<int> no_votes;
-            draw_hist(no_votes);
-        }
+		{
+		    predicted_class = "?";
+		    vector<int> no_votes;
+		    draw_hist(no_votes);
+		    setRate(100);
+		}
 
         mutex.post();
 		return;
 	}
 
+	setRate(5);
 	int n_classes = bot->size();
 	if (n_classes==0)
 	{
@@ -144,7 +145,7 @@ void ScorerThread::run()
 	}
 
 	predicted_class = scores_buffer.front().get(max_avg_idx).asList()->get(0).asString().c_str();
-	if (max_votes/scores_buffer.size()<0.2)
+	if (max_votes/scores_buffer.size()<0.5)
 		predicted_class = "?";
 
 	cout << "Scores: " << endl;
