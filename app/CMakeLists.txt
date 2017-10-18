@@ -5,6 +5,7 @@
 set(PROJECTNAME onthefly-recognition)
 
 file(GLOB scripts  ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.xml)
+file(GLOB conf     ${CMAKE_CURRENT_SOURCE_DIR}/conf/*.ini)
 set(lua_fsm        ${CMAKE_CURRENT_SOURCE_DIR}/LUA/onTheFlyRec_funcs.lua
                    ${CMAKE_CURRENT_SOURCE_DIR}/LUA/onTheFlyRec_interact_fsm.lua
                    ${CMAKE_CURRENT_SOURCE_DIR}/LUA/onTheFlyRec_root_fsm.lua
@@ -19,7 +20,9 @@ set(lua_bin_mb     ${CMAKE_CURRENT_SOURCE_DIR}/LUA/mobile/onTheFlyRec_main_mobil
 set(lua_bin_lap    ${CMAKE_CURRENT_SOURCE_DIR}/LUA/laptop/onTheFlyRec_main_laptop.lua)
 
 yarp_install(FILES    ${scripts} DESTINATION ${ICUBCONTRIB_APPLICATIONS_TEMPLATES_INSTALL_DIR})
+yarp_install(FILES    ${conf}    DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME} )
 yarp_install(PROGRAMS ${lua_fsm} DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME}/LUA)
+
 
 # We cannot go for "yarp_install(PROGRAMS ${lua_bin} DESTINATION bin)", since on Windows, only
 # at build time (i.e. not during installation), we have to handle the Debug|Release subfolders.
