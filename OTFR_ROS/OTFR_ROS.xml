@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="yarpmanifest.xsl"?>
+ 
+<module>
+    <!-- module's name should match its executable file's name. -->
+    <name>OTFR_ROS</name>
+    <description>   </description>
+        <copypolicy>Released under the terms of the GNU GPL v2.0</copypolicy>
+    <version>0.1</version>
+    
+    <description-long>
+    Bridge module to provide bidirectional communication between Walk-Man and the OnTheFlyRecognition Modules
+    </description-long>
+
+    <!-- <arguments> can have multiple <param> tags-->
+    <arguments>    
+    <param desc="Name of the module" default="OTFR_ROS"> name</param>
+    <param desc="Robot used" default="icub"> robot</param>
+    <param desc="Verbose" default="false"> verbose</param>
+    </arguments>
+
+    <!-- <authors> can have multiple <author> tags. -->
+    <authors>
+	  <author email="tanis.mar@iit.it"> Tanis Mar</author>
+    </authors>
+
+     <!-- <data> can have multiple <input> or <output> tags. -->
+     <data>
+        <!-- input data if available -->
+        <input type="service">
+            <type>rpc</type>
+            <port carrier="tcp">/OTFR_ROS/rpc:i</port>
+            <description> Takes the following RPC commands from Human or stateMachine </description>
+        </input>
+        
+        <input>
+           <type>Image</type>
+           <port>/multisense/left/image_rect_color</port>
+           <required>no</required>
+           <priority>no</priority>
+           <description>
+            Reads images from ROS topic
+           </description>
+       </input>
+       
+        <input>
+           <type>Disparity</type>
+           <port>/multisense/left/disparity_image</port>
+           <required>no</required>
+           <priority>no</priority>
+           <description>
+            Reads disparity images from ROS topic
+           </description>
+       </input>
+               
+        <input>
+           <type>Bottle</type>
+           <port>/OTFR_ROS/coords:i</port>
+           <required>no</required>
+           <priority>no</priority>
+           <description>
+            Port that receives 2D coordinates of closest blob.
+           </description>
+       </input>
+        
+       <input>
+           <type>Bottle</type>
+           <port>/OTFR_ROS/img:i</port>
+           <required>no</required>
+           <priority>no</priority>
+           <description>
+            Receive camera image.
+           </description>
+       </input>
+                 
+        
+        <!-- output data if available -->
+       <output>
+           <type>Image</type>
+           <port>/OTFR_ROS/img:o</port>
+           <description>
+            Streams out images
+           </description>
+       </output>
+       
+       <output>
+           <type>Image</type>
+           <port>/OTFR_ROS/img:o</port>
+           <description>
+            Streams out disparity images
+           </description>
+       </output>
+       
+        <output>
+            <type>rostopic std_msgs_Int32MultiArray</type>
+            <port carrier="tcp">/OTFR_ROS/coords_out</port>
+            <description> Writes on topic 2D cooridnates of closest blob</description>
+        </output>
+    </data>
+
+    <dependencies>
+        <computer>
+        </computer>
+    </dependencies>
+
+    <!-- specific libraries or header files which are used for development -->
+    <development>
+        <header></header>
+        <library>YARP</library>
+        <library>ROS</library>
+    </development>
+
+</module>
+
