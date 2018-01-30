@@ -28,7 +28,7 @@
     
     <module>
         <name>caffeCoder</name>
-        <parameters>--from caffeCoder_caffenet.ini</parameters>
+        <parameters>--from caffeCoder_resnet.ini</parameters>
         <node>localhost</node>
     </module>
 
@@ -80,7 +80,7 @@
      <connection>
         <from>/OTFR_ROS/disp:o</from>
         <to>/dispBlobber/img:i</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection> 
 
     <!-- Coding -->
@@ -88,7 +88,7 @@
     <connection>
         <from>/OTFR_ROS/img:o</from>
         <to>/onTheFlyRecognition/img:i</to>
-        <protocol>udp</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
@@ -106,19 +106,19 @@
     <connection>
         <from>/onTheFlyRecognition/crop:o</from>
         <to>/caffeCoder/img:i</to>
-        <protocol>udp</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
 
     <connection>
         <from>/caffeCoder/code:o</from>
         <to>/linearClassifier/features:i</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection> 
 
     <connection>
         <from>/linearClassifier/scores:o</from>
         <to>/onTheFlyRecognition/scores:i</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection> 
 
     <!-- Manager -->
@@ -134,13 +134,13 @@
     <connection>
         <from>/onTheFlyRecognition/show:o</from>
         <to>/onTheFlyRecognition/view</to>
-        <protocol>mcast</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
     
     <connection>
         <from>/onTheFlyRecognition/confidence:o</from>
         <to>/onTheFlyRecognition/confidence</to>
-        <protocol>mcast</protocol>
+        <protocol>mjpeg</protocol>
     </connection>
     
     <connection>
@@ -158,12 +158,18 @@
     <connection>
         <from>/dispBlobber/opt:o</from>
         <to>/viewer/binary_blob</to>
-        <protocol>tcp</protocol>
+        <protocol>udp</protocol>
     </connection>
     
     <connection>
         <from>/dispBlobber/crop:o</from>
         <to>/viewer/crop_img</to>
+        <protocol>udp</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/roi/left:o</from>
+        <to>/onTheFlyRecognition/roi:i</to>
         <protocol>tcp</protocol>
     </connection>
    

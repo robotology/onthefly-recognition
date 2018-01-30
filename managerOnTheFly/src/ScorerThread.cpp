@@ -69,12 +69,13 @@ void ScorerThread::run()
 
             vector<int> no_votes;
             draw_hist(no_votes);
+            setRate(100);
         }
 
         mutex.post();
 		return;
 	}
-
+        setRate(5);
 	int n_classes = bot->size();
 	if (n_classes==0)
 	{

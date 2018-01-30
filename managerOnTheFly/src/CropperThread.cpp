@@ -181,7 +181,6 @@ void CropperThread::run()
 					if (frame_counter<skip_frames)
 					{
 						frame_counter++;
-						//cout << "skip" << endl;
 					} else
 					{
 						port_out_crop.setEnvelope(stamp);
