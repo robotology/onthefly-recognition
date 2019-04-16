@@ -23,5 +23,10 @@ icubcontrib_set_default_prefix()
 add_subdirectory(app)
 add_subdirectory(managerOnTheFly)
 
+option(BUILD_OTFR_ROS "Build OTFR_ROS" OFF)
+if (BUILD_OTFR_ROS)
+	add_subdirectory(OTFR_ROS)
+endif()
+
 icubcontrib_add_uninstall_target()
 

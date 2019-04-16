@@ -63,16 +63,15 @@ void ScorerThread::run()
 
 	if (bot==NULL)
 	{
-		if (scores_buffer.size()==0)
-		{
-		    predicted_class = "?";
-		    vector<int> no_votes;
-		    draw_hist(no_votes);
-		    setRate(100);
-		}
-
-        mutex.post();
-		return;
+	    if (scores_buffer.size()==0)
+      {
+          predicted_class = "?";
+          vector<int> no_votes;
+          draw_hist(no_votes);
+          setRate(100);
+      }
+      mutex.post();
+		  return;
 	}
 
 	setRate(5);
