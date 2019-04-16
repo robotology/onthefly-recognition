@@ -1,0 +1,20 @@
+
+<application>
+
+    <name>On The Fly _ Start </name>
+
+    <dependencies>
+
+    </dependencies>
+
+    <!-- Modules -->
+   <module>
+        <name>onTheFlyRec_main_laptop.lua</name>
+        <node>localhost</node>
+    </module>
+
+    <!-- Connections -->
+</application>
+
+
+

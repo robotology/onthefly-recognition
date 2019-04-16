@@ -1,0 +1,178 @@
+
+<application>
+
+    <name>On The Fly _ Prepare</name>
+
+    <dependencies>
+
+    </dependencies>
+
+    <!-- Modules -->
+
+    <module>
+        <name>yarpdev</name>
+        <parameters>--device RGBDSensorWrapper --subdevice depthCamera --context onthefly-recognition --from Orbecc_Astra.ini </parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>dispBlobber</name>
+        <parameters>--imW 640 --imH 480 --bufferSize 3 --minBlobSize 900 --backgroundThresh 100  --imageThreshRatioLow 100 --imageThreshRatioHigh  100 </parameters>
+        <node>localhost</node>
+    </module>
+          
+    <module>
+        <name>managerOnTheFly</name>               
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>caffeCoder </name>
+        <parameters> --from caffeCoder_resnet.ini </parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>linearClassifierModule</name>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>iSpeak</name>
+        <parameters>--package speech-dev</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpdev </name>
+        <parameters> --device speech --lingware--context speech --default-language en-GB --robot laptop --pitch 80 --speed 100 </parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>speechRecognizer</name>
+        <node>win_node</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /onTheFlyRecognition/view --x 1300</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /onTheFlyRecognition/confidence --x 900</parameters>
+        <node>localhost</node>
+    </module>
+
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /dispBlobber/optViewer --x 500 </parameters>
+        <node>localhost</node>
+    </module>
+    
+    <module>
+        <name>yarpview</name>
+        <parameters>--name /dispViewer --x 100 </parameters>
+        <node>localhost</node>
+    </module>
+
+    <!-- Connections -->
+
+    <!-- Xtion and dispBlobber -->
+
+    <connection>
+        <from>/depthCamera/depthImage:o</from>
+        <to>/dispBlobber/img:i</to>
+        <protocol>udp+send.portmonitor+type.dll+file.depthimage</protocol>
+    </connection> 
+
+    <!-- Coding -->
+
+    <connection>
+        <from>/depthCamera/rgbImage:o</from>
+        <to>/onTheFlyRecognition/img:i</to>
+        <protocol>mjpeg</protocol>
+    </connection>
+
+    <connection>
+        <from>/iSpeak/speech-dev/rpc</from>
+        <to> /laptop/speech:rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/blobs/left:o</from>
+        <to>/onTheFlyRecognition/blobs:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/roi/left:o</from>
+        <to>/onTheFlyRecognition/roi:i</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/onTheFlyRecognition/crop:o</from>
+        <to>/caffeCoder/img:i</to>
+        <protocol>mjpeg</protocol>
+    </connection>
+
+    <connection>
+        <from>/caffeCoder/code:o</from>
+        <to>/linearClassifier/features:i</to>
+        <protocol>tcp</protocol>
+    </connection> 
+
+    <connection>
+        <from>/linearClassifier/scores:o</from>
+        <to>/onTheFlyRecognition/scores:i</to>
+        <protocol>tcp</protocol>
+    </connection> 
+
+    <!-- Manager -->
+
+    <connection>
+        <from>/onTheFlyRecognition/classifier:io</from>
+        <to>/linearClassifier/rpc</to>
+        <protocol>tcp</protocol>
+    </connection>
+
+
+    <!-- Visualization -->
+
+    <connection>
+        <from>/onTheFlyRecognition/show:o</from>
+        <to>/onTheFlyRecognition/view</to>
+        <protocol>mjpeg</protocol>
+    </connection>
+    
+    <connection>
+        <from>/onTheFlyRecognition/confidence:o</from>
+        <to>/onTheFlyRecognition/confidence</to>
+        <protocol>mjpeg</protocol>
+    </connection>
+
+    <connection>
+        <from>/depthCamera/depthImage:o</from>
+        <to>/dispViewer</to>
+        <protocol>udp+send.portmonitor+type.dll+file.depthimage</protocol>
+    </connection>
+
+    <connection>
+        <from>/dispBlobber/opt:o</from>
+        <to>/dispBlobber/optViewer</to>
+        <protocol>mcast</protocol>
+    </connection>
+
+    <connection>
+        <from>/iSpeak/speech-dev/rpc</from>
+        <to>/laptop/speech:rpc</to>
+        <protocol>tcp</protocol>
+    </connection>   
+</application>
+
+
+

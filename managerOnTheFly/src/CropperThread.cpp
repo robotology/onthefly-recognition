@@ -28,10 +28,10 @@ bool CropperThread::threadInit()
     mutex.wait();
 
 	radius_robot = rf.check("radius_robot",Value(80)).asInt();
-	radius_human = rf.check("radius_human",Value(40)).asInt();
+	radius_human = rf.check("radius_human",Value(80)).asInt();
 	radius = radius_human;
 
-	skip_frames = rf.check("skip_frames",Value(5)).asInt();
+	skip_frames = rf.check("skip_frames",Value(10)).asInt();
 	frame_counter = 0;
 
     displayed_class="?";
@@ -243,8 +243,8 @@ void CropperThread::run()
 				text_color = cv::Scalar(0,255,0);
 			}
 
-			cv::rectangle(img_mat,cv::Point(tlx,tly),cv::Point(brx,bry),cv::Scalar(0,255,0),2);
-			cv::putText(img_mat,text_string.c_str(),cv::Point(x_text,y_text), cv::FONT_HERSHEY_SIMPLEX, 0.8, text_color, 2);
+			cv::rectangle(img_mat,cv::Point(tlx,tly),cv::Point(brx,bry),cv::Scalar(0,255,0),3);
+			cv::putText(img_mat,text_string.c_str(),cv::Point(x_text,y_text), cv::FONT_HERSHEY_SIMPLEX, 1.2, text_color, 2);
 		}
 	}
 
