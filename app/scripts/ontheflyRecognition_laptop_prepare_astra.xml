@@ -1,7 +1,7 @@
 
 <application>
 
-    <name>On The Fly _ Prepare</name>
+    <name>On The Fly _ Prepare _ Astra</name>
 
     <dependencies>
 
@@ -56,25 +56,25 @@
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /onTheFlyRecognition/view --x 1300</parameters>
+        <parameters>--name /onTheFlyRecognition/view --x 800 --y 100 --w 640 --h 480 --compact </parameters>
         <node>localhost</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /onTheFlyRecognition/confidence --x 900</parameters>
+        <parameters>--name /onTheFlyRecognition/confidence --x 100 --y 100 --w 640 --h 480 --compact </parameters>
         <node>localhost</node>
     </module>
 
     <module>
         <name>yarpview</name>
-        <parameters>--name /dispBlobber/optViewer --x 500 </parameters>
+        <parameters>--name /dispBlobber/optViewer --x 450 --y 650 --w 320 --h 240  --compact</parameters>
         <node>localhost</node>
     </module>
     
     <module>
         <name>yarpview</name>
-        <parameters>--name /dispViewer --x 100 </parameters>
+        <parameters>--name /dispViewer  --x 100 --y 650 --w 320 --h 240 --compact </parameters>
         <node>localhost</node>
     </module>
 
@@ -105,13 +105,13 @@
     <connection>
         <from>/dispBlobber/blobs/left:o</from>
         <to>/onTheFlyRecognition/blobs:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
         <from>/dispBlobber/roi/left:o</from>
         <to>/onTheFlyRecognition/roi:i</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
@@ -164,7 +164,7 @@
     <connection>
         <from>/dispBlobber/opt:o</from>
         <to>/dispBlobber/optViewer</to>
-        <protocol>mcast</protocol>
+        <protocol>udp</protocol>
     </connection>
 
     <connection>
