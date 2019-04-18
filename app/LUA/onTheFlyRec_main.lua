@@ -35,7 +35,7 @@ fsm = rfsm.init(fsm_model)
 
 repeat
     rfsm.run(fsm)
-    yarp.Time_delay(0.1)
+    yarp.delay(0.1)
 until shouldExit ~= false
 
 print("finishing")

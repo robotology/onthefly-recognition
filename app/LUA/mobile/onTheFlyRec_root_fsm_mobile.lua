@@ -35,7 +35,7 @@ return rfsm.state {
                 ret =  ispeak_port:getOutputCount() >0
                 ret =  ret and speechRecog_port:getOutputCount() >0
                 ret =  ret and onTheFlyRec_port:getOutputCount() >0
-                yarp.Time_delay(1.0)
+                yarp.delay(1.0)
                 end--]]
                 if ret == false then
                     print("\n\nERROR WITH CONNECTIONS, PLEASE CHECK\n\n")
