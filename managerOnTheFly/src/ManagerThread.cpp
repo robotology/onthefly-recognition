@@ -545,13 +545,14 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         }
 
         string class_name = command.get(1).asString().c_str();
-        if (class_name.empty() || class_name=="")
+        if (class_name.empty() || class_name=="" || (class_name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_") != std::string::npos) || class_name=="_" || class_name=="-")
         {
             ok = false;
             reply.addString("You need to specify a class!");
-            speak("Sorry, I missed the name of the object. Can you repeat?");
+            speak("Sorry, I could not understand the name of the object. Can you repeat?");
             break;
         }
+
         is_face = command.get(2).asBool();
         thr_cropper->set_displayed_class(class_name);
 
