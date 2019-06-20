@@ -132,7 +132,7 @@ end
 
 while not interrupting and port_gaze_rx:getInputCount() == 0 do
     print("checking yarp connection...")
-    yarp.Time_delay(1.0)
+    yarp.delay(1.0)
 end
 
 
@@ -233,7 +233,7 @@ while state ~= "quit" and not interrupting do
            t0 = t1
         end
 
-        yarp.Time_delay(0.01)
+        yarp.delay(0.01)
     elseif state == "track-face" then
         local t1 = yarp.Time_now()
         local faces = port_face:read(false)
@@ -261,7 +261,7 @@ while state ~= "quit" and not interrupting do
            t0 = t1
         end
 
-        yarp.Time_delay(0.01)
+        yarp.delay(0.01)
     elseif state == "stop" then
         local cmd = yarp.Bottle()
         local rep = yarp.Bottle()
@@ -272,7 +272,7 @@ while state ~= "quit" and not interrupting do
         print("just stopped!")
         state = "idle"
     elseif state == "idle" then
-        yarp.Time_delay(0.1)
+        yarp.delay(0.1)
     end
 end
 

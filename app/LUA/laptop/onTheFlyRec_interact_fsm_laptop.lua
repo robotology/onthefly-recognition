@@ -64,21 +64,21 @@ interact_fsm = rfsm.state{
         entry=function()
             local obj = result:get(11):asString()
             print ("in introduction mode ")
-            yarp.Time_delay(2)
+            yarp.delay(2)
             print ("person is ", obj)
             local  is_face = true
             print ("bool is ", is_face)
             local b = onTheFlyRec_train(onTheFlyRec_port, obj, is_face)
             print ("done onTheFlyRec_train ",  b)
             print ("delaying to continue tracking faces.... ")
-            yarp.Time_delay(1)
+            yarp.delay(1)
         end
     },
     
     SUB_WHO = rfsm.state{
         entry=function()
             print ("in person request mode ")
-            yarp.Time_delay(2)
+            yarp.delay(2)
             local  is_face = true
             print ("bool is ", is_face)
             local b = onTheFlyRec_recognize(onTheFlyRec_port, is_face)

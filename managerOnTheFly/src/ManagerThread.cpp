@@ -266,7 +266,7 @@ bool ManagerThread::threadInit()
     set_mode(MODE_HUMAN);
     set_state(STATE_CLASSIFYING);
     set_crop_mode(CROP_MODE_RADIUS);
-    
+
     is_face = false;
 
     mutex.post();
@@ -354,7 +354,7 @@ void ManagerThread::run()
             else
                 speak("Sorry, I cannot recognize this object.");
         }
-            
+
         if (mode==MODE_ROBOT)
         {
 
@@ -545,6 +545,14 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
         }
 
         string class_name = command.get(1).asString().c_str();
+        if (class_name.empty() || class_name=="" || (class_name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_") != std::string::npos) || class_name=="_" || class_name=="-")
+        {
+            ok = false;
+            reply.addString("You need to specify a class!");
+            speak("Sorry, I could not understand the name of the object. Can you repeat?");
+            break;
+        }
+
         is_face = command.get(2).asBool();
         thr_cropper->set_displayed_class(class_name);
 
@@ -681,7 +689,7 @@ bool ManagerThread::execHumanCmd(Bottle &command, Bottle &reply)
                     speak("Sorry, but I do not know this class.");
                 }
             }
-            
+
             break;
 
         }

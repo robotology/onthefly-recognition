@@ -4,7 +4,8 @@
 
 set(PROJECTNAME onthefly-recognition)
 
-file(GLOB scripts  ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.xml)
+file(GLOB templates ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.template)
+file(GLOB scripts  ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.xml)
 file(GLOB conf     ${CMAKE_CURRENT_SOURCE_DIR}/conf/*.ini)
 set(lua_fsm        ${CMAKE_CURRENT_SOURCE_DIR}/LUA/onTheFlyRec_funcs.lua
                    ${CMAKE_CURRENT_SOURCE_DIR}/LUA/onTheFlyRec_interact_fsm.lua
@@ -19,7 +20,8 @@ set(lua_bin        ${CMAKE_CURRENT_SOURCE_DIR}/LUA/onTheFlyRec_main.lua)
 set(lua_bin_mb     ${CMAKE_CURRENT_SOURCE_DIR}/LUA/mobile/onTheFlyRec_main_mobile.lua)
 set(lua_bin_lap    ${CMAKE_CURRENT_SOURCE_DIR}/LUA/laptop/onTheFlyRec_main_laptop.lua)
 
-yarp_install(FILES    ${scripts} DESTINATION ${ICUBCONTRIB_APPLICATIONS_TEMPLATES_INSTALL_DIR})
+yarp_install(FILES    ${templates} DESTINATION ${ICUBCONTRIB_APPLICATIONS_TEMPLATES_INSTALL_DIR})
+yarp_install(FILES    ${scripts} DESTINATION ${ICUBCONTRIB_APPLICATIONS_INSTALL_DIR})
 yarp_install(FILES    ${conf}    DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME} )
 yarp_install(PROGRAMS ${lua_fsm} DESTINATION ${ICUBCONTRIB_CONTEXTS_INSTALL_DIR}/${PROJECTNAME}/LUA)
 

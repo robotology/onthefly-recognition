@@ -15,7 +15,7 @@ onTheFlyRec_port = yarp.Port()
 onTheFlyRec_track = yarp.Port()
 
 -- defining objects and actions vocabularies
-objects = {"octopus", "ball", "toy", "phone", "bottle", "badge", "book", "keys", "hand", "face", "cup", "glass", "board", "car", "nvidia", "Ugo", "Vadim", "Claudia", "Maria", "Marta", "Ali", "Marco", "Lorenzo", "Giulia", "Andrea", "Pierre-antoine", "Jensen"}
+objects = {"ball", "toy", "phone", "bottle", "badge", "book", "keys", "hand", "face", "cup", "glass", "car"}
 user = {"robot", "human"}
 
 -- defining speech grammar for Menu
@@ -35,7 +35,7 @@ fsm = rfsm.init(fsm_model)
 
 repeat
     rfsm.run(fsm)
-    yarp.Time_delay(0.1)
+    yarp.delay(0.1)
 until shouldExit ~= false
 
 print("finishing")
