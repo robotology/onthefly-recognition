@@ -34,9 +34,11 @@
 #include <yarp/math/Math.h>
 #include <yarp/math/Rand.h>
 
-#include <highgui.h>
+#include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <cv.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgproc/types_c.h>
 
 #include <stdio.h>
 #include <string>
