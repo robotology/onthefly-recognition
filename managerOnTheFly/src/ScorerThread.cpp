@@ -216,7 +216,7 @@ void ScorerThread::draw_hist(vector<int> bins)
 				height=min_height;
 
 			cv::rectangle(img_hist_mat,cv::Point(bin_idx*width,height),cv::Point((bin_idx+1)*width,min_height),
-					histColorsCode[bin_idx%(int)histColorsCode.size()],cv::FILLED);
+					histColorsCode[bin_idx%(int)histColorsCode.size()],CV_FILLED);
 		}
 		for (int bin_idx=0; bin_idx<n_bins; bin_idx++)
 		{

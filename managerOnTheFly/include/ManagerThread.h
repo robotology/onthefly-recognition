@@ -34,7 +34,8 @@
 #include <yarp/math/Math.h>
 #include <yarp/math/Rand.h>
 
-#include <opencv2/highgui/highgui.hpp>
+#include <highgui.h>
+#include <cv.h>
 
 #include <stdio.h>
 #include <string>
